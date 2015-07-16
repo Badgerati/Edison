@@ -1,5 +1,5 @@
-Edison
-======
+Edison v0.5.0a
+==============
 
 Edison is designed to be simpler and more performant unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to NUnit for a more fluid transition.
@@ -95,6 +95,13 @@ To see more parameters use:
 ```bash
 Edison.Console.exe -help
 ```
+
+
+Building the Solution
+---------------------
+
+Until I get around to releasing the binaries for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console set as default).
+This will generate the Edison.Console executable and the Edison.Framework library for usage in your test framework.
 
 
 Features
