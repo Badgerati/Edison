@@ -1,4 +1,4 @@
-Edison v0.5.0a
+Edison v0.1.0a
 ==============
 
 Edison is designed to be simpler and more performant unit/integration testing framework for .NET projects.
