@@ -14,14 +14,14 @@ using System.Threading.Tasks;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class ConcurrentAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class ConcurrencyAttribute : Attribute
     {
-        public ConcurrencyType ConcurrentType = ConcurrencyType.Parallel;
+        public ConcurrencyType ConcurrencyType = ConcurrencyType.Parallel;
 
-        public ConcurrentAttribute(ConcurrencyType concurrentType = ConcurrencyType.Parallel)
+        public ConcurrencyAttribute(ConcurrencyType concurrentType = ConcurrencyType.Parallel)
         {
-            ConcurrentType = concurrentType;
+            ConcurrencyType = concurrentType;
         }
     }
 }

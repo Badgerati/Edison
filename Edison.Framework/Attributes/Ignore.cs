@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class IgnoreAttribute : Attribute
     {
         public string Reason = string.Empty;

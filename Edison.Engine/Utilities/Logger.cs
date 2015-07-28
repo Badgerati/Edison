@@ -35,7 +35,7 @@ namespace Edison.Engine
             -help   -   Displays help manual (this page).
             -i      -   List of categories to be included.
             -id     -   Test run ID that can be used to identify this run.
-            -od     -   Output directory for the output file created.
+            -od     -   Output directory for the output file created (default is working directory).
             -of     -   Name of the output file created.
             -ot     -   Type of the output file (csv, json, txt, xml).
             -t      -   Number of threads on which to execute the tests.
@@ -47,7 +47,7 @@ namespace Edison.Engine
 
         public static void WriteVersion()
         {
-            Console.WriteLine("v0.1.0a");
+            Console.WriteLine("v0.1.1a");
         }
 
 

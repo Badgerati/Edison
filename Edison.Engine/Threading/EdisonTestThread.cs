@@ -213,7 +213,18 @@ namespace Edison.Engine.Threading
 
                 try
                 {
-                    testResult = new TestResult(TestResultState.Success, test, _case.Parameters, testFixtureRepeat, testRepeat, string.Empty, string.Empty, TimeSpan.Zero);
+                    testResult = new TestResult(
+                        TestResultState.Success,
+                        test,
+                        _case.Parameters,
+                        testFixtureRepeat,
+                        testRepeat,
+                        string.Empty,
+                        string.Empty,
+                        TimeSpan.Zero,
+                        string.Empty,
+                        default(IList<string>));
+
                     setupDone = false;
                     teardownDone = false;
                     testDone = false;
@@ -221,11 +232,11 @@ namespace Edison.Engine.Threading
 
                     if (GlobalSetupException != default(Exception))
                     {
-                        testResult = PopulateTestResultOnException(testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                        testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                     }
                     else if (fixSetupEx != default(Exception))
                     {
-                        testResult = PopulateTestResultOnException(testResult, fixSetupEx, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                        testResult = PopulateTestResultOnException(test, testResult, fixSetupEx, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                     }
                     else
                     {
@@ -237,7 +248,7 @@ namespace Edison.Engine.Threading
                         ReflectionHelper.Invoke(test, activator, false, _case.Parameters);
                         testDone = true;
 
-                        testResult = PopulateTestResult(testResult, TestResultState.Success, timeTaken.Elapsed);
+                        testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
 
                         //teardown
                         ReflectionHelper.Invoke(teardown, activator, true, testResult);
@@ -248,7 +259,7 @@ namespace Edison.Engine.Threading
                 }
                 catch (Exception ex)
                 {
-                    testResult = PopulateTestResultOnException(testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                    testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
 
                     //teardown
                     if (testResult.State != TestResultState.TeardownError && testResult.State != TestResultState.TeardownFailure)
@@ -259,7 +270,7 @@ namespace Edison.Engine.Threading
                         }
                         catch (Exception ex2)
                         {
-                            testResult = PopulateTestResultOnException(testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
+                            testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
                         }
                     }
 
@@ -276,7 +287,7 @@ namespace Edison.Engine.Threading
             }
         }
 
-        private TestResult PopulateTestResultOnException(TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan time)
+        private TestResult PopulateTestResultOnException(MethodInfo testMethod, TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan time)
         {
             var hasInner = ex.InnerException != default(Exception);
             var isAssertFail = hasInner && ex.InnerException.GetType() == typeof(AssertException);
@@ -328,15 +339,22 @@ namespace Edison.Engine.Threading
                 state = TestResultState.Error;
             }
 
-            return PopulateTestResult(result, state, time, error, stack); ;
+            return PopulateTestResult(testMethod, result, state, time, error, stack); ;
         }
 
-        private TestResult PopulateTestResult(TestResult result, TestResultState state, TimeSpan time, string errorMessage = "", string stackTrace = "")
+        private TestResult PopulateTestResult(MethodInfo testMethod, TestResult result, TestResultState state, TimeSpan time, string errorMessage = "", string stackTrace = "")
         {
             result.State = state;
             result.ErrorMessage = errorMessage;
             result.StackTrace = stackTrace;
             result.TimeTaken = time;
+
+            if (testMethod != default(MethodInfo))
+            {
+                result.Authors = testMethod.GetAuthors();
+                result.Version = testMethod.GetVersion();
+            }
+
             return result;
         }
 

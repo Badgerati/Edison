@@ -29,6 +29,8 @@ namespace Edison.Framework
         public DateTime CreateDateTime { get; set; }
         public int TestRepeatIndex { get; set; }
         public int TestFixtureRepeatIndex { get; set; }
+        public string Version { get; set; }
+        public IList<string> Authors { get; set; }
 
         public string CreateDateTimeString
         {
@@ -39,7 +41,17 @@ namespace Edison.Framework
 
         #region Constructor
 
-        public TestResult(TestResultState state, MethodInfo method, object[] parameters, int testFixtureRepeatIndex, int testRepeatIndex, string errorMessage, string stackTrace, TimeSpan timeTaken)
+        public TestResult(
+            TestResultState state,
+            MethodInfo method,
+            object[] parameters,
+            int testFixtureRepeatIndex,
+            int testRepeatIndex,
+            string errorMessage,
+            string stackTrace,
+            TimeSpan timeTaken,
+            string version,
+            IList<string> authors)
         {
             State = state;
             TestRepeatIndex = testRepeatIndex;
@@ -67,6 +79,8 @@ namespace Edison.Framework
             ErrorMessage = errorMessage;
             StackTrace = stackTrace;
             TimeTaken = timeTaken;
+            Version = version;
+            Authors = authors;
             CreateDateTime = DateTime.Now;
         }
 

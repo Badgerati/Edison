@@ -1,7 +1,7 @@
 Edison v0.1.0a
 ==============
 
-Edison is designed to be simpler and more performant unit/integration testing framework for .NET projects.
+Edison is designed to be a more performant unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to NUnit for a more fluid transition.
 
 

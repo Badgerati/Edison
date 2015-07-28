@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class VersionAttribute : Attribute
     {
-        public double Value = 0;
+        public string Value = string.Empty;
 
-        public VersionAttribute(double version)
+        public VersionAttribute(string version)
         {
             Value = version;
         }

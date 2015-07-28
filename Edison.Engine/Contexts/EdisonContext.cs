@@ -44,7 +44,9 @@ namespace Edison.Engine.Contexts
 
         private Stopwatch Timer = default(Stopwatch);
         private TestResultDictionary ResultQueue = default(TestResultDictionary);
+
         private IList<EdisonTestThread> Threads = default(IList<EdisonTestThread>);
+        private EdisonTestThread SingularThread = default(EdisonTestThread);
 
         #endregion
 
@@ -167,6 +169,14 @@ namespace Edison.Engine.Contexts
 
             Threads = new List<EdisonTestThread>(NumberOfThreads);
 
+            // if we're running in parallel, remove any singular test fixtures
+            var singularTestFixtures = default(IOrderedEnumerable<Type>);
+            if (NumberOfThreads > 1 && testFixtures.Count() != 1)
+            {
+                singularTestFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Serial)).OrderBy(t => t.FullName);
+                testFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Parallel)).OrderBy(t => t.FullName);
+            }
+
             var fixtures = testFixtures.Count();
             if (fixtures <= NumberOfThreads)
             {
@@ -175,7 +185,9 @@ namespace Edison.Engine.Contexts
 
             var segment = fixtures == 0 ? 0 : (double)fixtures / (double)NumberOfThreads;
 
-            for (var i = 1; i <= NumberOfThreads; i++)
+            // setup all the threads that are to be run in parallel
+            var i = 1;
+            for (i = 1; i <= NumberOfThreads; i++)
             {
                 var testFixturesSegment = i == NumberOfThreads
                     ? testFixtures.Skip((int)((i - 1) * segment)).ToList()
@@ -185,15 +197,38 @@ namespace Edison.Engine.Contexts
                 Threads.Add(thread);
             }
 
+            // setup - if needed - the singular thread
+            SingularThread = singularTestFixtures != default(IOrderedEnumerable<Type>)
+                ? new EdisonTestThread(i + 1, this, ResultQueue, singularTestFixtures.ToList(), globalSetupEx)
+                : default(EdisonTestThread);
+
+            RunThreads();
+        }
+
+        private void RunThreads()
+        {
             foreach (var thread in Threads)
             {
                 thread.Start();
             }
 
+            // keep polling the threads, so we know when they're finished
             while (Threads.Any(x => !x.IsFinished))
             {
                 Thread.Sleep(2000);
             }
+
+            // once finished, we need to run the possible singular tests
+            if (SingularThread != default(EdisonTestThread))
+            {
+                SingularThread.Start();
+
+                // now keep polling again, so we know when it's finished
+                while (Threads.Any(x => !x.IsFinished))
+                {
+                    Thread.Sleep(2000);
+                }
+            }            
         }
 
         private void WriteResultsToFile(string file)

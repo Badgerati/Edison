@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class TestFixtureAttribute : Attribute
     {
     }

@@ -82,5 +82,17 @@ namespace Edison.Engine.Utilities.Helpers
             return true;
         }
 
+        public static bool HasValidConcurrency(IEnumerable<Attribute> attributes, ConcurrencyType concurrencyType)
+        {
+            var concurrency = attributes.OfType<ConcurrencyAttribute>();
+
+            if (concurrency == default(IEnumerable<ConcurrencyAttribute>) || concurrency.Count() == 0)
+            {
+                return concurrencyType == ConcurrencyType.Parallel;
+            }
+
+            return concurrency.First().ConcurrencyType == concurrencyType;
+        }
+
     }
 }
