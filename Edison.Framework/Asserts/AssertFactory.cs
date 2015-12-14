@@ -23,6 +23,7 @@ namespace Edison.Framework
         public static IAssert Instance
         {
             get { return _lazy.Value.AssertMethod; }
+            set { _lazy.Value.AssertMethod = value; }
         }
 
         public IAssert AssertMethod = default(IAssert);

@@ -20,7 +20,7 @@ namespace Edison.Framework
 
         #region Test state
 
-        public void Inconclusive(string message = null)
+        public virtual void Inconclusive(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -29,7 +29,7 @@ namespace Edison.Framework
                 TestResultState.Inconclusive);
         }
 
-        public void Fail(string message = null)
+        public virtual void Fail(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -38,7 +38,7 @@ namespace Edison.Framework
                 TestResultState.Failure);
         }
 
-        public void Pass(string message = null)
+        public virtual void Pass(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -51,7 +51,7 @@ namespace Edison.Framework
 
         #region Equals
 
-        public void AreEqual(IComparable expected, IComparable actual, string message = null)
+        public virtual void AreEqual(IComparable expected, IComparable actual, string message = null)
         {
             if (!expected.Equals(actual))
             {
@@ -59,7 +59,7 @@ namespace Edison.Framework
             }
         }
 
-        public void AreNotEqual(IComparable expected, IComparable actual, string message = null)
+        public virtual void AreNotEqual(IComparable expected, IComparable actual, string message = null)
         {
             if (expected.Equals(actual))
             {
@@ -71,7 +71,7 @@ namespace Edison.Framework
 
         #region Greater Than
 
-        public void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
+        public virtual void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
         {
             if (value.CompareTo(greaterThanThis) <= 0)
             {
@@ -79,15 +79,15 @@ namespace Edison.Framework
             }
         }
 
-        public void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanThis, string message = null)
+        public virtual void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(greaterThanThis) < 0)
+            if (value.CompareTo(greaterThanOrEqualToThis) < 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">=" + greaterThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, ">=" + greaterThanOrEqualToThis, value));
             }
         }
 
-        public void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null)
+        public virtual void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null)
         {
             if (value.CompareTo(notGreaterThanThis) > 0)
             {
@@ -95,11 +95,11 @@ namespace Edison.Framework
             }
         }
 
-        public void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanThis, string message = null)
+        public virtual void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(notGreaterThanThis) >= 0)
+            if (value.CompareTo(notGreaterThanOrEqualToThis) >= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<" + notGreaterThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "<" + notGreaterThanOrEqualToThis, value));
             }
         }
 
@@ -107,7 +107,7 @@ namespace Edison.Framework
 
         #region Less Than
 
-        public void IsLessThan(IComparable value, IComparable lessThanThis, string message = null)
+        public virtual void IsLessThan(IComparable value, IComparable lessThanThis, string message = null)
         {
             if (value.CompareTo(lessThanThis) >= 0)
             {
@@ -115,15 +115,15 @@ namespace Edison.Framework
             }
         }
 
-        public void IsLessThanOrEqual(IComparable value, IComparable lessThanThis, string message = null)
+        public virtual void IsLessThanOrEqual(IComparable value, IComparable lessThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(lessThanThis) > 0)
+            if (value.CompareTo(lessThanOrEqualToThis) > 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<=" + lessThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "<=" + lessThanOrEqualToThis, value));
             }
         }
 
-        public void IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null)
+        public virtual void IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null)
         {
             if (value.CompareTo(notLessThanThis) < 0)
             {
@@ -131,11 +131,11 @@ namespace Edison.Framework
             }
         }
 
-        public void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanThis, string message = null)
+        public virtual void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(notLessThanThis) <= 0)
+            if (value.CompareTo(notLessThanOrEqualToThis) <= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">" + notLessThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, ">" + notLessThanOrEqualToThis, value));
             }
         }
 
@@ -143,7 +143,7 @@ namespace Edison.Framework
 
         #region Files and Directories
 
-        public void FileExists(string path, string message = null)
+        public virtual void FileExists(string path, string message = null)
         {
             if (!File.Exists(path))
             {
@@ -151,7 +151,7 @@ namespace Edison.Framework
             }
         }
 
-        public void FileDoesNotExist(string path, string message = null)
+        public virtual void FileDoesNotExist(string path, string message = null)
         {
             if (File.Exists(path))
             {
@@ -159,7 +159,7 @@ namespace Edison.Framework
             }
         }
 
-        public void DirectoryExists(string path, string message = null)
+        public virtual void DirectoryExists(string path, string message = null)
         {
             if (!Directory.Exists(path))
             {
@@ -167,7 +167,7 @@ namespace Edison.Framework
             }
         }
 
-        public void DirectoryDoesNotExists(string path, string message = null)
+        public virtual void DirectoryDoesNotExists(string path, string message = null)
         {
             if (Directory.Exists(path))
             {
@@ -179,7 +179,7 @@ namespace Edison.Framework
 
         #region Null or Default
 
-        public void IsNull(object value, string message = null)
+        public virtual void IsNull(object value, string message = null)
         {
             if (value != null)
             {
@@ -187,7 +187,7 @@ namespace Edison.Framework
             }
         }
 
-        public void IsNotNull(object value, string message = null)
+        public virtual void IsNotNull(object value, string message = null)
         {
             if (value == null)
             {
@@ -195,17 +195,17 @@ namespace Edison.Framework
             }
         }
 
-        public void IsDefault<T>(T value, string message = null)
+        public virtual void IsDefault<T>(T value, string message = null)
         {
-            if (!EqualityComparer<T>.Default.Equals(value))
+            if (!object.Equals(value, default(T)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Default " + typeof(T).Name, "Not default " + value.GetType().Name));
             }
         }
 
-        public void IsNotDefault<T>(T value, string message = null)
+        public virtual void IsNotDefault<T>(T value, string message = null)
         {
-            if (EqualityComparer<T>.Default.Equals(value))
+            if (object.Equals(value, default(T)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not default " + typeof(T).Name, "Default " + typeof(T).Name));
             }
@@ -215,7 +215,7 @@ namespace Edison.Framework
 
         #region Zero
 
-        public void IsZero(IComparable value, string message = null)
+        public virtual void IsZero(IComparable value, string message = null)
         {
             if (!value.Equals(0))
             {
@@ -223,7 +223,7 @@ namespace Edison.Framework
             }
         }
 
-        public void IsNotZero(IComparable value, string message = null)
+        public virtual void IsNotZero(IComparable value, string message = null)
         {
             if (value.Equals(0))
             {
@@ -235,7 +235,7 @@ namespace Edison.Framework
 
         #region Date and Time
 
-        public void AreDatesEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
+        public virtual void AreDatesEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
         {
             if (minuteOffset != 0)
             {
@@ -247,7 +247,7 @@ namespace Edison.Framework
             }
         }
 
-        public void AreDatesNotEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
+        public virtual void AreDatesNotEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
         {
             if (minuteOffset != 0)
             {
@@ -259,7 +259,7 @@ namespace Edison.Framework
             }
         }
 
-        public void AreTimesEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
+        public virtual void AreTimesEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
         {
             if (offset != default(TimeSpan))
             {
@@ -271,7 +271,7 @@ namespace Edison.Framework
             }
         }
 
-        public void AreTimesNotEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
+        public virtual void AreTimesNotEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
         {
             if (offset != default(TimeSpan))
             {
@@ -287,7 +287,7 @@ namespace Edison.Framework
 
         #region Between
 
-        public void IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
+        public virtual void IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
             if (value.CompareTo(lowerBound) < 0 || value.CompareTo(upperBound) > 0)
             {
@@ -295,7 +295,7 @@ namespace Edison.Framework
             }
         }
 
-        public void IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
+        public virtual void IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
             if (value.CompareTo(lowerBound) >= 0 && value.CompareTo(upperBound) <= 0)
             {
@@ -305,9 +305,9 @@ namespace Edison.Framework
 
         #endregion
 
-        #region Private Helpers
+        #region Protected Helpers
 
-        private string ExpectedActualMessage(string premessage, object expected, object actual)
+        protected string ExpectedActualMessage(string premessage, object expected, object actual)
         {
             return string.Format("Error Message: {1}{0}Expected:\t{2}{0}But was:\t{3}",
                 Environment.NewLine,

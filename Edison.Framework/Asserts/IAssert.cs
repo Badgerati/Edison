@@ -17,22 +17,22 @@ namespace Edison.Framework
     public interface IAssert
     {
 
-        void Inconclusive(string message);
-        void Fail(string message);
-        void Pass(string message);
+        void Inconclusive(string message = null);
+        void Fail(string message = null);
+        void Pass(string message = null);
 
         void AreEqual(IComparable expected, IComparable actual, string message = null);
         void AreNotEqual(IComparable expected, IComparable actual, string message = null);
 
         void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null);
-        void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanThis, string message = null);
+        void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null);
         void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null);
-        void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanThis, string message = null);
+        void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanOrEqualToThis, string message = null);
 
         void IsLessThan(IComparable value, IComparable lessThanThis, string message = null);
-        void IsLessThanOrEqual(IComparable value, IComparable lessThanThis, string message = null);
+        void IsLessThanOrEqual(IComparable value, IComparable lessThanOrEqualToThis, string message = null);
         void IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null);
-        void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanThis, string message = null);
+        void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanOrEqualToThis, string message = null);
 
         void FileExists(string path, string message = null);
         void FileDoesNotExist(string path, string message = null);
