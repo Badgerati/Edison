@@ -15,11 +15,11 @@ using System.Threading.Tasks;
 namespace Edison.Framework
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public class CaseAttribute : Attribute
+    public class TestCaseAttribute : Attribute
     {
         public object[] Parameters { get; private set; }
 
-        public CaseAttribute(params object[] parameters)
+        public TestCaseAttribute(params object[] parameters)
         {
             Parameters = parameters;
         }

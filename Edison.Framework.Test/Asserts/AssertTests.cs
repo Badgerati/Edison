@@ -128,6 +128,139 @@ namespace Edison.Framework.Tests
         }
 
         [TestMethod()]
+        public void AreSameReferenceTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value1 = "Hello!";
+                var value2 = "Hello!";
+                value1 = value2;
+                assert.AreSameReference(value1, value2);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void AreNotSameReferenceTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value1 = "Hello!";
+                var value2 = "Heo";
+                assert.AreNotSameReference(value1, value2);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsInstanceOfTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value = "test string";
+                assert.IsInstanceOf<IComparable>(value);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsNotInstanceOfTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value = "test string";
+                assert.IsNotInstanceOf<int>(value);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsTrueTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value = true;
+                assert.IsTrue(value);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsFalseTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var value = false;
+                assert.IsFalse(value);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
         public void IsGreaterThanTest()
         {
             var assert = GetAssert();
@@ -436,6 +569,46 @@ namespace Edison.Framework.Tests
             {
                 var value = 128;
                 assert.IsNotDefault<int>(value);
+            }
+            catch (AssertException aex)
+            {
+                MAssert.IsNotNull(aex);
+                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsInstanceOfTypeTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsInstanceOfType(assert, typeof(IAssert));
+            }
+            catch (AssertException aex)
+            {
+                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                MAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [TestMethod()]
+        public void IsNotInstanceOfTypeTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsNotInstanceOfType(assert, typeof(int));
             }
             catch (AssertException aex)
             {

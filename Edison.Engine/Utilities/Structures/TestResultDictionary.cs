@@ -29,9 +29,19 @@ namespace Edison.Engine.Utilities.Structures
         private ConcurrentDictionary<string, TestResult> Results = default(ConcurrentDictionary<string, TestResult>);
         private EdisonContext Context = default(EdisonContext);
 
-        public ICollection<TestResult> Values
+        public ICollection<TestResult> TestResults
         {
             get { return Results.Values; }
+        }
+
+        public IEnumerable<TestResult> FailedTestResults
+        {
+            get { return Results.Values.Where(x => x.State != TestResultState.Success); }
+        }
+
+        public IEnumerable<TestResult> SuccessTestResults
+        {
+            get { return Results.Values.Where(x => x.State == TestResultState.Success); }
         }
 
         public int Total
@@ -119,7 +129,7 @@ namespace Edison.Engine.Utilities.Structures
                 response = Results.TryAdd(result.Name, result);
             }
 
-            Logger.WriteTestResult(result);
+            Logger.Instance.WriteTestResult(result);
 
             try
             {
@@ -127,7 +137,7 @@ namespace Edison.Engine.Utilities.Structures
             }
             catch (Exception ex)
             {
-                Logger.WriteError(string.Format("Failed posting result to TestResultURl:\n{0}", ex.Message));
+                Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
             }
 
             return response;
@@ -200,7 +210,7 @@ namespace Edison.Engine.Utilities.Structures
 
             using (var response = request.GetResponse())
             {
-                Logger.WriteMessage("Result posted to TestResultURL");
+                Logger.Instance.WriteMessage("Result posted to TestResultURL");
             }
         }
 

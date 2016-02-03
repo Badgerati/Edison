@@ -62,6 +62,11 @@ namespace Edison.Engine.Utilities.Helpers
 
         public static bool HasValidCategories(IEnumerable<Attribute> attributes, List<string> includedCategories, List<string> excludedCategories)
         {
+            if (includedCategories == default(List<string>) && excludedCategories == default(List<string>))
+            {
+                return true;
+            }
+
             var categories = attributes.OfType<CategoryAttribute>();
 
             if (includedCategories != default(List<string>) && categories.Any(c => includedCategories.Any(i => i.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))

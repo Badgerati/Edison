@@ -69,6 +69,71 @@ namespace Edison.Framework
 
         #endregion
 
+        #region Same
+
+        public virtual void AreSameReference(object expected, object actual, string message = null)
+        {
+            if (!object.ReferenceEquals(expected, actual))
+            {
+                throw new AssertException(ExpectedActualMessage(message, expected, actual));
+            }
+        }
+
+        public virtual void AreNotSameReference(object expected, object actual, string message = null)
+        {
+            if (object.ReferenceEquals(expected, actual))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Not " + expected, actual));
+            }
+        }
+
+        #endregion
+
+        #region Instance
+
+        public virtual void IsInstanceOf<T>(object value, string message = null)
+        {
+            if (value == default(object))
+            {
+                throw new AssertException(ExpectedActualMessage(message, typeof(T).Name, "NULL"));
+            }
+
+            if (!(value is T))
+            {
+                throw new AssertException(ExpectedActualMessage(message, typeof(T).Name, value.GetType().Name));
+            }
+        }
+
+        public virtual void IsNotInstanceOf<T>(object value, string message = null)
+        {
+            if (value != default(object) && (value is T))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Not " + typeof(T).Name, value.GetType().Name));
+            }
+        }
+
+        #endregion
+
+        #region Boolean
+
+        public virtual void IsTrue(bool value, string message = null)
+        {
+            if (!value)
+            {
+                throw new AssertException(ExpectedActualMessage(message, "TRUE", value));
+            }
+        }
+
+        public virtual void IsFalse(bool value, string message = null)
+        {
+            if (value)
+            {
+                throw new AssertException(ExpectedActualMessage(message, "FALSE", value));
+            }
+        }
+
+        #endregion
+
         #region Greater Than
 
         public virtual void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
@@ -177,7 +242,7 @@ namespace Edison.Framework
 
         #endregion
 
-        #region Null or Default
+        #region Null, Default and Types
 
         public virtual void IsNull(object value, string message = null)
         {
@@ -208,6 +273,22 @@ namespace Edison.Framework
             if (object.Equals(value, default(T)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not default " + typeof(T).Name, "Default " + typeof(T).Name));
+            }
+        }
+
+        public virtual void IsInstanceOfType(object value, Type type, string message = null)
+        {
+            if (!type.IsInstanceOfType(value))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Instance of type " + type.Name, "Not instance of type " + value.GetType().Name));
+            }
+        }
+
+        public virtual void IsNotInstanceOfType(object value, Type type, string message = null)
+        {
+            if (type.IsInstanceOfType(value))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Not instance of type " + type.Name, "Instance of type " + value.GetType().Name));
             }
         }
 

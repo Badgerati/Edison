@@ -62,8 +62,6 @@ namespace Edison.Engine.Threading
 
         public void Start()
         {
-            Logger.WriteMessage(string.Format("Starting up EdisonTestThread {0}", ThreadId));
-
             Interrupt = false;
             _thread.Start();
         }
@@ -150,7 +148,7 @@ namespace Edison.Engine.Threading
                     }
                     else
                     {
-                        Logger.WriteInnerException(ex, true);
+                        Logger.Instance.WriteInnerException(ex, true);
                     }
                 }
             }
@@ -158,7 +156,13 @@ namespace Edison.Engine.Threading
 
         private void RunTests(Type testFixture, int testFixtureRepeat, Exception fixSetupEx, object activator)
         {
-            var tests = testFixture.GetMethods<TestAttribute>(Context.IncludedCategories, Context.ExcludedCategories).ToList();
+            var tests = testFixture.GetMethods<TestAttribute>(Context.IncludedCategories, Context.ExcludedCategories, Context.Tests).ToList();
+
+            if (!tests.Any())
+            {
+                return;
+            }
+
             var setup = testFixture.GetMethods<SetupAttribute>().ToList();
             var teardown = testFixture.GetMethods<TeardownAttribute>().ToList();
 
@@ -177,11 +181,11 @@ namespace Edison.Engine.Threading
         {
             var repeat = test.GetCustomAttributes().OfType<RepeatAttribute>().SingleOrDefault();
             var hasRepeat = repeat != default(RepeatAttribute);
-            var cases = test.GetCustomAttributes().OfType<CaseAttribute>().ToList();
+            var cases = test.GetCustomAttributes().OfType<TestCaseAttribute>().ToList();
 
             if (cases.Count == 0)
             {
-                cases.Add(new CaseAttribute());
+                cases.Add(new TestCaseAttribute());
             }
 
             for (var r = 0; r < (!hasRepeat ? 1 : repeat.Value); r++)
@@ -195,7 +199,7 @@ namespace Edison.Engine.Threading
             }
         }
 
-        private void RunTestCases(MethodInfo test, List<CaseAttribute> cases, int testFixtureRepeat, int testRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, Exception fixSetupEx, object activator)
+        private void RunTestCases(MethodInfo test, List<TestCaseAttribute> cases, int testFixtureRepeat, int testRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, Exception fixSetupEx, object activator)
         {
             var timeTaken = new Stopwatch();
             var testResult = default(TestResult);
@@ -281,9 +285,7 @@ namespace Edison.Engine.Threading
                 }
 
                 ResultQueue.AddOrUpdate(testResult);
-
-                //write result to file
-                Logger.WriteMessage(string.Format("{0}- - - - - - - - - - - - - - - - - - - - - - - -{0}", Environment.NewLine));
+                Logger.Instance.WriteSingleLine(Environment.NewLine, Environment.NewLine);
             }
         }
 

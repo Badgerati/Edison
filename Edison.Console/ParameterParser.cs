@@ -29,20 +29,23 @@ namespace Edison.Console
         private static IDictionary<string, Delegate> Keywords = new Dictionary<string, Delegate>
             {
                 { "a", new Action<string[]>(AssemblyAction) },
-                { "co", new Action<string[]>(CreateOutputAction) },
+                { "cof", new Action<string[]>(CreateOutputAction) },
                 { "e", new Action<string[]>(ExcludedAction) },
                 { "f", new Action<string[]>(FixtureAction) },
                 { "h", new Action<string[]>(HelpAction) },
                 { "help", new Action<string[]>(HelpAction) },
                 { "i", new Action<string[]>(IncludedAction) },
-                { "id", new Action<string[]>(TestRunIdAction) },
+                { "tid", new Action<string[]>(TestRunIdAction) },
                 { "od", new Action<string[]>(OutputDirectoryAction) },
                 { "of", new Action<string[]>(OutputFileAction) },
                 { "ot", new Action<string[]>(OutputTypeAction) },
                 { "t", new Action<string[]>(ThreadsAction) },
+                { "ts", new Action<string[]>(TestsAction) },
                 { "url", new Action<string[]>(TestResultUrlAction) },
                 { "version", new Action<string[]>(VersionAction) },
-                { "v", new Action<string[]>(VersionAction) }
+                { "v", new Action<string[]>(VersionAction) },
+                { "dco", new Action<string[]>(DisableOutputAction) },
+                { "cot", new Action<string[]>(ConsoleOutputTypeAction) }
             };
 
         private static EdisonContext Context { get; set; }
@@ -111,7 +114,7 @@ namespace Edison.Console
                 }
                 else
                 {
-                    Logger.WriteError(string.Format("Invalid argument keyword '{0}'.", key));
+                    Logger.Instance.WriteError(string.Format("Invalid argument keyword '{0}'.", key));
                     return false;
                 }
             }
@@ -148,12 +151,12 @@ namespace Edison.Console
 
         private static void HelpAction(string[] values)
         {
-            Logger.WriteHelp();
+            Logger.Instance.WriteHelp();
         }
 
         private static void VersionAction(string[] values)
         {
-            Logger.WriteVersion();
+            Logger.Instance.WriteVersion();
         }
 
         private static void ThreadsAction(string[] values)
@@ -215,6 +218,16 @@ namespace Edison.Console
             }
 
             Context.Fixtures.AddRange(values);
+        }
+
+        private static void TestsAction(string[] values)
+        {
+            if (values.Length == 0)
+            {
+                throw new ParseException("No tests supplied");
+            }
+
+            Context.Tests.AddRange(values);
         }
 
         private static void OutputFileAction(string[] values)
@@ -310,6 +323,38 @@ namespace Edison.Console
             }
 
             Context.TestRunId = values[0];
+        }
+
+        private static void ConsoleOutputTypeAction(string[] values)
+        {
+            if (values.Length != 1)
+            {
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for -cot. Expected 1 but got {0}", values.Length));
+            }
+
+            var type = OutputType.Xml;
+            if (!Enum.TryParse<OutputType>(values[0], true, out type))
+            {
+                throw new ParseException(string.Format("Console output type supplied for -cot is incorrect: '{0}'", values[0]));
+            }
+
+            Context.ConsoleOutputType = type;
+        }
+
+        private static void DisableOutputAction(string[] values)
+        {
+            if (values.Length != 1)
+            {
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dco. Expected 1 but got {0}", values.Length));
+            }
+
+            var disbale = true;
+            if (!bool.TryParse(values[0], out disbale))
+            {
+                throw new ParseException(string.Format("Disable console output value supplied for -dco is incorrect: '{0}'", values[0]));
+            }
+
+            Context.DisableConsoleOutput = disbale;
         }
 
         #endregion

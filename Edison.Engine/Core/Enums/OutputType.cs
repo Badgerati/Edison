@@ -19,6 +19,8 @@ namespace Edison.Engine.Core.Enums
         Xml = 1,
         Json = 2,
         Txt = 3,
-        Csv = 4
+        Csv = 4,
+        Dot = 5,
+        None = 6
     }
 }

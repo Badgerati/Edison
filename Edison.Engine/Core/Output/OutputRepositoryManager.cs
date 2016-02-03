@@ -17,7 +17,7 @@ namespace Edison.Engine.Core.Output
 {
     public static class OutputRepositoryManager
     {
-
+        
         public static IOutputRepository Get(OutputType type)
         {
             switch (type)
@@ -33,6 +33,12 @@ namespace Edison.Engine.Core.Output
 
                 case OutputType.Xml:
                     return XmlOutputRepository.Instance;
+
+                case OutputType.Dot:
+                    return DotOutputRepository.Instance;
+
+                case OutputType.None:
+                    return NoneOutputRepository.Instance;
             }
 
             return JsonOutputRepository.Instance;

@@ -35,5 +35,15 @@ namespace Edison.Engine.Utilities.Extensions
             return versionAttribute.First().Value;
         }
 
+        public static string GetNamespace(this MethodInfo method)
+        {
+            return method.DeclaringType.FullName;
+        }
+
+        public static string GetFullNamespace(this MethodInfo method)
+        {
+            return method.DeclaringType.FullName + "." + method.Name;
+        }
+
     }
 }

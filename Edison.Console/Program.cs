@@ -33,7 +33,7 @@ namespace Edison.Console
             }
             catch (Exception ex)
             {
-                Logger.WriteInnerException(ex);
+                Logger.Instance.WriteInnerException(ex);
                 return;
             }
 
@@ -43,7 +43,7 @@ namespace Edison.Console
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Instance.WriteException(ex);
                 return;
             }
         }

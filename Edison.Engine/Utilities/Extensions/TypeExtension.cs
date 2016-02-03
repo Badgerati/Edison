@@ -19,11 +19,16 @@ namespace Edison.Engine.Utilities.Extensions
     public static class TypeExtension
     {
 
-        public static IEnumerable<MethodInfo> GetMethods<T>(this Type fixture, List<string> includedCategories = default(List<string>), List<string> excludedCategories = default(List<string>))
+        public static IEnumerable<MethodInfo> GetMethods<T>(
+            this Type fixture,
+            List<string> includedCategories = default(List<string>),
+            List<string> excludedCategories = default(List<string>),
+            List<string> tests = default(List<string>))
         {
-            return fixture == default(Type)
-                ? new List<MethodInfo>()
-                : fixture.GetMethods().Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories));
+            return fixture
+                .GetMethods()
+                .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories))
+                .Where(t => tests == default(List<string>) || tests.Count == 0 || tests.Contains(t.GetFullNamespace()));
         }
 
     }

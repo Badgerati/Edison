@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -45,6 +46,8 @@
     <Compile Include="Core\Exceptions\ParseException.cs" />
     <Compile Include="Core\Output\CsvOutputRepository.cs" />
     <Compile Include="Core\Output\IOutputRepository.cs" />
+    <Compile Include="Core\Output\DotOutputRepository.cs" />
+    <Compile Include="Core\Output\NoneOutputRepository.cs" />
     <Compile Include="Core\Output\JsonOutputRepository.cs" />
     <Compile Include="Core\Output\OutputRepositoryManager.cs" />
     <Compile Include="Core\Output\TxtOutputRepository.cs" />
@@ -55,6 +58,7 @@
     <Compile Include="Utilities\Extensions\MethodInfoExtension.cs" />
     <Compile Include="Utilities\Extensions\StringExtension.cs" />
     <Compile Include="Utilities\Extensions\TypeExtension.cs" />
+    <Compile Include="Utilities\Helpers\AssemblyHelper.cs" />
     <Compile Include="Utilities\Helpers\ReflectionHelper.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\Structures\TestResultDictionary.cs" />

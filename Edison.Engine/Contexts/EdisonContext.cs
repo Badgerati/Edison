@@ -34,11 +34,14 @@ namespace Edison.Engine.Contexts
         public List<string> IncludedCategories { get; private set; }
         public List<string> ExcludedCategories { get; private set; }
         public List<string> Fixtures { get; private set; }
+        public List<string> Tests { get; private set; }
         public int NumberOfThreads { get; set; }
         public string OutputFile { get; set; }
         public string OutputFolder { get; set; }
         public OutputType OutputType { get; set; }
+        public OutputType ConsoleOutputType { get; set; }
         public bool CreateOutput { get; set; }
+        public bool DisableConsoleOutput { get; set; }
         public string TestResultURL { get; set; }
         public string TestRunId { get; set; }
 
@@ -58,11 +61,14 @@ namespace Edison.Engine.Contexts
             IncludedCategories = new List<string>();
             ExcludedCategories = new List<string>();
             Fixtures = new List<string>();
+            Tests = new List<string>();
             NumberOfThreads = 1;
+            ConsoleOutputType = OutputType.Txt;
             OutputType = OutputType.Txt;
             OutputFolder = Environment.CurrentDirectory;
             OutputFile = "ResultFile";
             CreateOutput = true;
+            DisableConsoleOutput = false;
             TestResultURL = string.Empty;
         }
 
@@ -72,6 +78,14 @@ namespace Edison.Engine.Contexts
 
         public void Run()
         {
+            //set logging output
+            if (DisableConsoleOutput)
+            {
+                Logger.Instance.Disable();
+            }
+
+            Logger.Instance.ConsoleOutputType = ConsoleOutputType;
+
             //start timer
             Timer = new Stopwatch();
             Timer.Start();
@@ -81,7 +95,7 @@ namespace Edison.Engine.Contexts
             
             foreach (var assemblyPath in AssemblyPaths)
             {
-                var assembly = Assembly.LoadFile(Path.GetFullPath(assemblyPath));
+                var assembly = AssemblyHelper.GetAssembly(assemblyPath);
 
                 //global setup
                 var globalSetupFixture = assembly.GetTypes<SetupFixtureAttribute>().SingleOrDefault();
@@ -96,26 +110,36 @@ namespace Edison.Engine.Contexts
             }
 
             Timer.Stop();
+
+            //if we have single/none line logging, post the failed test messages
+            if (Logger.Instance.IsSingleOrNoLined)
+            {
+                WriteFailedResultsToConsole();
+            }
             
             //create result file and write
             if (CreateOutput)
             {
-                Logger.WriteDoubleLine(Environment.NewLine);
-                Logger.WriteMessage("Creating output file...");
-                var file = Logger.CreateFile(OutputFolder, OutputFile, OutputType);
-                WriteResultsToFile(file);
-                Logger.WriteMessage("Output file created:\n" + file);
+                Logger.Instance.WriteDoubleLine(Environment.NewLine);
+                Logger.Instance.WriteMessage("Creating output file...");
+                var file = Logger.Instance.CreateFile(OutputFolder, OutputFile, OutputType);
+
+                if (string.IsNullOrEmpty(file))
+                {
+                    WriteResultsToFile(file);
+                    Logger.Instance.WriteMessage("Output file created:\n" + file);
+                }
             }            
             else
             {
-                Logger.WriteMessage("Output file creation disabled");
+                Logger.Instance.WriteMessage("Output file creation disabled");
             }
 
             //write results and timer
-            Logger.WriteDoubleLine(Environment.NewLine);
-            Logger.WriteMessage(ResultQueue.ToTotalString());
-            Logger.WriteMessage(string.Format("Total time: {0}", Timer.Elapsed));
-            Logger.WriteDoubleLine(postcede: Environment.NewLine);
+            Logger.Instance.WriteDoubleLine(Environment.NewLine);
+            Logger.Instance.WriteMessage(ResultQueue.ToTotalString());
+            Logger.Instance.WriteMessage(string.Format("Total time: {0}", Timer.Elapsed));
+            Logger.Instance.WriteDoubleLine(postcede: Environment.NewLine);
         }
         
         #endregion
@@ -156,17 +180,13 @@ namespace Edison.Engine.Contexts
             }
             catch (Exception ex)
             {
-                Logger.WriteInnerException(ex, true);
+                Logger.Instance.WriteInnerException(ex, true);
             }
         }
 
         private void SetupThreads(Assembly assembly, Exception globalSetupEx)
         {
-            var testFixtures = assembly.GetTypes<TestFixtureAttribute>(IncludedCategories, ExcludedCategories)
-                                .Where(t => Fixtures.Count == 0 || Fixtures.Contains(t.FullName))
-                                .ToList()
-                                .OrderBy(t => t.FullName);
-
+            var testFixtures = assembly.GetTestFixtures(IncludedCategories, ExcludedCategories, Fixtures);
             Threads = new List<EdisonTestThread>(NumberOfThreads);
 
             // if we're running in parallel, remove any singular test fixtures
@@ -233,22 +253,44 @@ namespace Edison.Engine.Contexts
 
         private void WriteResultsToFile(string file)
         {
-            var results = ResultQueue.Values.ToList();
+            var results = ResultQueue.TestResults.ToList();
             var output = OutputRepositoryManager.Get(OutputType);
             
             if (!string.IsNullOrEmpty(output.OpenTag))
             {
-                Logger.WriteToFile(file, output.OpenTag + Environment.NewLine);
+                Logger.Instance.WriteToFile(file, output.OpenTag + Environment.NewLine);
             }
 
             for (var i = 0; i < results.Count; i++)
             {
-                Logger.WriteResultToFile(file, i == (results.Count - 1), results[i], output);
+                Logger.Instance.WriteResultToFile(file, i == (results.Count - 1), results[i], output);
             }
 
             if (!string.IsNullOrEmpty(output.CloseTag))
             {
-                Logger.WriteToFile(file, Environment.NewLine + output.CloseTag);
+                Logger.Instance.WriteToFile(file, Environment.NewLine + output.CloseTag);
+            }
+        }
+
+        private void WriteFailedResultsToConsole()
+        {
+            var failedResults = ResultQueue.FailedTestResults;
+            var output = OutputRepositoryManager.Get(OutputType);
+
+            try
+            {
+                Logger.Instance.ConsoleOutputType = OutputType.Txt;
+                Logger.Instance.WriteDoubleLine(Environment.NewLine, Environment.NewLine);
+
+                foreach (var result in failedResults)
+                {
+                    Logger.Instance.WriteTestResult(result);
+                }
+            }
+            finally
+            {
+                Logger.Instance.WriteDoubleLine(Environment.NewLine, Environment.NewLine);
+                Logger.Instance.ConsoleOutputType = ConsoleOutputType;
             }
         }
 

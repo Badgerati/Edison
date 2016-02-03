@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Edison.Tests
 {
     [TestFixture]
-    [Ignore]
+    //[Ignore]
     public class TestClass2
     {
 

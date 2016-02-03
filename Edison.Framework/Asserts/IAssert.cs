@@ -24,6 +24,15 @@ namespace Edison.Framework
         void AreEqual(IComparable expected, IComparable actual, string message = null);
         void AreNotEqual(IComparable expected, IComparable actual, string message = null);
 
+        void AreSameReference(object expected, object actual, string message = null);
+        void AreNotSameReference(object expected, object actual, string message = null);
+
+        void IsInstanceOf<T>(object value, string message = null);
+        void IsNotInstanceOf<T>(object value, string message = null);
+
+        void IsTrue(bool value, string message = null);
+        void IsFalse(bool value, string message = null);
+
         void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null);
         void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null);
         void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null);
@@ -45,6 +54,9 @@ namespace Edison.Framework
 
         void IsDefault<T>(T value, string message = null);
         void IsNotDefault<T>(T value, string message = null);
+
+        void IsInstanceOfType(object value, Type type, string message = null);
+        void IsNotInstanceOfType(object value, Type type, string message = null);
 
         void IsZero(IComparable value, string message = null);
         void IsNotZero(IComparable value, string message = null);

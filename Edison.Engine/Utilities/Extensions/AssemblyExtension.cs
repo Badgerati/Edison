@@ -7,6 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Utilities.Helpers;
+using Edison.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,44 @@ namespace Edison.Engine.Utilities.Extensions
     public static class AssemblyExtension
     {
 
-        public static IEnumerable<Type> GetTypes<T>(this Assembly assembly, List<string> includedCategories = default(List<string>), List<string> excludedCategories = default(List<string>))
+        public static IEnumerable<Type> GetTypes<T>(
+            this Assembly assembly,
+            List<string> includedCategories = default(List<string>),
+            List<string> excludedCategories = default(List<string>))
         {
-            return assembly == default(Assembly)
-                ? new List<Type>()
-                : assembly.GetTypes().Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories));
+            return assembly
+                .GetTypes()
+                .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories));
+        }
+        
+        public static IOrderedEnumerable<Type> GetTestFixtures(
+            this Assembly assembly,
+            List<string> includedCategories,
+            List<string> excludedCategories,
+            List<string> fixtures)
+        {
+            return assembly
+                .GetTypes<TestFixtureAttribute>(includedCategories, excludedCategories)
+                .Where(t => fixtures == default(List<string>) || fixtures.Count == 0 || fixtures.Contains(t.FullName))
+                .ToList()
+                .OrderBy(t => t.FullName);
+        }
+
+        public static IEnumerable<MethodInfo> GetTests(
+            this Assembly assembly,
+            List<string> includedCategories,
+            List<string> excludedCategories,
+            List<string> fixtures)
+        {
+            var _fixtures = assembly.GetTestFixtures(includedCategories, excludedCategories, fixtures);
+            var tests = new List<MethodInfo>(_fixtures.Count() * 30);
+
+            foreach (var fixture in _fixtures)
+            {
+                tests.AddRange(fixture.GetMethods<TestAttribute>(includedCategories, excludedCategories));
+            }
+
+            return tests;
         }
 
     }

@@ -54,8 +54,8 @@ namespace Edison.Tests
         [Test]
         [Ignore]
         [Repeat(2)]
-        [Case("case1")]
-        [Case("case2")]
+        [TestCase("case1")]
+        [TestCase("case2")]
         [Category("eek")]
         public void TestMethod1(string value)
         {
@@ -79,7 +79,6 @@ namespace Edison.Tests
         }
 
         [Test]
-        [Ignore]
         public void TestMethod3()
         {
             Console.WriteLine("WOO3!!!");
