@@ -10,6 +10,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EAssert = Edison.Framework.Assert;
 using MAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Edison.Framework.Enums;
 
 namespace Edison.Framework.Test.Asserts
 {

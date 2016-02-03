@@ -14,11 +14,14 @@ using System.Threading.Tasks;
 
 namespace Edison.Framework.Enums
 {
-    public enum ConcurrencyType
+    public enum MatchType
     {
 
-        Parallel,
-        Serial
+        Exact,
+        Contains,
+        RegEx,
+        StartsWith,
+        EndsWith
 
     }
 }

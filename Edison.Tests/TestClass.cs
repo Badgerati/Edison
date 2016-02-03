@@ -7,6 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
+using Edison.Framework.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,7 @@ namespace Edison.Tests
         }
 
         [Test]
+        [Ignore]
         //[Repeat(2)]
         public void TestMethod2()
         {
@@ -79,10 +81,15 @@ namespace Edison.Tests
         }
 
         [Test]
+        [ExpectedException(typeof(NullReferenceException), "Object", MatchType.EndsWith, true)]
         public void TestMethod3()
         {
             Console.WriteLine("WOO3!!!");
             Console.WriteLine(test);
+
+            string v = null;
+            var len = v.Length;
+
             AssertFactory.Instance.AreEqual(1, 2, "Values are not equal");
             Console.WriteLine("WOO3!!!");
         }

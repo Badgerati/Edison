@@ -20,6 +20,8 @@ using Edison.Engine.Contexts;
 using System.Diagnostics;
 using ThreadState = System.Threading.ThreadState;
 using Edison.Engine.Utilities.Structures;
+using Edison.Framework.Enums;
+using System.Text.RegularExpressions;
 
 namespace Edison.Engine.Threading
 {
@@ -292,7 +294,8 @@ namespace Edison.Engine.Threading
         private TestResult PopulateTestResultOnException(MethodInfo testMethod, TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan time)
         {
             var hasInner = ex.InnerException != default(Exception);
-            var isAssertFail = hasInner && ex.InnerException.GetType() == typeof(AssertException);
+            var innerExceptionType = hasInner ? ex.InnerException.GetType() : default(Type);
+            var isAssertFail = innerExceptionType == typeof(AssertException);
             var assertEx = isAssertFail ? (AssertException)ex.InnerException : default(AssertException);
             var error = isAssertFail ? ex.InnerException.Message : (hasInner ? ex.InnerException.Message: ex.Message);
             var stack = isAssertFail ? ex.InnerException.StackTrace : (hasInner ? ex.InnerException.StackTrace : ex.StackTrace);
@@ -324,6 +327,11 @@ namespace Edison.Engine.Threading
             }
             else if (!test)
             {
+                if (hasInner && !isAssertFail && CheckExpectedException(testMethod, ex.InnerException))
+                {
+                    return PopulateTestResult(testMethod, result, TestResultState.Success, time);
+                }
+
                 state = isAssertFail
                     ? assertEx.TestResultState
                     : TestResultState.Error;
@@ -341,7 +349,7 @@ namespace Edison.Engine.Threading
                 state = TestResultState.Error;
             }
 
-            return PopulateTestResult(testMethod, result, state, time, error, stack); ;
+            return PopulateTestResult(testMethod, result, state, time, error, stack);
         }
 
         private TestResult PopulateTestResult(MethodInfo testMethod, TestResult result, TestResultState state, TimeSpan time, string errorMessage = "", string stackTrace = "")
@@ -358,6 +366,53 @@ namespace Edison.Engine.Threading
             }
 
             return result;
+        }
+
+        private bool CheckExpectedException(MethodInfo testMethod, Exception innerException)
+        {
+            var expectedException = testMethod.GetExpectedException();
+
+            if (expectedException == default(ExpectedExceptionAttribute)
+                || expectedException.Exception != innerException.GetType())
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(expectedException.Message))
+            {
+                return true;
+            }
+
+            var matches = false;
+            var innerMessage = innerException.Message;
+            var expectedMessage = expectedException.Message;
+
+            switch (expectedException.MatchType)
+            {
+                case MatchType.Exact:
+                    matches = string.Equals(innerMessage, expectedMessage);
+                    break;
+
+                case MatchType.Contains:
+                    matches = innerMessage.Contains(expectedMessage);
+                    break;
+
+                case MatchType.RegEx:
+                    matches = Regex.IsMatch(innerMessage, expectedMessage);
+                    break;
+
+                case MatchType.StartsWith:
+                    matches = innerMessage.StartsWith(expectedMessage);
+                    break;
+
+                case MatchType.EndsWith:
+                    matches = innerMessage.EndsWith(expectedMessage);
+                    break;
+            }
+
+            return expectedException.InverseMatch
+                ? !matches
+                : matches;
         }
 
         #endregion

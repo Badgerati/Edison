@@ -6,6 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using Edison.Framework.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using EAssert = Edison.Framework.Assert;

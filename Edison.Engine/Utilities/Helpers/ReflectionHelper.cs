@@ -7,6 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
+using Edison.Framework.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

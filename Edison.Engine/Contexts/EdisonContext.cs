@@ -22,6 +22,7 @@ using Edison.Engine.Core.Enums;
 using Edison.Engine.Utilities.Structures;
 using System.Diagnostics;
 using Edison.Engine.Core.Output;
+using Edison.Framework.Enums;
 
 namespace Edison.Engine.Contexts
 {
@@ -64,7 +65,7 @@ namespace Edison.Engine.Contexts
             Tests = new List<string>();
             NumberOfThreads = 1;
             ConsoleOutputType = OutputType.Txt;
-            OutputType = OutputType.Txt;
+            OutputType = OutputType.Json;
             OutputFolder = Environment.CurrentDirectory;
             OutputFile = "ResultFile";
             CreateOutput = true;
@@ -134,7 +135,7 @@ namespace Edison.Engine.Contexts
                 Logger.Instance.WriteMessage("Creating output file...");
                 var file = Logger.Instance.CreateFile(OutputFolder, OutputFile, OutputType);
 
-                if (string.IsNullOrEmpty(file))
+                if (!string.IsNullOrEmpty(file))
                 {
                     WriteResultsToFile(file);
                     Logger.Instance.WriteMessage("Output file created:\n" + file);

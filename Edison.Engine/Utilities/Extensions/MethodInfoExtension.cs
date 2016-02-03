@@ -15,7 +15,7 @@ namespace Edison.Engine.Utilities.Extensions
         {
             var authorAttributes = method.GetCustomAttributes().OfType<AuthorAttribute>();
 
-            if (authorAttributes == default(IEnumerable<AuthorAttribute>) || authorAttributes.Count() == 0)
+            if (authorAttributes == default(IEnumerable<AuthorAttribute>) || !authorAttributes.Any())
             {
                 return new List<string>();
             }
@@ -27,12 +27,24 @@ namespace Edison.Engine.Utilities.Extensions
         {
             var versionAttribute = method.GetCustomAttributes().OfType<VersionAttribute>();
 
-            if (versionAttribute == default(IEnumerable<AuthorAttribute>) || versionAttribute.Count() == 0)
+            if (versionAttribute == default(IEnumerable<VersionAttribute>) || !versionAttribute.Any())
             {
                 return string.Empty;
             }
 
             return versionAttribute.First().Value;
+        }
+
+        public static ExpectedExceptionAttribute GetExpectedException(this MethodInfo method)
+        {
+            var exceptionAttribute = method.GetCustomAttributes().OfType<ExpectedExceptionAttribute>();
+
+            if (exceptionAttribute == default(IEnumerable<ExpectedExceptionAttribute>) || !exceptionAttribute.Any())
+            {
+                return default(ExpectedExceptionAttribute);
+            }
+
+            return exceptionAttribute.First();
         }
 
         public static string GetNamespace(this MethodInfo method)

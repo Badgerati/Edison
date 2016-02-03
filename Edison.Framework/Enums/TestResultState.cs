@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Edison.Framework
+namespace Edison.Framework.Enums
 {
     public enum TestResultState
     {
