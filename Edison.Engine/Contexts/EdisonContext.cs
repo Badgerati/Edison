@@ -92,21 +92,31 @@ namespace Edison.Engine.Contexts
 
             //create queue
             ResultQueue = new TestResultDictionary(this);
-            
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+
             foreach (var assemblyPath in AssemblyPaths)
             {
                 var assembly = AssemblyHelper.GetAssembly(assemblyPath);
 
                 //global setup
                 var globalSetupFixture = assembly.GetTypes<SetupFixtureAttribute>().SingleOrDefault();
-                var globalActivator = Activator.CreateInstance(globalSetupFixture, null);
-                var globalSetupEx = RunGlobalSetup(globalSetupFixture, globalActivator);
+                var globalActivator = default(object);
+                var globalSetupEx = default(Exception);
+
+                if (globalSetupFixture != default(Type))
+                {
+                    globalActivator = Activator.CreateInstance(globalSetupFixture, null);
+                    globalSetupEx = RunGlobalSetup(globalSetupFixture, globalActivator);
+                }
 
                 //test fixtures an threads
                 SetupThreads(assembly, globalSetupEx);
 
                 //global teardown
-                RunGlobalTeardown(globalSetupFixture, globalActivator);
+                if (globalSetupFixture != default(Type))
+                {
+                    RunGlobalTeardown(globalSetupFixture, globalActivator);
+                }
             }
 
             Timer.Stop();
@@ -145,6 +155,13 @@ namespace Edison.Engine.Contexts
         #endregion
 
         #region Private Methods
+
+        private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+        {
+            var name = new AssemblyName(args.Name).Name;
+            var path = Path.GetDirectoryName(args.RequestingAssembly.Location);
+            return Assembly.LoadFrom(path + "\\" + name + ".dll");
+        }
 
         private Exception RunGlobalSetup(Type fixture, object activator)
         {
