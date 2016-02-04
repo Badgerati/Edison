@@ -45,7 +45,8 @@ namespace Edison.Console
                 { "version", new Action<string[]>(VersionAction) },
                 { "v", new Action<string[]>(VersionAction) },
                 { "dco", new Action<string[]>(DisableOutputAction) },
-                { "cot", new Action<string[]>(ConsoleOutputTypeAction) }
+                { "cot", new Action<string[]>(ConsoleOutputTypeAction) },
+                { "dto", new Action<string[]>(DisableTestOutputAction) }
             };
 
         private static EdisonContext Context { get; set; }
@@ -355,6 +356,22 @@ namespace Edison.Console
             }
 
             Context.DisableConsoleOutput = disbale;
+        }
+
+        private static void DisableTestOutputAction(string[] values)
+        {
+            if (values.Length != 1)
+            {
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dto. Expected 1 but got {0}", values.Length));
+            }
+
+            var disbale = true;
+            if (!bool.TryParse(values[0], out disbale))
+            {
+                throw new ParseException(string.Format("Disable test output value supplied for -dto is incorrect: '{0}'", values[0]));
+            }
+
+            Context.DisableTestOutput = disbale;
         }
 
         #endregion

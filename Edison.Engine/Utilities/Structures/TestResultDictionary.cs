@@ -130,7 +130,14 @@ namespace Edison.Engine.Utilities.Structures
                 response = Results.TryAdd(result.Name, result);
             }
 
-            Logger.Instance.WriteTestResult(result);
+            if (Logger.Instance.ConsoleOutputType != OutputType.None)
+            {
+                lock (this)
+                {
+                    Logger.Instance.WriteTestResult(result);
+                    Logger.Instance.WriteSingleLine(Environment.NewLine, Environment.NewLine);
+                }
+            }
 
             try
             {

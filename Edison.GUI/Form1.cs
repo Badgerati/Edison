@@ -104,7 +104,7 @@ namespace Edison.GUI
             context.NumberOfThreads = 1;
             context.Tests.AddRange(tests);
             context.CreateOutput = false;
-            context.ConsoleOutputType = OutputType.None;
+            context.ConsoleOutputType = OutputType.Txt;
 
             var logger = new OutputLogger(OutputRichText);
             Logger.Instance.SetOutput(logger, logger);

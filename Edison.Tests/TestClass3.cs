@@ -16,17 +16,17 @@ using System.Threading.Tasks;
 namespace Edison.Tests
 {
     [TestFixture]
-    public class TestClass2
+    public class TestClass3
     {
 
         [Test]
         [Repeat(2)]
         public void TestMethod()
         {
-            Console.WriteLine("WOO8!!!");
+            Console.WriteLine("WOO7!!!");
             Console.WriteLine(TestStatisClass.Value);
             AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
-            Console.WriteLine("WOO9!!!");
+            Console.WriteLine("WOO4!!!");
         }
 
     }

@@ -287,7 +287,6 @@ namespace Edison.Engine.Threading
                 }
 
                 ResultQueue.AddOrUpdate(testResult);
-                Logger.Instance.WriteSingleLine(Environment.NewLine, Environment.NewLine);
             }
         }
 

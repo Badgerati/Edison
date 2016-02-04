@@ -43,6 +43,7 @@ namespace Edison.Engine.Contexts
         public OutputType ConsoleOutputType { get; set; }
         public bool CreateOutput { get; set; }
         public bool DisableConsoleOutput { get; set; }
+        public bool DisableTestOutput { get; set; }
         public string TestResultURL { get; set; }
         public string TestRunId { get; set; }
 
@@ -70,6 +71,7 @@ namespace Edison.Engine.Contexts
             OutputFile = "ResultFile";
             CreateOutput = true;
             DisableConsoleOutput = false;
+            DisableTestOutput = false;
             TestResultURL = string.Empty;
         }
 
@@ -83,6 +85,11 @@ namespace Edison.Engine.Contexts
             if (DisableConsoleOutput)
             {
                 Logger.Instance.Disable();
+            }
+
+            if (DisableTestOutput)
+            {
+                Logger.Instance.DisableConsole();
             }
 
             Logger.Instance.ConsoleOutputType = ConsoleOutputType;
@@ -123,7 +130,7 @@ namespace Edison.Engine.Contexts
             Timer.Stop();
 
             //if we have single/none line logging, post the failed test messages
-            if (Logger.Instance.IsSingleOrNoLined)
+            if (Logger.Instance.IsSingleOrNoLined && ResultQueue.FailedTestResults.Any())
             {
                 WriteFailedResultsToConsole();
             }
@@ -132,6 +139,12 @@ namespace Edison.Engine.Contexts
             if (CreateOutput)
             {
                 Logger.Instance.WriteDoubleLine(Environment.NewLine);
+
+                if (Logger.Instance.IsSingleOrNoLined)
+                {
+                    Logger.Instance.WriteMessage(Environment.NewLine);
+                }
+
                 Logger.Instance.WriteMessage("Creating output file...");
                 var file = Logger.Instance.CreateFile(OutputFolder, OutputFile, OutputType);
 
@@ -205,7 +218,6 @@ namespace Edison.Engine.Contexts
         private void SetupThreads(Assembly assembly, Exception globalSetupEx)
         {
             var testFixtures = assembly.GetTestFixtures(IncludedCategories, ExcludedCategories, Fixtures);
-            Threads = new List<EdisonTestThread>(NumberOfThreads);
 
             // if we're running in parallel, remove any singular test fixtures
             var singularTestFixtures = default(IOrderedEnumerable<Type>);
@@ -216,11 +228,12 @@ namespace Edison.Engine.Contexts
             }
 
             var fixtures = testFixtures.Count();
-            if (fixtures <= NumberOfThreads)
+            if (fixtures < NumberOfThreads)
             {
                 NumberOfThreads = fixtures;
             }
 
+            Threads = new List<EdisonTestThread>(NumberOfThreads);
             var segment = fixtures == 0 ? 0 : (double)fixtures / (double)NumberOfThreads;
 
             // setup all the threads that are to be run in parallel
@@ -229,7 +242,7 @@ namespace Edison.Engine.Contexts
             {
                 var testFixturesSegment = i == NumberOfThreads
                     ? testFixtures.Skip((int)((i - 1) * segment)).ToList()
-                    : testFixtures.Skip((int)((i - 1) * segment)).Take((int)(i * segment)).ToList();
+                    : testFixtures.Skip((int)((i - 1) * segment)).Take((int)(segment)).ToList();
 
                 var thread = new EdisonTestThread(i, this, ResultQueue, testFixturesSegment, globalSetupEx);
                 Threads.Add(thread);
@@ -251,9 +264,11 @@ namespace Edison.Engine.Contexts
             }
 
             // keep polling the threads, so we know when they're finished
-            while (Threads.Any(x => !x.IsFinished))
+            var allFinished = Threads.All(x => x.IsFinished);
+            while (!allFinished)
             {
-                Thread.Sleep(2000);
+                Thread.Sleep(500);
+                allFinished = Threads.All(x => x.IsFinished);
             }
 
             // once finished, we need to run the possible singular tests
@@ -264,9 +279,9 @@ namespace Edison.Engine.Contexts
                 // now keep polling again, so we know when it's finished
                 while (!SingularThread.IsFinished)
                 {
-                    Thread.Sleep(2000);
+                    Thread.Sleep(500);
                 }
-            }            
+            }
         }
 
         private void WriteResultsToFile(string file)

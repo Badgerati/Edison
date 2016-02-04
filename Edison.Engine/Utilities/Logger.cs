@@ -36,6 +36,11 @@ namespace Edison.Engine
             {
                 _consoleOutputType = value;
                 OutputRepo = OutputRepositoryManager.Get(_consoleOutputType);
+
+                if (IsSingleOrNoLined)
+                {
+                    DisableConsole();
+                }
             }
         }
 
@@ -61,6 +66,12 @@ namespace Edison.Engine
             ErrorStream = TextWriter.Null;
         }
 
+        public void DisableConsole()
+        {
+            Console.SetOut(TextWriter.Null);
+            Console.SetError(TextWriter.Null);
+        }
+
         public void SetOutput(TextWriter output, TextWriter error)
         {
             OutStream = output;
@@ -77,20 +88,26 @@ namespace Edison.Engine
             The following tags are accepted as input:
             
             -a      -   List of paths to assemblies (.dll) to run.
-            -cof    -   Boolean flag to state whether an output file should be created.
+            -cof    -   Boolean flag to state whether an output file should be
+                        created.
             -cot    -   Type of output for the console, default is txt.
-            -dco    -   Boolean flag to state whether output to the console is disabled.
+            -dco    -   Boolean flag to state whether all output to the console is
+                        disabled.
+            -dto    -   Boolean flag to state whether user produced output from
+                        tests should be disabled.
             -e      -   List of categories to be excluded.
             -f      -   List of TestFixtures that should be run.
             -help   -   Displays help manual (this page).
             -i      -   List of categories to be included.
             -tid    -   Test run ID that can be used to identify this run.
-            -od     -   Output directory for the output file created (default is working directory).
+            -od     -   Output directory for the output file created (default is
+                        the working directory).
             -of     -   Name of the output file created.
             -ot     -   Type of the output file.
             -t      -   Number of threads on which to execute the tests.
             -ts     -   List of Tests that should be run.
-            -url    -   Test result URL where test results and ID will be POSTed to, after each test.
+            -url    -   Test result URL where test results and ID will be POSTed to,
+                        after each test.
             -v      -   Version of Edison.
 
 
