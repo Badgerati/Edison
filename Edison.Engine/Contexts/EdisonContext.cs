@@ -262,7 +262,7 @@ namespace Edison.Engine.Contexts
                 SingularThread.Start();
 
                 // now keep polling again, so we know when it's finished
-                while (Threads.Any(x => !x.IsFinished))
+                while (!SingularThread.IsFinished)
                 {
                     Thread.Sleep(2000);
                 }

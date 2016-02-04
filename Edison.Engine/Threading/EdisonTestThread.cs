@@ -373,19 +373,19 @@ namespace Edison.Engine.Threading
             var expectedException = testMethod.GetExpectedException();
 
             if (expectedException == default(ExpectedExceptionAttribute)
-                || expectedException.Exception != innerException.GetType())
+                || expectedException.ExpectedException != innerException.GetType())
             {
                 return false;
             }
 
-            if (string.IsNullOrEmpty(expectedException.Message))
+            if (string.IsNullOrEmpty(expectedException.ExpectedMessage))
             {
                 return true;
             }
 
             var matches = false;
             var innerMessage = innerException.Message;
-            var expectedMessage = expectedException.Message;
+            var expectedMessage = expectedException.ExpectedMessage;
 
             switch (expectedException.MatchType)
             {

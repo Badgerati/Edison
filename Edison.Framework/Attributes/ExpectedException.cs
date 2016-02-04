@@ -18,15 +18,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ExpectedExceptionAttribute : Attribute
     {
-        public Type Exception = default(Type);
-        public string Message = string.Empty;
+        public Type ExpectedException = default(Type);
+        public string ExpectedMessage = string.Empty;
         public MatchType MatchType = MatchType.Exact;
         public bool InverseMatch = false;
 
         public ExpectedExceptionAttribute(Type exception, string message = "", MatchType matchType = MatchType.Exact, bool inverseMatch = false)
         {
-            Exception = exception;
-            Message = message;
+            ExpectedException = exception;
+            ExpectedMessage = message;
             MatchType = matchType;
             InverseMatch = inverseMatch;
         }
