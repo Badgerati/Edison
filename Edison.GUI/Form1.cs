@@ -14,6 +14,7 @@ using System.IO;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Engine;
+using System.Threading;
 
 namespace Edison.GUI
 {
@@ -24,8 +25,11 @@ namespace Edison.GUI
 
         public const string MainTitle = "Edison";
         public const char Separator = '.';
+
         private string FileName = string.Empty;
         private string FilePath = string.Empty;
+
+        private Thread MainThread = default(Thread);
 
         #endregion
 
@@ -97,6 +101,11 @@ namespace Edison.GUI
 
         private void RunTests(List<string> tests)
         {
+            if (MainThread != default(Thread) && MainThread.ThreadState == ThreadState.Running)
+            {
+                return;
+            }
+
             OutputRichText.Clear();
             var context = new EdisonContext();
 
@@ -108,6 +117,15 @@ namespace Edison.GUI
 
             var logger = new OutputLogger(OutputRichText);
             Logger.Instance.SetOutput(logger, logger);
+            Console.SetOut(logger);
+            Console.SetError(logger);
+            
+            MainThread = new Thread(() => Run(context));
+            MainThread.Start();
+        }
+
+        private void Run(EdisonContext context)
+        {
             context.Run();
         }
 

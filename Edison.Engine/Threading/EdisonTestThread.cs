@@ -35,7 +35,11 @@ namespace Edison.Engine.Threading
 
         public bool IsFinished
         {
-            get { return _thread.ThreadState != ThreadState.Running; }
+            get
+            {
+                return _thread.ThreadState != ThreadState.Running
+                    && _thread.ThreadState != ThreadState.WaitSleepJoin;
+            }
         }
     
         public int ThreadId { get; private set; }
