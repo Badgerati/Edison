@@ -69,6 +69,12 @@ namespace Edison.Engine.Utilities.Helpers
             }
 
             var categories = attributes.OfType<CategoryAttribute>();
+            var isTestFixture = attributes.OfType<TestFixtureAttribute>().Any();
+
+            if (isTestFixture && !categories.Any())
+            {
+                return true;
+            }
 
             if (includedCategories != default(List<string>) && categories.Any(c => includedCategories.Any(i => i.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
             {
@@ -78,6 +84,11 @@ namespace Edison.Engine.Utilities.Helpers
             if (excludedCategories != default(List<string>) && categories.Any(c => excludedCategories.Any(e => e.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
             {
                 return false;
+            }
+
+            if (isTestFixture)
+            {
+                return true;
             }
 
             if (includedCategories != default(List<string>) && includedCategories.Any())

@@ -30,26 +30,44 @@ namespace Edison.GUI
 
         public override void Write(string value)
         {
-            if (TextBox.InvokeRequired)
+            if (TextBox.IsDisposed)
             {
-                TextBox.Invoke((MethodInvoker)delegate { TextBox.AppendText(value); });
+                return;
             }
-            else
+
+            try
             {
-                TextBox.AppendText(value);
+                if (TextBox.InvokeRequired)
+                {
+                    TextBox.Invoke((MethodInvoker)delegate { TextBox.AppendText(value); });
+                }
+                else
+                {
+                    TextBox.AppendText(value);
+                }
             }
+            catch (ObjectDisposedException) { }
         }
 
         public override void WriteLine(string value)
         {
-            if (TextBox.InvokeRequired)
+            if (TextBox.IsDisposed)
             {
-                TextBox.Invoke((MethodInvoker)delegate { TextBox.AppendText(Environment.NewLine + value); });
+                return;
             }
-            else
+
+            try
             {
-                TextBox.AppendText(Environment.NewLine + value);
+                if (TextBox.InvokeRequired)
+                {
+                    TextBox.Invoke((MethodInvoker)delegate { TextBox.AppendText(Environment.NewLine + value); });
+                }
+                else
+                {
+                    TextBox.AppendText(Environment.NewLine + value);
+                }
             }
+            catch (ObjectDisposedException) { }
         }
 
     }

@@ -54,28 +54,41 @@ namespace Edison.Engine
 
         private Logger()
         {
-            OutStream = Console.Out;
-            ErrorStream = Console.Error;
+            SetOutput(Console.Out, Console.Error);
             ConsoleOutputType = OutputType.Txt;
         }
 
 
         public void Disable()
         {
-            OutStream = TextWriter.Null;
-            ErrorStream = TextWriter.Null;
+            SetOutput(TextWriter.Null);
         }
 
         public void DisableConsole()
         {
-            Console.SetOut(TextWriter.Null);
-            Console.SetError(TextWriter.Null);
+            SetConsoleOutput(TextWriter.Null);
+        }
+
+        public void SetOutput(TextWriter output)
+        {
+            SetOutput(output, output);
         }
 
         public void SetOutput(TextWriter output, TextWriter error)
         {
             OutStream = output;
             ErrorStream = error;
+        }
+
+        public void SetConsoleOutput(TextWriter output)
+        {
+            SetConsoleOutput(output, output);
+        }
+
+        public void SetConsoleOutput(TextWriter output, TextWriter error)
+        {
+            Console.SetOut(output);
+            Console.SetError(error);
         }
 
         public void WriteHelp()
@@ -88,10 +101,10 @@ namespace Edison.Engine
             The following tags are accepted as input:
             
             -a      -   List of paths to assemblies (.dll) to run.
-            -cof    -   Boolean flag to state whether an output file should be
-                        created.
             -cot    -   Type of output for the console, default is txt.
             -dco    -   Boolean flag to state whether all output to the console is
+                        disabled.
+            -dfo    -   Boolean flag to state whether an output file should be
                         disabled.
             -dto    -   Boolean flag to state whether user produced output from
                         tests should be disabled.
@@ -125,7 +138,12 @@ namespace Edison.Engine
         public void WriteVersion()
         {
             SetOutput(Console.Out, Console.Error);
-            OutStream.WriteLine(ConfigurationManager.AppSettings["version"]);
+            OutStream.WriteLine(GetVersion());
+        }
+
+        public string GetVersion()
+        {
+            return ConfigurationManager.AppSettings["version"];
         }
 
         public void WriteError(string error)

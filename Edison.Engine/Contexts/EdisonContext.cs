@@ -31,6 +31,8 @@ namespace Edison.Engine.Contexts
 
         #region Properties
         
+        public bool IsRunning { get; private set; }
+
         public List<string> AssemblyPaths { get; private set; }
         public List<string> IncludedCategories { get; private set; }
         public List<string> ExcludedCategories { get; private set; }
@@ -41,14 +43,14 @@ namespace Edison.Engine.Contexts
         public string OutputFolder { get; set; }
         public OutputType OutputType { get; set; }
         public OutputType ConsoleOutputType { get; set; }
-        public bool CreateOutput { get; set; }
+        public bool DisableFileOutput { get; set; }
         public bool DisableConsoleOutput { get; set; }
         public bool DisableTestOutput { get; set; }
         public string TestResultURL { get; set; }
         public string TestRunId { get; set; }
 
         private Stopwatch Timer = default(Stopwatch);
-        private TestResultDictionary ResultQueue = default(TestResultDictionary);
+        public TestResultDictionary ResultQueue { get; private set; }
 
         private IList<EdisonTestThread> Threads = default(IList<EdisonTestThread>);
         private EdisonTestThread SingularThread = default(EdisonTestThread);
@@ -59,6 +61,7 @@ namespace Edison.Engine.Contexts
 
         public EdisonContext()
         {
+            IsRunning = false;
             AssemblyPaths = new List<string>(1);
             IncludedCategories = new List<string>();
             ExcludedCategories = new List<string>();
@@ -69,22 +72,24 @@ namespace Edison.Engine.Contexts
             OutputType = OutputType.Json;
             OutputFolder = Environment.CurrentDirectory;
             OutputFile = "ResultFile";
-            CreateOutput = true;
+            DisableFileOutput = false;
             DisableConsoleOutput = false;
             DisableTestOutput = false;
             TestResultURL = string.Empty;
+            IsRunning = true;
         }
 
         #endregion
 
         #region Public Methods
 
-        public void Run()
+        public TestResultDictionary Run()
         {
             //set logging output
             if (DisableConsoleOutput)
             {
                 Logger.Instance.Disable();
+                Logger.Instance.DisableConsole();
             }
 
             if (DisableTestOutput)
@@ -136,7 +141,7 @@ namespace Edison.Engine.Contexts
             }
             
             //create result file and write
-            if (CreateOutput)
+            if (!DisableFileOutput)
             {
                 Logger.Instance.WriteDoubleLine(Environment.NewLine);
 
@@ -164,6 +169,37 @@ namespace Edison.Engine.Contexts
             Logger.Instance.WriteMessage(ResultQueue.ToTotalString());
             Logger.Instance.WriteMessage(string.Format("Total time: {0}", Timer.Elapsed));
             Logger.Instance.WriteDoubleLine(postcede: Environment.NewLine);
+
+            IsRunning = false;
+            return ResultQueue;
+        }
+
+        public void Interrupt()
+        {
+            if (Threads != default(IList<EdisonTestThread>))
+            {
+                foreach (var thread in Threads)
+                {
+                    thread.Interrupt = true;
+                }
+                
+                while (!Threads.All(x => x.IsFinished))
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            if (SingularThread != default(EdisonTestThread))
+            {
+                SingularThread.Interrupt = true;
+
+                while (!SingularThread.IsFinished)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            Logger.Instance.WriteMessage(string.Format("{1}{1}{0}", "EDISON STOPPED", Environment.NewLine));
         }
         
         #endregion
@@ -264,11 +300,9 @@ namespace Edison.Engine.Contexts
             }
 
             // keep polling the threads, so we know when they're finished
-            var allFinished = Threads.All(x => x.IsFinished);
-            while (!allFinished)
+            while (!Threads.All(x => x.IsFinished))
             {
                 Thread.Sleep(500);
-                allFinished = Threads.All(x => x.IsFinished);
             }
 
             // once finished, we need to run the possible singular tests

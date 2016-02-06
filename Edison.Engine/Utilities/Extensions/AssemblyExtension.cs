@@ -43,21 +43,27 @@ namespace Edison.Engine.Utilities.Extensions
                 .OrderBy(t => t.FullName);
         }
 
+        public static IEnumerable<MethodInfo> GetAllTests(this Assembly assembly)
+        {
+            return assembly.GetTests(null, null, null, null);
+        }
+
         public static IEnumerable<MethodInfo> GetTests(
             this Assembly assembly,
             List<string> includedCategories,
             List<string> excludedCategories,
-            List<string> fixtures)
+            List<string> fixtures,
+            List<string> tests)
         {
             var _fixtures = assembly.GetTestFixtures(includedCategories, excludedCategories, fixtures);
-            var tests = new List<MethodInfo>(_fixtures.Count() * 30);
+            var _tests = new List<MethodInfo>(_fixtures.Count() * 30);
 
             foreach (var fixture in _fixtures)
             {
-                tests.AddRange(fixture.GetMethods<TestAttribute>(includedCategories, excludedCategories));
+                _tests.AddRange(fixture.GetMethods<TestAttribute>(includedCategories, excludedCategories, tests));
             }
 
-            return tests;
+            return _tests;
         }
 
     }

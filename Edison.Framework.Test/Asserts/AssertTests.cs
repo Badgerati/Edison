@@ -468,7 +468,7 @@ namespace Edison.Framework.Tests
 
             try
             {
-                assert.DirectoryExists("../Debug");
+                assert.DirectoryExists("C:/Users");
             }
             catch (AssertException aex)
             {

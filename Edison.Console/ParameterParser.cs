@@ -29,7 +29,7 @@ namespace Edison.Console
         private static IDictionary<string, Delegate> Keywords = new Dictionary<string, Delegate>
             {
                 { "a", new Action<string[]>(AssemblyAction) },
-                { "cof", new Action<string[]>(CreateOutputAction) },
+                { "dfo", new Action<string[]>(DisableFileOutputAction) },
                 { "e", new Action<string[]>(ExcludedAction) },
                 { "f", new Action<string[]>(FixtureAction) },
                 { "h", new Action<string[]>(HelpAction) },
@@ -272,22 +272,6 @@ namespace Edison.Console
             Context.OutputType = type;
         }
 
-        private static void CreateOutputAction(string[] values)
-        {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -co. Expected 1 but got {0}", values.Length));
-            }
-
-            var create = true;
-            if (!bool.TryParse(values[0], out create))
-            {
-                throw new ParseException(string.Format("Create output value supplied for -co is incorrect: '{0}'", values[0]));
-            }
-
-            Context.CreateOutput = create;
-        }
-
         private static void TestResultUrlAction(string[] values)
         {
             if (values.Length != 1)
@@ -372,6 +356,22 @@ namespace Edison.Console
             }
 
             Context.DisableTestOutput = disbale;
+        }
+
+        private static void DisableFileOutputAction(string[] values)
+        {
+            if (values.Length != 1)
+            {
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dfo. Expected 1 but got {0}", values.Length));
+            }
+
+            var disable = true;
+            if (!bool.TryParse(values[0], out disable))
+            {
+                throw new ParseException(string.Format("Disable file output value supplied for -dfo is incorrect: '{0}'", values[0]));
+            }
+
+            Context.DisableFileOutput = disable;
         }
 
         #endregion

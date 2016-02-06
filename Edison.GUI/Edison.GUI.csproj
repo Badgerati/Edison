@@ -56,6 +56,8 @@
     <Compile Include="OutputLogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TreeNodeExtension.cs" />
+    <Compile Include="TreeNodeType.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -85,6 +87,10 @@
     <ProjectReference Include="..\Edison.Engine\Edison.Engine.csproj">
       <Project>{06646721-6350-4c99-acda-831e03c9e069}</Project>
       <Name>Edison.Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Edison.Framework\Edison.Framework.csproj">
+      <Project>{d7081147-8c02-4400-9b30-59d0aec9591b}</Project>
+      <Name>Edison.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

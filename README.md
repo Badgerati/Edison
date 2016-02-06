@@ -1,4 +1,4 @@
-Edison v0.8.0a
+Edison v0.9.0a
 ==============
 
 Edison is designed to be a more performant unit/integration testing framework for .NET projects.
@@ -92,10 +92,10 @@ This will run the tests across two threads (-t) from the assembly.dll file (-a).
 Do you have your own in-house test history storage? You can post the test results from Edison.Console to a given URL. Also you can specify a Test Run ID to help uniquely identify the run the results came from:
 
 ```bash
-.\Edison.Console.exe -a path/to/test/assembly.dll -t 2 -cof false -dco true -ot json -url http://someurl.com -tid 702
+.\Edison.Console.exe -a path/to/test/assembly.dll -t 2 -dfo true -dco true -ot json -url http://someurl.com -tid 702
 ```
 
-Again this will run the tests across two threads however, this time we won't be creating an output file (-cof) or outputting the results to the console (-dco). Instead, the results will be posted to the passed URL (-url) and also use the test run ID specified (-tid).
+Again this will run the tests across two threads however, this time we won't be creating an output file (-dfo) or outputting the results to the console (-dco). Instead, the results will be posted to the passed URL (-url) and also use the test run ID specified (-tid).
 
 To see more parameters use:
 
@@ -116,11 +116,10 @@ Features
 
 * Framework with Attributes and Assert class for writing unit/integration tests.
 * Console application from which to run your tests - with useful inputs like TestResultURL to send results.
+* GUI for a more visual look on running tests.
 
 
 To Do
 =====
 
-* GUI
 * Website with service for automatically running tests
-* More can be found on Trello which I'll link at some point

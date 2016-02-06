@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Edison.Tests
@@ -53,7 +54,6 @@ namespace Edison.Tests
 
 
         [Test]
-        [Ignore]
         [Repeat(2)]
         [TestCase("case1")]
         [TestCase("case2")]
@@ -62,14 +62,14 @@ namespace Edison.Tests
         {
             Console.WriteLine("WOO1!!!");
             Console.WriteLine(value);
+            Thread.Sleep(1000);
             Console.WriteLine(test);
             AssertFactory.Instance.AreEqual(1, 2, "Values are not equal");
             Console.WriteLine("WOO1!!!");
         }
 
         [Test]
-        [Ignore]
-        //[Repeat(2)]
+        [Repeat(2)]
         public void TestMethod2()
         {
             //AssertFactory.Instance.Inconclusive("Hmm");

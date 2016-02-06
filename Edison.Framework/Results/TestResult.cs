@@ -24,6 +24,7 @@ namespace Edison.Framework
 
         public TestResultState State { get; set; }
         public string Name { get; set; }
+        public string BasicName { get; set; }
         public string ErrorMessage { get; set; }
         public string StackTrace { get; set; }
         public TimeSpan TimeTaken { get; set; }
@@ -69,9 +70,9 @@ namespace Edison.Framework
                 _parameters = _parameters.Trim(',', ' ');
             }
 
-            Name = string.Format("{0}.{1}({2}){3}",
-                method.DeclaringType.FullName,
-                method.Name,
+            BasicName = string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name);
+            Name = string.Format("{0}({1}){2}",
+                BasicName,
                 _parameters,
                 TestRepeatIndex == -1 && TestFixtureRepeatIndex == -1
                     ? string.Empty

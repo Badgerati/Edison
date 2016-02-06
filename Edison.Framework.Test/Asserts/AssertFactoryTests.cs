@@ -21,6 +21,7 @@ namespace Edison.Framework.Test.Asserts
         [TestMethod]
         public void DefaultAssertFactoryTest()
         {
+            AssertFactory.Instance = new Assert();
             var assert = AssertFactory.Instance;
             MAssert.IsInstanceOfType(assert, typeof(IAssert));
 

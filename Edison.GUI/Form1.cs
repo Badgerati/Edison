@@ -15,6 +15,7 @@ using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Engine;
 using System.Threading;
+using Edison.Framework;
 
 namespace Edison.GUI
 {
@@ -26,10 +27,17 @@ namespace Edison.GUI
         public const string MainTitle = "Edison";
         public const char Separator = '.';
 
+        private Assembly Assembly = default(Assembly);
+        private int TotalNumberOfTestsRunning = 0;
         private string FileName = string.Empty;
         private string FilePath = string.Empty;
 
+        private List<string> CheckedTests = new List<string>();
+        private List<string> CheckedFixtures = new List<string>();
+
+        private EdisonContext EdisonContext = default(EdisonContext);
         private Thread MainThread = default(Thread);
+        private Thread UpdateThread = default(Thread);
 
         #endregion
 
@@ -38,13 +46,79 @@ namespace Edison.GUI
         public EdisonForm()
         {
             InitializeComponent();
+
+            FormClosing += EdisonForm_FormClosing;
             TestTree.NodeMouseDoubleClick += TestTree_NodeMouseDoubleClick;
             TestTree.KeyDown += TestTree_KeyDown;
+            FailedTestListBox.MeasureItem += FailedTestListBox_MeasureItem;
+            FailedTestListBox.DrawItem += FailedTestListBox_DrawItem;
+
+            ThreadNumericBox.Value = 1;
+            TestProgressBar.Value = 0;
         }
-        
+
         #endregion
 
         #region Events
+        
+        private void EdisonForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var abortThread = new Thread(() => AbortThreads());
+            abortThread.Start();
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+            DisableConsoleCheckBox.Checked = !DisableConsoleCheckBox.Checked;
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+            DisableTestCheckBox.Checked = !DisableTestCheckBox.Checked;
+        }
+
+        private void FailedTestListBox_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0)
+            {
+                return;
+            }
+
+            e.DrawBackground();
+            var item = (TestResult)(FailedTestListBox.Items[e.Index]);
+            e.Graphics.DrawString(item.Name + Environment.NewLine + item.ErrorMessage, e.Font, new SolidBrush(e.ForeColor), e.Bounds);
+        }
+
+        private void FailedTestListBox_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = 65;
+        }
+
+        private void FailedTestListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FailedTestDetails.Clear();
+            FailedTestDetails.AppendText("StackTrace:" + Environment.NewLine + ((TestResult)(((ListBox)sender).SelectedItem)).StackTrace);
+        }
+
+        private void expandToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TestTree.ExpandAll();
+        }
+
+        private void collapseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TestTree.CollapseAll();
+        }
+
+        private void checkboxesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TestTree.CheckBoxes = !TestTree.CheckBoxes;
+        }
+
+        private void uncheckAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToggleCheckBoxes(TestTree.Nodes, false);
+        }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -63,35 +137,122 @@ namespace Edison.GUI
                 FileName = Path.GetFileName(FilePath);
                 Text = MainTitle + " - " + FileName;
 
-                var assembly = AssemblyHelper.GetAssembly(FilePath);
-                var tests = assembly.GetTests(null, null, null);
-                PopulateTestTree(tests.ToList());
+                Assembly = AssemblyHelper.GetAssembly(FilePath);
+                PopulateTestTree(Assembly.GetAllTests().ToList());
             }
-            else
+            else if (result != DialogResult.Cancel)
             {
                 MessageBox.Show("Failed to open the selected file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(OutputRichText.Text))
+            {
+                MessageBox.Show("Nothing to save.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog();
+            dialog.CheckPathExists = true;
+            dialog.DefaultExt = "*.txt";
+            dialog.Title = "Edison - Save Test Result Output";
+            dialog.Filter = "txt (*.txt)|*.txt";
+
+            var result = dialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                File.WriteAllText(dialog.FileName, OutputRichText.Text);
+            }
+            else if (result != DialogResult.Cancel)
+            {
+                MessageBox.Show("Failed to save test result output.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Author: Matthew Kelly\nVersion: " + Logger.Instance.GetVersion(),
+                "Edison",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
         private void TestTree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Nodes.Count == 0)
-            {
-                RunTests(new List<string>() { e.Node.FullPath.Replace(FileName + ".", string.Empty) });
-            }
+            DoTestTreeSelect(e.Node);
         }
 
         private void TestTree_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode != Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
-                return;
+                DoTestTreeSelect(TestTree.SelectedNode);
             }
+        }
 
-            var node = TestTree.SelectedNode;
-            if (node.Nodes.Count == 0)
+        private void TestTree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            var node = e.Node;
+
+            if (node.Checked)
             {
-                RunTests(new List<string>() { node.FullPath.Replace(FileName + ".", string.Empty) });
+                var tests = node.GetFullPaths(FileName, Separator);
+                CheckedTests.AddRange(tests.Item1);
+                CheckedFixtures.AddRange(tests.Item2);
+            }
+            else
+            {
+                var tests = node.GetFullPaths(FileName, Separator);
+                
+                foreach (var test in tests.Item1)
+                {
+                    CheckedTests.Remove(test);
+                }
+
+                foreach (var fixture in tests.Item2)
+                {
+                    CheckedFixtures.Remove(fixture);
+                }
+            }
+        }
+
+        private void RunTestsButton_Click(object sender, EventArgs e)
+        {
+            switch (RunTestsButton.Text.ToLower())
+            {
+                case "run":
+                    if (TestTree.Nodes.Count != 0)
+                    {
+                        DoTestTreeSelect(null);
+                    }
+                    break;
+
+                case "stop":
+                    RunTestsButton.Text = "Run";
+                    var abortThread = new Thread(() => AbortThreads());
+                    abortThread.Start();
+                    break;
+            }
+        }
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {
+            switch (e.TabPageIndex)
+            {
+                case 0:
+                    OutputRichText.Focus();
+                    break;
+
+                case 1:
+                    FailedTestListBox.Focus();
+                    break;
             }
         }
 
@@ -99,38 +260,192 @@ namespace Edison.GUI
 
         #region Helpers
 
-        private void RunTests(List<string> tests)
+        private void RunTests(List<string> tests, List<string> fixtures)
         {
-            if (MainThread != default(Thread) && MainThread.ThreadState == ThreadState.Running)
+            if (Assembly == default(Assembly)
+                || (MainThread != default(Thread) && MainThread.ThreadState == ThreadState.Running)
+                || (UpdateThread != default(Thread) && UpdateThread.ThreadState == ThreadState.Running))
             {
                 return;
             }
 
             OutputRichText.Clear();
-            var context = new EdisonContext();
+            TestProgressBar.Value = 0;
+            FailedTestListBox.Items.Clear();
+            FailedTestDetails.Clear();
 
-            context.AssemblyPaths.Add(FilePath);
-            context.NumberOfThreads = 1;
-            context.Tests.AddRange(tests);
-            context.CreateOutput = false;
-            context.ConsoleOutputType = OutputType.Txt;
-
+            SetupContext(tests, fixtures);
             var logger = new OutputLogger(OutputRichText);
-            Logger.Instance.SetOutput(logger, logger);
-            Console.SetOut(logger);
-            Console.SetError(logger);
+            Logger.Instance.SetOutput(logger);
+            Logger.Instance.SetConsoleOutput(logger);
             
-            MainThread = new Thread(() => Run(context));
+            TotalNumberOfTestsRunning = Assembly.GetTests(
+                EdisonContext.IncludedCategories,
+                EdisonContext.ExcludedCategories,
+                EdisonContext.Fixtures,
+                EdisonContext.Tests).Count();
+
+            MainThread = new Thread(() => Run(EdisonContext));
             MainThread.Start();
+
+            UpdateThread = new Thread(() => UpdateProgress(EdisonContext));
+            UpdateThread.Start();
+
+            OutputRichText.Focus();
+            RunTestsButton.Text = "Stop";
         }
 
         private void Run(EdisonContext context)
         {
-            context.Run();
+            var results = context.Run();
+
+            foreach (var result in results.FailedTestResults)
+            {
+                if (FailedTestListBox.IsDisposed)
+                {
+                    return;
+                }
+
+                try
+                {
+                    if (FailedTestListBox.InvokeRequired)
+                    {
+                        FailedTestListBox.BeginInvoke((MethodInvoker)delegate { FailedTestListBox.Items.Add(result); });
+                    }
+                    else
+                    {
+                        FailedTestListBox.Items.Add(result);
+                    }
+                }
+                catch (ObjectDisposedException) { }
+            }
+
+            if (RunTestsButton.IsDisposed)
+            {
+                return;
+            }
+
+            try
+            {
+                if (RunTestsButton.InvokeRequired)
+                {
+                    RunTestsButton.BeginInvoke((MethodInvoker)delegate { RunTestsButton.Text = "Run"; });
+                }
+                else
+                {
+                    RunTestsButton.Text = "Run";
+                }
+            }
+            catch (ObjectDisposedException) { }
+        }
+
+        private void UpdateProgress(EdisonContext context)
+        {
+            while (context.IsRunning)
+            {
+                Thread.Sleep(100);
+
+                if (context.ResultQueue.Total == 0 || TotalNumberOfTestsRunning == 0)
+                {
+                    continue;
+                }
+                
+                var results = context.ResultQueue.TestResults.GroupBy(x => x.BasicName).Count();
+                var progress = (int)(((double)results / (double)TotalNumberOfTestsRunning) * 100.0);
+                SetProgress(Math.Max(0, Math.Min(95, progress)));
+            }
+
+            SetProgress(100);
+        }
+
+        private void SetProgress(int progress)
+        {
+            if (TestProgressBar.IsDisposed)
+            {
+                return;
+            }
+
+            try
+            {
+                if (TestProgressBar.InvokeRequired)
+                {
+                    TestProgressBar.Invoke((MethodInvoker)delegate { TestProgressBar.Value = progress; });
+                }
+                else
+                {
+                    TestProgressBar.Value = progress;
+                }
+            }
+            catch (ObjectDisposedException) { }
+        }
+
+        private void SetupContext(List<string> tests, List<string> fixtures)
+        {
+            EdisonContext = new EdisonContext();
+            EdisonContext.AssemblyPaths.Add(FilePath);
+            EdisonContext.NumberOfThreads = (int)ThreadNumericBox.Value;
+            EdisonContext.DisableConsoleOutput = DisableConsoleCheckBox.Checked;
+            EdisonContext.DisableTestOutput = DisableTestCheckBox.Checked;
+
+            if (!string.IsNullOrWhiteSpace(IncludeCategoriesTextBox.Text))
+            {
+                var categories = IncludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim()).ToList();
+                EdisonContext.IncludedCategories.AddRange(categories);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ExcludeCategoriesTextBox.Text))
+            {
+                var categories = ExcludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim()).ToList();
+                EdisonContext.ExcludedCategories.AddRange(categories);
+            }
+
+            if (tests != default(List<string>))
+            {
+                EdisonContext.Tests.AddRange(tests);
+            }
+
+            if (fixtures != default(List<string>))
+            {
+                EdisonContext.Fixtures.AddRange(fixtures);
+            }
+
+            EdisonContext.DisableFileOutput = true;
+            EdisonContext.ConsoleOutputType = OutputType.Txt;
+        }
+
+        private void DoTestTreeSelect(TreeNode node)
+        {
+            if (node == default(TreeNode))
+            {
+                if (CheckedTests.Any() || CheckedFixtures.Any())
+                {
+                    RunTests(CheckedTests, CheckedFixtures);
+                    return;
+                }
+
+                node = TestTree.SelectedNode;
+            }
+
+            if (node != default(TreeNode))
+            {
+                var tests = node.GetFullPaths(FileName, Separator);
+                RunTests(tests.Item1, tests.Item2);
+            }
+        }
+
+        private void ToggleCheckBoxes(TreeNodeCollection nodes, bool flag)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                ToggleCheckBoxes(node.Nodes, flag);
+                node.Checked = flag;
+            }
         }
 
         private void PopulateTestTree(List<MethodInfo> tests)
         {
+            TestTree.Nodes.Clear();
+
             if (tests == default(List<MethodInfo>) || !tests.Any())
             {
                 return;
@@ -152,10 +467,28 @@ namespace Edison.GUI
 
             TestTree.Nodes.Add(rootNode);
             TestTree.PathSeparator = Separator.ToString();
+            TestTree.ContextMenuStrip = TestTreeContextMenu;
             TestTree.Focus();
         }
 
-        #endregion
+        private void AbortThreads()
+        {
+            if (UpdateThread != default(Thread))
+            {
+                UpdateThread.Abort();
+            }
 
+            if (MainThread != default(Thread))
+            {
+                MainThread.Abort();
+            }
+
+            if (EdisonContext != default(EdisonContext) && EdisonContext.IsRunning)
+            {
+                EdisonContext.Interrupt();
+            }
+        }
+
+        #endregion
     }
 }
