@@ -12,6 +12,7 @@ using Edison.Framework;
 using System;
 using System.IO;
 using System.Configuration;
+using System.Reflection;
 
 namespace Edison.Engine
 {
@@ -143,7 +144,7 @@ namespace Edison.Engine
 
         public string GetVersion()
         {
-            return ConfigurationManager.AppSettings["version"];
+            return Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
 
         public void WriteError(string error)
