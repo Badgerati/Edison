@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Edison by Badgerati</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Edison</h1>
+      <h2 class="project-tagline">Edison is an open source unit/integration test framework for .NET</h2>
+      <a href="https://github.com/Badgerati/Edison" class="btn">View on GitHub</a>
+      <a href="https://github.com/Badgerati/Edison/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Badgerati/Edison/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="edison" class="anchor" href="#edison" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edison</h1>
+
+<p>Edison is designed to be a more performant unit/integration testing framework for .NET projects.
+Many features, such as Attributes, are similar to NUnit for a more fluid transition.</p>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+
+<p>Edison is completely open sourced and free under the MIT License.</p>
+
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h1>
+
+<h2>
+<a id="framework" class="anchor" href="#framework" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Framework</h2>
+
+<p>Using Edison is very similar to NUnit. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:</p>
+
+<div class="highlight highlight-source-cs"><pre>[TestFixture]
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TestClass</span>
+{
+    [Setup]
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">Setup</span>()
+    {
+        <span class="pl-c">//stuff</span>
+    }
+
+    [Teardown]
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">Teardown</span>(<span class="pl-k">TestResult</span> <span class="pl-smi">result</span>)
+    {
+        <span class="pl-c">//stuff</span>
+    }
+
+    [Test]
+    [Category(<span class="pl-s"><span class="pl-pds">"</span>Name<span class="pl-pds">"</span></span>)]
+    [TestCase(<span class="pl-c1">1</span>)]
+    [TestCase(<span class="pl-c1">2</span>)]
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">Test</span>(<span class="pl-k">int</span> <span class="pl-smi">value</span>)
+    {
+        AssertFactory.Instance.AreEqual(<span class="pl-c1">2</span>, <span class="pl-k">value</span>, <span class="pl-s"><span class="pl-pds">"</span>Argh no it's an error!!!1<span class="pl-pds">"</span></span>);
+    }
+}</pre></div>
+
+<p>Here you can see that this is mostly very similar to NUnit. Edison has been designed this way to make it easier for people to transition over.</p>
+
+<p>In the example above we have:</p>
+
+<ul>
+<li>A <code>TestFixture</code> which contains multiple <code>Test</code>s to be run</li>
+<li>A <code>Setup</code> method which is run before each <code>Test</code>
+</li>
+<li>A <code>Teardown</code> method which is run after each <code>Test</code>. This can optionally take a TestResult object.</li>
+<li>And one <code>Test</code> method, which has a <code>Category</code> of "Name", and two possible <code>TestCase</code>s to run the Test with as 1 and 2.</li>
+</ul>
+
+<p>Furthermore, there's the Asserts class. In Edison the main <code>Assert</code> class implements the <code>IAssert</code> interface. To use the <code>Assert</code> class you can either create an instance of it for each Test, or you can use the <code>AssertFactory</code> class.
+The <code>AssertFactory</code> class contains a lazy Instance property which returns the <code>IAssert</code> class being used for the test assembly. This means you can create your own <code>CustomAssert</code> class that inherits <code>IAssert</code> and do <code>AssertFactory.Instance = new CustomAssert()</code> and any calls to <code>AssertFactory.Instance</code> will return your <code>CustomAssert</code>. This makes it far simpler to have your own assert logic in your test framework. If you don't set the <code>AssertFactory.Instance</code> then this is default to be the inbuilt <code>Assert</code> logic.</p>
+
+<h2>
+<a id="console-and-engine" class="anchor" href="#console-and-engine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Console and Engine</h2>
+
+<p>Edison has the inbuilt functionality to run tests in parallel threads. By default tests are run in a single thread however, by suppling the <code>-t &lt;value&gt;</code> parameter from the command-line the tests will be run in that many threads. If you supply a number of threads that exceeds the number of TestFixtures, then the number of threads will become the number of TestFixtures.</p>
+
+<p>Edison has the following flow when running tests per assembly:</p>
+
+<pre><code>SetupFixture -&gt; Setup
+ |
+TestFixture -&gt; TestFixtureSetup
+ |
+TestFixture -&gt; Setup
+ |
+TestFixture -&gt; Test with TestCases
+ |
+TestFixture -&gt; Teardown
+ |
+TestFixture -&gt; TestFixtureTeardown
+ |
+SetupFixture -&gt; Teardown
+</code></pre>
+
+<p>Example of running a test assembly from the command-line:</p>
+
+<div class="highlight highlight-source-shell"><pre>.<span class="pl-cce">\E</span>dison.Console.exe -a path/to/test/assembly.dll -t 2 -ot json</pre></div>
+
+<p>This will run the tests across two threads (-t) from the assembly.dll file (-a). The results of the tests will be output to the working directory in json format (-ot).</p>
+
+<p>Do you have your own in-house test history storage? You can post the test results from Edison.Console to a given URL. Also you can specify a Test Run ID to help uniquely identify the run the results came from:</p>
+
+<div class="highlight highlight-source-shell"><pre>.<span class="pl-cce">\E</span>dison.Console.exe -a path/to/test/assembly.dll -t 2 -dfo <span class="pl-c1">true</span> -dco <span class="pl-c1">true</span> -ot json -url http://someurl.com -tid 702</pre></div>
+
+<p>Again this will run the tests across two threads however, this time we won't be creating an output file (-dfo) or outputting the results to the console (-dco). Instead, the results will be posted to the passed URL (-url) and also use the test run ID specified (-tid).</p>
+
+<p>To see more parameters use:</p>
+
+<div class="highlight highlight-source-shell"><pre>.<span class="pl-cce">\E</span>dison.Console.exe -help</pre></div>
+
+<h2>
+<a id="building-the-solution" class="anchor" href="#building-the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building the Solution</h2>
+
+<p>Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console set as default).
+This will generate the Edison.Console executable and the Edison.Framework library for usage in your test framework.</p>
+
+<h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
+
+<ul>
+<li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
+<li>Console application from which to run your tests - with useful inputs like TestResultURL to send results.</li>
+<li>GUI for a more visual look on running tests.</li>
+</ul>
+
+<h1>
+<a id="to-do" class="anchor" href="#to-do" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To Do</h1>
+
+<ul>
+<li>Website with service for automatically running tests</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Badgerati/Edison">Edison</a> is maintained by <a href="https://github.com/Badgerati">Badgerati</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
