@@ -2,13 +2,18 @@ Edison
 ======
 
 Edison is designed to be a more performant unit/integration testing framework for .NET projects.
-Many features, such as Attributes, are similar to NUnit for a more fluid transition.
+Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.
 
 
-License
-=======
+Features
+========
 
-Edison is completely open sourced and free under the MIT License.
+* Framework with Attributes and Assert class for writing unit/integration tests.
+* Can run tests in parallel.
+* Output can be in XML, JSON, CSV or just plain text
+* Ability to send test results, in real-time, to a URL for later analysis.
+* Console application from which to run your tests.
+* GUI for a more visual look on running tests.
 
 
 Usage
@@ -17,7 +22,7 @@ Usage
 Framework
 ---------
 
-Using Edison is very similar to NUnit. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:
+Using Edison is very similar to other test frameworks. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:
 
 ```C#
 [TestFixture]
@@ -46,7 +51,7 @@ public class TestClass
 }
 ```
 
-Here you can see that this is mostly very similar to NUnit. Edison has been designed this way to make it easier for people to transition over.
+Here you can see that this is similar to other test frameworks. Edison has been designed this way to make it easier for people to transition over.
 
 In the example above we have:
 * A `TestFixture` which contains multiple `Test`s to be run
@@ -72,7 +77,7 @@ TestFixture -> TestFixtureSetup
  |
 TestFixture -> Setup
  |
-TestFixture -> Test with TestCases
+TestFixture -> Tests and TestCases
  |
 TestFixture -> Teardown
  |
@@ -107,19 +112,25 @@ To see more parameters use:
 Building the Solution
 ---------------------
 
-Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console set as default).
-This will generate the Edison.Console executable and the Edison.Framework library for usage in your test framework.
+You are now also able to download the core binaries and executables from the [Edison releases](https://github.com/Badgerati/Edison/releases "Edison Releases") tab in GitHub.
 
-
-Features
-========
-
-* Framework with Attributes and Assert class for writing unit/integration tests.
-* Console application from which to run your tests - with useful inputs like TestResultURL to send results.
-* GUI for a more visual look on running tests.
+Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console or Edison.GUI set as default).
+This will generate the Edison.Console/GUI executables and the Edison.Framework library for usage in your test framework.
 
 
 To Do
 =====
 
 * Website with service for automatically running tests
+
+
+Bugs and Feature Requests
+=========================
+
+For any bugs you may find or features you wish to request, please create an [issue](https://github.com/Badgerati/Edison/issues "Issues") in GitHub.
+
+
+License
+=======
+
+Edison is completely open sourced and free under the MIT License.
