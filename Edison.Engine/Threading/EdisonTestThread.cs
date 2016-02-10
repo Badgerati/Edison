@@ -12,10 +12,8 @@ using Edison.Engine.Utilities.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Edison.Engine.Contexts;
 using System.Diagnostics;
 using ThreadState = System.Threading.ThreadState;
@@ -41,9 +39,10 @@ namespace Edison.Engine.Threading
                     && _thread.ThreadState != ThreadState.WaitSleepJoin;
             }
         }
-    
-        public int ThreadId { get; private set; }
+
         public bool Interrupt { get; set; }
+
+        private int ThreadId = default(int);
         private EdisonContext Context = default(EdisonContext);
         private TestResultDictionary ResultQueue = default(TestResultDictionary);
         private Exception GlobalSetupException = default(Exception);

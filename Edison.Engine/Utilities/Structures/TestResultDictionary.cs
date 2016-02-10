@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Edison.Engine.Core.Output;
 using Edison.Framework.Enums;
+using Edison.Engine.Events;
 
 namespace Edison.Engine.Utilities.Structures
 {
@@ -29,6 +30,7 @@ namespace Edison.Engine.Utilities.Structures
 
         private ConcurrentDictionary<string, TestResult> Results = default(ConcurrentDictionary<string, TestResult>);
         private EdisonContext Context = default(EdisonContext);
+        public event TestResultEventHandler OnTestResult;
 
         public ICollection<TestResult> TestResults
         {
@@ -146,6 +148,11 @@ namespace Edison.Engine.Utilities.Structures
             catch (Exception ex)
             {
                 Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
+            }
+
+            if (OnTestResult != default(TestResultEventHandler))
+            {
+                OnTestResult.Invoke(result);
             }
 
             return response;

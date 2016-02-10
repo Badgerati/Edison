@@ -16,6 +16,7 @@ using Edison.Engine.Core.Enums;
 using Edison.Engine;
 using System.Threading;
 using Edison.Framework;
+using Edison.Framework.Enums;
 
 namespace Edison.GUI
 {
@@ -29,6 +30,7 @@ namespace Edison.GUI
 
         private Assembly Assembly = default(Assembly);
         private int TotalNumberOfTestsRunning = 0;
+        private int CurrentNumberOfTestsRun = 0;
         private string FileName = string.Empty;
         private string FilePath = string.Empty;
 
@@ -256,6 +258,34 @@ namespace Edison.GUI
             }
         }
 
+        private void EdisonContext_OnTestResult(TestResult result)
+        {
+            CurrentNumberOfTestsRun++;
+
+            if (result.State == TestResultState.Success)
+            {
+                return;
+            }
+
+            if (FailedTestListBox.IsDisposed)
+            {
+                return;
+            }
+
+            try
+            {
+                if (FailedTestListBox.InvokeRequired)
+                {
+                    FailedTestListBox.BeginInvoke((MethodInvoker)delegate { FailedTestListBox.Items.Add(result); });
+                }
+                else
+                {
+                    FailedTestListBox.Items.Add(result);
+                }
+            }
+            catch (ObjectDisposedException) { }
+        }
+
         #endregion
 
         #region Helpers
@@ -278,12 +308,13 @@ namespace Edison.GUI
             var logger = new OutputLogger(OutputRichText);
             Logger.Instance.SetOutput(logger);
             Logger.Instance.SetConsoleOutput(logger);
-            
-            TotalNumberOfTestsRunning = Assembly.GetTests(
+
+            CurrentNumberOfTestsRun = 0;
+            TotalNumberOfTestsRunning = Assembly.GetTestCount(
                 EdisonContext.IncludedCategories,
                 EdisonContext.ExcludedCategories,
                 EdisonContext.Fixtures,
-                EdisonContext.Tests).Count();
+                EdisonContext.Tests);
 
             MainThread = new Thread(() => Run(EdisonContext));
             MainThread.Start();
@@ -297,46 +328,8 @@ namespace Edison.GUI
 
         private void Run(EdisonContext context)
         {
-            var results = context.Run();
-
-            foreach (var result in results.FailedTestResults)
-            {
-                if (FailedTestListBox.IsDisposed)
-                {
-                    return;
-                }
-
-                try
-                {
-                    if (FailedTestListBox.InvokeRequired)
-                    {
-                        FailedTestListBox.BeginInvoke((MethodInvoker)delegate { FailedTestListBox.Items.Add(result); });
-                    }
-                    else
-                    {
-                        FailedTestListBox.Items.Add(result);
-                    }
-                }
-                catch (ObjectDisposedException) { }
-            }
-
-            if (RunTestsButton.IsDisposed)
-            {
-                return;
-            }
-
-            try
-            {
-                if (RunTestsButton.InvokeRequired)
-                {
-                    RunTestsButton.BeginInvoke((MethodInvoker)delegate { RunTestsButton.Text = "Run"; });
-                }
-                else
-                {
-                    RunTestsButton.Text = "Run";
-                }
-            }
-            catch (ObjectDisposedException) { }
+            context.Run();
+            SetRunTestButton("Run");            
         }
 
         private void UpdateProgress(EdisonContext context)
@@ -345,14 +338,13 @@ namespace Edison.GUI
             {
                 Thread.Sleep(100);
 
-                if (context.ResultQueue.Total == 0 || TotalNumberOfTestsRunning == 0)
+                if (CurrentNumberOfTestsRun == 0 || TotalNumberOfTestsRunning == 0)
                 {
                     continue;
                 }
                 
-                var results = context.ResultQueue.TestResults.GroupBy(x => x.BasicName).Count();
-                var progress = (int)(((double)results / (double)TotalNumberOfTestsRunning) * 100.0);
-                SetProgress(Math.Max(0, Math.Min(95, progress)));
+                var progress = (int)(((double)CurrentNumberOfTestsRun / (double)TotalNumberOfTestsRunning) * 100.0);
+                SetProgress(Math.Max(0, Math.Min(97, progress)));
             }
 
             SetProgress(100);
@@ -374,6 +366,27 @@ namespace Edison.GUI
                 else
                 {
                     TestProgressBar.Value = progress;
+                }
+            }
+            catch (ObjectDisposedException) { }
+        }
+
+        private void SetRunTestButton(string value)
+        {
+            if (RunTestsButton.IsDisposed)
+            {
+                return;
+            }
+
+            try
+            {
+                if (RunTestsButton.InvokeRequired)
+                {
+                    RunTestsButton.BeginInvoke((MethodInvoker)delegate { RunTestsButton.Text = value; });
+                }
+                else
+                {
+                    RunTestsButton.Text = value;
                 }
             }
             catch (ObjectDisposedException) { }
@@ -411,6 +424,7 @@ namespace Edison.GUI
 
             EdisonContext.DisableFileOutput = true;
             EdisonContext.ConsoleOutputType = OutputType.Txt;
+            EdisonContext.OnTestResult += EdisonContext_OnTestResult;
         }
 
         private void DoTestTreeSelect(TreeNode node)

@@ -23,6 +23,7 @@ using Edison.Engine.Utilities.Structures;
 using System.Diagnostics;
 using Edison.Engine.Core.Output;
 using Edison.Framework.Enums;
+using Edison.Engine.Events;
 
 namespace Edison.Engine.Contexts
 {
@@ -50,10 +51,16 @@ namespace Edison.Engine.Contexts
         public string TestRunId { get; set; }
 
         private Stopwatch Timer = default(Stopwatch);
-        public TestResultDictionary ResultQueue { get; private set; }
+        private TestResultDictionary ResultQueue;
 
         private IList<EdisonTestThread> Threads = default(IList<EdisonTestThread>);
         private EdisonTestThread SingularThread = default(EdisonTestThread);
+
+        #endregion
+
+        #region Events
+
+        public event TestResultEventHandler OnTestResult;
 
         #endregion
 
@@ -105,6 +112,12 @@ namespace Edison.Engine.Contexts
 
             //create queue
             ResultQueue = new TestResultDictionary(this);
+
+            if (OnTestResult != default(TestResultEventHandler))
+            {
+                ResultQueue.OnTestResult += OnTestResult;
+            }
+
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
             foreach (var assemblyPath in AssemblyPaths)
