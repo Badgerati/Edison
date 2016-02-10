@@ -18,21 +18,21 @@ a {
 .btn {
   display: inline-block;
   margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.7);
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(215, 117, 21, 1.0);
+  background-color: rgba(255, 144, 32, 0.2);
+  border-color: rgba(255, 144, 32, 0.9);
   border-style: solid;
   border-width: 1px;
-  border-radius: 0.3rem;
+  border-radius: 0.5rem;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s; }
   .btn + .btn {
     margin-left: 1rem; }
 
 .btn:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(215, 117, 21, 1.0);
   text-decoration: none;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3); }
+  background-color: rgba(255, 144, 32, 0.8);
+  border-color: rgba(255, 144, 32, 0.9); }
 
 @media screen and (min-width: 64em) {
   .btn {
@@ -54,10 +54,10 @@ a {
       margin-left: 0; } }
 
 .page-header {
-  color: #fff;
+  color: #f92;
   text-align: center;
-  background-color: #159957;
-  background-image: linear-gradient(120deg, #155799, #159957); }
+  background-color: #eee;
+  border-bottom: 2px solid #f92; }
 
 @media screen and (min-width: 64em) {
   .page-header {
@@ -90,7 +90,7 @@ a {
 .project-tagline {
   margin-bottom: 2rem;
   font-weight: normal;
-  opacity: 0.7; }
+  opacity: 0.8; }
 
 @media screen and (min-width: 64em) {
   .project-tagline {
@@ -112,7 +112,7 @@ a {
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-weight: normal;
-  color: #159957; }
+  color: #f92; }
 .main-content p {
   margin-bottom: 1em; }
 .main-content code {
