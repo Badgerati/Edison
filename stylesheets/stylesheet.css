@@ -10,7 +10,7 @@ body {
   color: #606c71; }
 
 a {
-  color: #1e6bb8;
+  color: #f92;
   text-decoration: none; }
   a:hover {
     text-decoration: underline; }
@@ -70,6 +70,13 @@ a {
 @media screen and (max-width: 42em) {
   .page-header {
     padding: 2rem 1rem; } }
+
+.project-logo {
+    margin-top: 0;
+    margin-bottom: 0.1rem;
+    height: 120px;
+    width: auto;
+}
 
 .project-name {
   margin-top: 0;

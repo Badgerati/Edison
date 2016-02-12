@@ -11,7 +11,8 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Edison</h1>
+      <img src="./images/logo.png" class="project-logo" alt="Edison logo" />
+      <!--<h1 class="project-name">Edison</h1>-->
       <h2 class="project-tagline">Edison is an open source unit/integration test framework for .NET</h2>
       <a href="https://github.com/Badgerati/Edison" class="btn">View on GitHub</a>
       <a href="https://github.com/Badgerati/Edison/zipball/master" class="btn">Download .zip</a>
@@ -23,12 +24,19 @@
 <a id="edison" class="anchor" href="#edison" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edison</h1>
 
 <p>Edison is designed to be a more performant unit/integration testing framework for .NET projects.
-Many features, such as Attributes, are similar to NUnit for a more fluid transition.</p>
+Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.</p>
 
 <h1>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
 
-<p>Edison is completely open sourced and free under the MIT License.</p>
+<ul>
+<li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
+<li>Can run tests in parallel.</li>
+<li>Output can be in XML, JSON, CSV or just plain text</li>
+<li>Ability to send test results, in real-time, to a URL for later analysis.</li>
+<li>Console application from which to run your tests.</li>
+<li>GUI for a more visual look on running tests.</li>
+</ul>
 
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h1>
@@ -36,7 +44,7 @@ Many features, such as Attributes, are similar to NUnit for a more fluid transit
 <h2>
 <a id="framework" class="anchor" href="#framework" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Framework</h2>
 
-<p>Using Edison is very similar to NUnit. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:</p>
+<p>Using Edison is very similar to other test frameworks. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:</p>
 
 <div class="highlight highlight-source-cs"><pre>[TestFixture]
 <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TestClass</span>
@@ -63,7 +71,7 @@ Many features, such as Attributes, are similar to NUnit for a more fluid transit
     }
 }</pre></div>
 
-<p>Here you can see that this is mostly very similar to NUnit. Edison has been designed this way to make it easier for people to transition over.</p>
+<p>Here you can see that this is mostly very similar to other test frameworks. Edison has been designed this way to make it easier for people to transition over.</p>
 
 <p>In the example above we have:</p>
 
@@ -91,7 +99,7 @@ TestFixture -&gt; TestFixtureSetup
  |
 TestFixture -&gt; Setup
  |
-TestFixture -&gt; Test with TestCases
+TestFixture -&gt; Tests and TestCases
  |
 TestFixture -&gt; Teardown
  |
@@ -116,20 +124,12 @@ SetupFixture -&gt; Teardown
 
 <div class="highlight highlight-source-shell"><pre>.<span class="pl-cce">\E</span>dison.Console.exe -help</pre></div>
 
-<h2>
-<a id="building-the-solution" class="anchor" href="#building-the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building the Solution</h2>
-
-<p>Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console set as default).
-This will generate the Edison.Console executable and the Edison.Framework library for usage in your test framework.</p>
-
 <h1>
-<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
+<a id="building-the-solution" class="anchor" href="#building-the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building the Solution</h1>
 
-<ul>
-<li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
-<li>Console application from which to run your tests - with useful inputs like TestResultURL to send results.</li>
-<li>GUI for a more visual look on running tests.</li>
-</ul>
+<p>You are now also able to download the core binaries and executables from the <a href="https://github.com/Badgerati/Edison/releases">Edison releases</a> tab in GitHub.</p>
+
+<p>Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console or Edison.GUI set as default). This will generate the Edison.Console/GUI executables and the Edison.Framework library for usage in your test framework.</p>
 
 <h1>
 <a id="to-do" class="anchor" href="#to-do" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To Do</h1>
@@ -137,6 +137,11 @@ This will generate the Edison.Console executable and the Edison.Framework librar
 <ul>
 <li>Website with service for automatically running tests</li>
 </ul>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+
+<p>Edison is completely open sourced and free under the MIT License.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/Badgerati/Edison">Edison</a> is maintained by <a href="https://github.com/Badgerati">Badgerati</a>.</span>
