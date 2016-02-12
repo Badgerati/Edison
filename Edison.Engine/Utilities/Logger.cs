@@ -101,28 +101,45 @@ namespace Edison.Engine
             
             The following tags are accepted as input:
             
-            -a      -   List of paths to assemblies (.dll) to run.
-            -cot    -   Type of output for the console, default is txt.
+            -a      -   List of paths to assemblies (.dll) to run, separated by spaces.
+
+            -cot    -   Type of output for the console, default is TXT.
+
             -dco    -   Boolean flag to state whether all output to the console is
-                        disabled.
+                        disabled (default is false).
+
             -dfo    -   Boolean flag to state whether an output file should be
-                        disabled.
+                        disabled (default is false).
+
             -dto    -   Boolean flag to state whether user produced output from
-                        tests should be disabled.
-            -e      -   List of categories to be excluded.
-            -f      -   List of TestFixtures that should be run.
+                        tests should be disabled (default is false).
+
+            -e      -   List of categories to be excluded, separated by spaces.
+
+            -f      -   List of TestFixtures that should be run, separated by spaces.
+
             -help   -   Displays help manual (this page).
-            -i      -   List of categories to be included.
+
+            -i      -   List of categories to be included, separated by spaces.
+
             -tid    -   Test run ID that can be used to identify this run.
+
             -od     -   Output directory for the output file created (default is
                         the working directory).
+
             -of     -   Name of the output file created.
-            -ot     -   Type of the output file.
-            -t      -   Number of threads on which to execute the tests.
-            -ts     -   List of Tests that should be run.
+
+            -ot     -   Type of the output file (default is JSON).
+
+            -t      -   Number of threads on which to execute the tests (default is 1).
+
+            -ts     -   List of Tests that should be run, separated by spaces).
+
             -url    -   Test result URL where test results and ID will be POSTed to,
-                        after each test.
-            -v      -   Version of Edison.
+                        after each test. Format is determined by -ot.
+
+            -v      -   Displays the current version of Edison.
+
 
 
             The following are possible output types:
