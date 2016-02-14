@@ -6,14 +6,11 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Edison.Engine.Core.Output
+namespace Edison.Engine.Repositories.Output
 {
     public class CsvOutputRepository : IOutputRepository
     {

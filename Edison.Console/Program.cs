@@ -8,12 +8,8 @@ License: MIT (see LICENSE for details)
 
 using Edison.Engine;
 using Edison.Engine.Contexts;
-using Edison.Engine.Core.Exceptions;
+using Edison.Engine.Repositories.Files;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Edison.Console
 {
@@ -26,7 +22,7 @@ namespace Edison.Console
 
             try
             {
-                if (!ParameterParser.Parse(context, args))
+                if (!ParameterParser.Parse(context, args, new FileRepository()))
                 {
                     return;
                 }

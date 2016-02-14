@@ -10,14 +10,13 @@ using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Core.Exceptions;
+using Edison.Engine.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Edison.Console
 {
@@ -49,14 +48,25 @@ namespace Edison.Console
                 { "dto", new Action<string[]>(DisableTestOutputAction) }
             };
 
-        private static EdisonContext Context { get; set; }
+        private static EdisonContext Context;
+        private static IFileRepository FileRepository;
 
         #endregion
 
         #region Parser
 
-        public static bool Parse(EdisonContext context, string[] args)
+        public static bool Parse(EdisonContext context, string[] args, IFileRepository fileRepository)
         {
+            if (context == default(EdisonContext))
+            {
+                throw new Exception("No EdisonContext supplied for parsing parameters");
+            }
+
+            if (fileRepository == default(IFileRepository))
+            {
+                throw new Exception("No FileRepository supplied for parsing parameters");
+            }
+
             if (args == default(string[]) || args.Length == 0)
             {
                 HelpAction(default(string[]));
@@ -64,9 +74,11 @@ namespace Edison.Console
             }
 
             Context = context;
+            FileRepository = fileRepository;
+
             var keys = Keywords.Keys.ToList();
 
-            var regex = new Regex("-(?<key>.+)");
+            var regex = new Regex("--(?<key>.+)");
             var sets = new Dictionary<string, IList<string>>();
             var currentKey = string.Empty;
 
@@ -134,20 +146,56 @@ namespace Edison.Console
                 throw new ParseException("No assembly paths supplied");
             }
 
-            foreach (var value in values)
+            const string extension = ".dll";
+            var assemblies = new List<string>(values.Length);
+            var files = values.Where(x => string.IsNullOrEmpty(Path.GetExtension(x.Trim())));
+            values = values.Where(x => !string.IsNullOrEmpty(Path.GetExtension(x.Trim()))).ToArray();
+
+            foreach (var file in files)
             {
-                if (!value.EndsWith(".dll", StringComparison.InvariantCultureIgnoreCase))
+                var _file = file.Trim();
+
+                if (!FileRepository.Exists(_file))
                 {
-                    throw new ParseException(string.Format("Assembly it not a value dll: '{0}'", value));
+                    throw new ParseException(string.Format("File for list of asemblies not found: '{0}'", _file));
                 }
 
-                if (!File.Exists(value))
+                var possibleAssemblies = FileRepository.ReadAllLines(_file);
+
+                foreach (var assembly in possibleAssemblies)
                 {
-                    throw new ParseException(string.Format("Assembly not found: '{0}'", value));
+                    if (Path.GetExtension(assembly) != extension)
+                    {
+                        throw new ParseException(string.Format("Assembly it not a valid dll: '{0}' in file '{1}'", assembly, _file));
+                    }
+
+                    if (!FileRepository.Exists(assembly))
+                    {
+                        throw new ParseException(string.Format("Assembly not found: '{0}' in file '{1}'", assembly, _file));
+                    }
                 }
+
+                assemblies.AddRange(possibleAssemblies);
             }
 
-            Context.AssemblyPaths.AddRange(values);
+            foreach (var value in values)
+            {
+                var _value = value.Trim();
+
+                if (Path.GetExtension(_value) != extension)
+                {
+                    throw new ParseException(string.Format("Assembly it not a valid dll: '{0}'", _value));
+                }
+
+                if (!FileRepository.Exists(_value))
+                {
+                    throw new ParseException(string.Format("Assembly not found: '{0}'", _value));
+                }
+
+                assemblies.Add(_value);
+            }
+
+            Context.AssemblyPaths.AddRange(assemblies);
         }
 
         private static void HelpAction(string[] values)
@@ -164,18 +212,18 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -t. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of threads. Expected 1 but got {0}", values.Length));
             }
 
             var threads = 1;
             if (!int.TryParse(values[0], out threads))
             {
-                throw new ParseException(string.Format("Invalid integer supplied for -t: '{0}'", values[0]));
+                throw new ParseException(string.Format("Invalid integer supplied for number of threads: '{0}'", values[0]));
             }
 
             if (threads <= 0)
             {
-                throw new ParseException(string.Format("Value must be greater than 0 for -t, but got '{0}'", values[0]));
+                throw new ParseException(string.Format("Value must be greater than 0 for threading, but got '{0}'", values[0]));
             }
 
             Context.NumberOfThreads = threads;
@@ -217,8 +265,23 @@ namespace Edison.Console
             {
                 throw new ParseException("No fixtures supplied");
             }
+            
+            var files = values.Where(x => x.Contains('\\') || x.Contains('/'));
+            var fixtures = values.Where(x => !x.Contains('\\') && !x.Contains('/')).ToList();
 
-            Context.Fixtures.AddRange(values);
+            foreach (var file in files)
+            {
+                var _file = file.Trim();
+
+                if (!FileRepository.Exists(_file))
+                {
+                    throw new ParseException(string.Format("File for list of fixtures not found: '{0}'", _file));
+                }
+
+                fixtures.AddRange(FileRepository.ReadAllLines(_file));
+            }
+
+            Context.Fixtures.AddRange(fixtures.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
         private static void TestsAction(string[] values)
@@ -227,15 +290,30 @@ namespace Edison.Console
             {
                 throw new ParseException("No tests supplied");
             }
+            
+            var files = values.Where(x => x.Contains('\\') || x.Contains('/'));
+            var tests = values.Where(x => !x.Contains('\\') && !x.Contains('/')).ToList();
 
-            Context.Tests.AddRange(values);
+            foreach (var file in files)
+            {
+                var _file = file.Trim();
+
+                if (!FileRepository.Exists(_file))
+                {
+                    throw new ParseException(string.Format("File for list of tests not found: '{0}'", _file));
+                }
+
+                tests.AddRange(FileRepository.ReadAllLines(_file));
+            }
+
+            Context.Tests.AddRange(tests.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
         private static void OutputFileAction(string[] values)
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -of. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied output file name. Expected 1 but got {0}", values.Length));
             }
 
             Context.OutputFile = values[0];
@@ -245,12 +323,12 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -od. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for output directory. Expected 1 but got {0}", values.Length));
             }
 
             if (!Directory.Exists(values[0]))
             {
-                throw new ParseException(string.Format("Directory supplied for -od does not exist: '{0}'", values[0]));
+                throw new ParseException(string.Format("Output directory supplied does not exist: '{0}'", values[0]));
             }
 
             Context.OutputFolder = values[0];
@@ -260,13 +338,13 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -ot. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for output type Expected 1 but got {0}", values.Length));
             }
 
             var type = OutputType.Xml;
             if (!Enum.TryParse<OutputType>(values[0], true, out type))
             {
-                throw new ParseException(string.Format("Output type supplied for -ot is incorrect: '{0}'", values[0]));
+                throw new ParseException(string.Format("Output type supplied is incorrect: '{0}'", values[0]));
             }
 
             Context.OutputType = type;
@@ -276,7 +354,7 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -url. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for test run URL. Expected 1 but got {0}", values.Length));
             }
 
             try
@@ -294,7 +372,7 @@ namespace Edison.Console
             }
             catch (Exception ex)
             {
-                throw new ParseException(string.Format("Connection to provided -url failed:\n{0}", ex.Message));
+                throw new ParseException(string.Format("Connection to provided test run URL failed:\n{0}", ex.Message));
             }
 
             Context.TestResultURL = values[0];
@@ -304,7 +382,7 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -id. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for test run ID. Expected 1 but got {0}", values.Length));
             }
 
             Context.TestRunId = values[0];
@@ -314,13 +392,13 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -cot. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for console output type. Expected 1 but got {0}", values.Length));
             }
 
             var type = OutputType.Xml;
             if (!Enum.TryParse<OutputType>(values[0], true, out type))
             {
-                throw new ParseException(string.Format("Console output type supplied for -cot is incorrect: '{0}'", values[0]));
+                throw new ParseException(string.Format("Console output type supplied is incorrect: '{0}'", values[0]));
             }
 
             Context.ConsoleOutputType = type;
@@ -330,13 +408,13 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dco. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling console output. Expected 1 but got {0}", values.Length));
             }
 
             var disbale = true;
             if (!bool.TryParse(values[0], out disbale))
             {
-                throw new ParseException(string.Format("Disable console output value supplied for -dco is incorrect: '{0}'", values[0]));
+                throw new ParseException(string.Format("Disable console output value supplied is incorrect: '{0}'", values[0]));
             }
 
             Context.DisableConsoleOutput = disbale;
@@ -346,13 +424,13 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dto. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling test output. Expected 1 but got {0}", values.Length));
             }
 
             var disbale = true;
             if (!bool.TryParse(values[0], out disbale))
             {
-                throw new ParseException(string.Format("Disable test output value supplied for -dto is incorrect: '{0}'", values[0]));
+                throw new ParseException(string.Format("Disable test output value supplied is incorrect: '{0}'", values[0]));
             }
 
             Context.DisableTestOutput = disbale;
@@ -362,13 +440,13 @@ namespace Edison.Console
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for -dfo. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling file output. Expected 1 but got {0}", values.Length));
             }
 
             var disable = true;
             if (!bool.TryParse(values[0], out disable))
             {
-                throw new ParseException(string.Format("Disable file output value supplied for -dfo is incorrect: '{0}'", values[0]));
+                throw new ParseException(string.Format("Disable file output value supplied is incorrect: '{0}'", values[0]));
             }
 
             Context.DisableFileOutput = disable;

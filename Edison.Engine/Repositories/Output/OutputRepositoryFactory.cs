@@ -7,15 +7,11 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Core.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Edison.Engine.Repositories.Interfaces;
 
-namespace Edison.Engine.Core.Output
+namespace Edison.Engine.Repositories.Output
 {
-    public static class OutputRepositoryManager
+    public static class OutputRepositoryFactory
     {
         
         public static IOutputRepository Get(OutputType type)

@@ -13,15 +13,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Edison.Engine.Utilities.Helpers;
 using System.Threading;
 using Edison.Engine.Threading;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Utilities.Structures;
 using System.Diagnostics;
-using Edison.Engine.Core.Output;
+using Edison.Engine.Repositories.Output;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
 
@@ -334,7 +332,7 @@ namespace Edison.Engine.Contexts
         private void WriteResultsToFile(string file)
         {
             var results = ResultQueue.TestResults.ToList();
-            var output = OutputRepositoryManager.Get(OutputType);
+            var output = OutputRepositoryFactory.Get(OutputType);
             
             if (!string.IsNullOrEmpty(output.OpenTag))
             {
@@ -355,7 +353,7 @@ namespace Edison.Engine.Contexts
         private void WriteFailedResultsToConsole()
         {
             var failedResults = ResultQueue.FailedTestResults;
-            var output = OutputRepositoryManager.Get(OutputType);
+            var output = OutputRepositoryFactory.Get(OutputType);
 
             try
             {
