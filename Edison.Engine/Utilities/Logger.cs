@@ -7,12 +7,12 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Core.Enums;
-using Edison.Engine.Core.Output;
+using Edison.Engine.Repositories.Output;
 using Edison.Framework;
 using System;
 using System.IO;
-using System.Configuration;
 using System.Reflection;
+using Edison.Engine.Repositories.Interfaces;
 
 namespace Edison.Engine
 {
@@ -36,7 +36,7 @@ namespace Edison.Engine
             set
             {
                 _consoleOutputType = value;
-                OutputRepo = OutputRepositoryManager.Get(_consoleOutputType);
+                OutputRepo = OutputRepositoryFactory.Get(_consoleOutputType);
 
                 if (IsSingleOrNoLined)
                 {
@@ -45,7 +45,7 @@ namespace Edison.Engine
             }
         }
 
-        private IOutputRepository OutputRepo = OutputRepositoryManager.Get(OutputType.Txt);
+        private IOutputRepository OutputRepo = OutputRepositoryFactory.Get(OutputType.Txt);
 
         public bool IsSingleOrNoLined
         {
@@ -101,44 +101,44 @@ namespace Edison.Engine
             
             The following tags are accepted as input:
             
-            -a      -   List of paths to assemblies (.dll) to run, separated by spaces.
+            --a      -   List of paths to assemblies (.dll) to run, separated by spaces.
 
-            -cot    -   Type of output for the console, default is TXT.
+            --cot    -   Type of output for the console, default is TXT.
 
-            -dco    -   Boolean flag to state whether all output to the console is
+            --dco    -   Boolean flag to state whether all output to the console is
                         disabled (default is false).
 
-            -dfo    -   Boolean flag to state whether an output file should be
+            --dfo    -   Boolean flag to state whether an output file should be
                         disabled (default is false).
 
-            -dto    -   Boolean flag to state whether user produced output from
+            --dto    -   Boolean flag to state whether user produced output from
                         tests should be disabled (default is false).
 
-            -e      -   List of categories to be excluded, separated by spaces.
+            --e      -   List of categories to be excluded, separated by spaces.
 
-            -f      -   List of TestFixtures that should be run, separated by spaces.
+            --f      -   List of TestFixtures that should be run, separated by spaces.
 
-            -help   -   Displays help manual (this page).
+            --help   -   Displays help manual (this page).
 
-            -i      -   List of categories to be included, separated by spaces.
+            --i      -   List of categories to be included, separated by spaces.
 
-            -tid    -   Test run ID that can be used to identify this run.
+            --tid    -   Test run ID that can be used to identify this run.
 
-            -od     -   Output directory for the output file created (default is
+            --od     -   Output directory for the output file created (default is
                         the working directory).
 
-            -of     -   Name of the output file created.
+            --of     -   Name of the output file created.
 
-            -ot     -   Type of the output file (default is JSON).
+            --ot     -   Type of the output file (default is JSON).
 
-            -t      -   Number of threads on which to execute the tests (default is 1).
+            --t      -   Number of threads on which to execute the tests (default is 1).
 
-            -ts     -   List of Tests that should be run, separated by spaces).
+            --ts     -   List of Tests that should be run, separated by spaces.
 
-            -url    -   Test result URL where test results and ID will be POSTed to,
+            --url    -   Test result URL where test results and ID will be POSTed to,
                         after each test. Format is determined by -ot.
 
-            -v      -   Displays the current version of Edison.
+            --v      -   Displays the current version of Edison.
 
 
 

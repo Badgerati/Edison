@@ -16,8 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using Edison.Engine.Core.Output;
+using Edison.Engine.Repositories.Output;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
 
@@ -192,7 +191,7 @@ namespace Edison.Engine.Utilities.Structures
                 return;
             }
 
-            var output = OutputRepositoryManager.Get(Context.OutputType);
+            var output = OutputRepositoryFactory.Get(Context.OutputType);
             var value = string.Empty;
 
             switch (Context.OutputType)
