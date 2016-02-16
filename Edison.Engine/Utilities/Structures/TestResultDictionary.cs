@@ -16,14 +16,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Edison.Engine.Repositories.Output;
+using Edison.Engine.Repositories;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
+using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 
 namespace Edison.Engine.Utilities.Structures
 {
     public class TestResultDictionary
     {
+
+        #region Repositories
+
+        private IWebRequestRepository WebRequestRepository
+        {
+            get { return DIContainer.Instance.Get<IWebRequestRepository>(); }
+        }
+
+        #endregion
 
         #region Properties
 
@@ -210,7 +221,7 @@ namespace Edison.Engine.Utilities.Structures
                 return;
             }
 
-            var request = (WebRequest)HttpWebRequest.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
+            var request = WebRequestRepository.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
             request.Method = "POST";
             request.ContentType = output.ContentType;
 

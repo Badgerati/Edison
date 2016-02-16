@@ -19,7 +19,7 @@ using Edison.Engine.Threading;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Utilities.Structures;
 using System.Diagnostics;
-using Edison.Engine.Repositories.Output;
+using Edison.Engine.Repositories;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
 

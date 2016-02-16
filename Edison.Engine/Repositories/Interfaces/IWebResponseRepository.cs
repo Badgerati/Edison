@@ -5,13 +5,16 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
+ 
+using System;
+using System.IO;
 
-namespace Edison.GUI
+namespace Edison.Engine.Repositories.Interfaces
 {
-    public enum TreeNodeType
+    public interface IWebResponseRepository : IDisposable
     {
-        Test,
-        Fixture,
-        Group
+
+        Stream GetResponseStream();
+
     }
 }

@@ -8,7 +8,7 @@ License: MIT (see LICENSE for details)
 
 using Edison.Engine;
 using Edison.Engine.Contexts;
-using Edison.Engine.Repositories.Files;
+using Edison.Injector;
 using System;
 
 namespace Edison.Console
@@ -18,11 +18,12 @@ namespace Edison.Console
 
         public static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
             var context = new EdisonContext();
 
             try
             {
-                if (!ParameterParser.Parse(context, args, new FileRepository()))
+                if (!ParameterParser.Parse(context, args))
                 {
                     return;
                 }
@@ -44,5 +45,9 @@ namespace Edison.Console
             }
         }
 
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            DIContainer.Instance.Dispose();
+        }
     }
 }

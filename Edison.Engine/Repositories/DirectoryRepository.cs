@@ -7,21 +7,23 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 using System.IO;
 
-namespace Edison.Engine.Repositories.Files
+namespace Edison.Engine.Repositories
 {
-    public class FileRepository : IFileRepository
+    [InjectionInterface(typeof(IDirectoryRepository))]
+    public class DirectoryRepository : IDirectoryRepository
     {
 
         public bool Exists(string path)
         {
-            return File.Exists(path);
+            return Directory.Exists(path);
         }
 
-        public string[] ReadAllLines(string path)
+        public DirectoryInfo CreateDirectory(string path)
         {
-            return File.ReadAllLines(path);
+            return Directory.CreateDirectory(path);
         }
 
     }

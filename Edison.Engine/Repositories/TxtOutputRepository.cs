@@ -6,12 +6,13 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Framework.Enums;
 using System;
 
-namespace Edison.Engine.Repositories.Output
+namespace Edison.Engine.Repositories
 {
     public class TxtOutputRepository : IOutputRepository
     {
@@ -22,6 +23,11 @@ namespace Edison.Engine.Repositories.Output
             get { return _lazy.Value; }
         }
 
+
+        public OutputType OutputType
+        {
+            get { return OutputType.Txt; }
+        }
 
         public string ContentType
         {

@@ -1,11 +1,16 @@
-﻿using System;
+﻿/*
+Edison is designed to be simpler and more performant unit/integration testing framework.
+
+Copyright (c) 2015, Matthew Kelly (Badgerati)
+Company: Cadaeic Studios
+License: MIT (see LICENSE for details)
+ */
+
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Edison.Engine.Utilities.Extensions;
 using Edison.Engine.Utilities.Helpers;
@@ -48,7 +53,7 @@ namespace Edison.GUI
         public EdisonForm()
         {
             InitializeComponent();
-
+            
             FormClosing += EdisonForm_FormClosing;
             TestTree.NodeMouseDoubleClick += TestTree_NodeMouseDoubleClick;
             TestTree.KeyDown += TestTree_KeyDown;

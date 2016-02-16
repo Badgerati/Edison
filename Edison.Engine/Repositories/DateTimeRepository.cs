@@ -7,10 +7,12 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 using System;
 
-namespace Edison.Engine.Repositories.DateTimes
+namespace Edison.Engine.Repositories
 {
+    [InjectionInterface(typeof(IDateTimeRepository))]
     public class DateTimeRepository : IDateTimeRepository
     {
 

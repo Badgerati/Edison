@@ -11,6 +11,7 @@ using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,25 @@ namespace Edison.Console
 {
     public static class ParameterParser
     {
+
+        #region Repositories
+
+        private static IFileRepository FileRepository
+        {
+            get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
+        private static IDirectoryRepository DirectoryRepository
+        {
+            get { return DIContainer.Instance.Get<IDirectoryRepository>(); }
+        }
+
+        private static IWebRequestRepository WebRequestRepository
+        {
+            get { return DIContainer.Instance.Get<IWebRequestRepository>(); }
+        }
+
+        #endregion
 
         #region Keywords
 
@@ -48,23 +68,21 @@ namespace Edison.Console
                 { "dto", new Action<string[]>(DisableTestOutputAction) }
             };
 
+        #endregion
+
+        #region Instance Variables
+        
         private static EdisonContext Context;
-        private static IFileRepository FileRepository;
 
         #endregion
 
         #region Parser
 
-        public static bool Parse(EdisonContext context, string[] args, IFileRepository fileRepository)
+        public static bool Parse(EdisonContext context, string[] args)
         {
             if (context == default(EdisonContext))
             {
                 throw new Exception("No EdisonContext supplied for parsing parameters");
-            }
-
-            if (fileRepository == default(IFileRepository))
-            {
-                throw new Exception("No FileRepository supplied for parsing parameters");
             }
 
             if (args == default(string[]) || args.Length == 0)
@@ -74,7 +92,6 @@ namespace Edison.Console
             }
 
             Context = context;
-            FileRepository = fileRepository;
 
             var keys = Keywords.Keys.ToList();
 
@@ -326,7 +343,7 @@ namespace Edison.Console
                 throw new ParseException(string.Format("Incorrect number of arguments supplied for output directory. Expected 1 but got {0}", values.Length));
             }
 
-            if (!Directory.Exists(values[0]))
+            if (!DirectoryRepository.Exists(values[0]))
             {
                 throw new ParseException(string.Format("Output directory supplied does not exist: '{0}'", values[0]));
             }
@@ -342,7 +359,7 @@ namespace Edison.Console
             }
 
             var type = OutputType.Xml;
-            if (!Enum.TryParse<OutputType>(values[0], true, out type))
+            if (!Enum.TryParse(values[0], true, out type))
             {
                 throw new ParseException(string.Format("Output type supplied is incorrect: '{0}'", values[0]));
             }
@@ -359,7 +376,7 @@ namespace Edison.Console
 
             try
             {
-                var request = (WebRequest)HttpWebRequest.Create(values[0]);
+                var request = WebRequestRepository.Create(values[0]); // WebRequest.Create(values[0]);
                 request.Timeout = 30;
 
                 using (var response = request.GetResponse())

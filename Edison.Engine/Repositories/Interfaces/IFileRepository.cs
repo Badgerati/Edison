@@ -5,6 +5,8 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
+ 
+using System.IO;
 
 namespace Edison.Engine.Repositories.Interfaces
 {
@@ -13,6 +15,8 @@ namespace Edison.Engine.Repositories.Interfaces
 
         bool Exists(string path);
         string[] ReadAllLines(string path);
+        FileStream Create(string path);
+        void AppendAllText(string path, string contents);
 
     }
 }

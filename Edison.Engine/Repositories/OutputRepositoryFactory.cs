@@ -9,7 +9,7 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 
-namespace Edison.Engine.Repositories.Output
+namespace Edison.Engine.Repositories
 {
     public static class OutputRepositoryFactory
     {

@@ -6,6 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using Edison.Engine.Core.Enums;
 using Edison.Framework;
 
 namespace Edison.Engine.Repositories.Interfaces
@@ -13,6 +14,7 @@ namespace Edison.Engine.Repositories.Interfaces
     public interface IOutputRepository
     {
 
+        OutputType OutputType { get; }
         string ContentType { get; }
         string OpenTag { get; }
         string CloseTag { get; }

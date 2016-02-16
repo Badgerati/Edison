@@ -7,25 +7,61 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Core.Enums;
-using Edison.Engine.Repositories.Output;
+using Edison.Engine.Repositories;
 using Edison.Framework;
 using System;
 using System.IO;
 using System.Reflection;
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 
 namespace Edison.Engine
 {
     public class Logger
     {
 
+        #region Repositories
+
+        private IOutputRepository _outputRepository;
+        public IOutputRepository OutputRepository
+        {
+            get { return _outputRepository; }
+            set
+            {
+                _outputRepository = value;
+
+                if (_outputRepository != default(IOutputRepository) && _consoleOutputType != _outputRepository.OutputType)
+                {
+                    _consoleOutputType = _outputRepository.OutputType;
+                }
+            }
+        }
+        
+        private IFileRepository FileRepository
+        {
+            get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
+        private IDirectoryRepository DirectoryRepository
+        {
+            get { return DIContainer.Instance.Get<IDirectoryRepository>(); }
+        }
+
+        private IDateTimeRepository DateTimeRepository
+        {
+            get { return DIContainer.Instance.Get<IDateTimeRepository>(); }
+        }
+        
+        #endregion
+
+        #region Properties
+
         public static Lazy<Logger> _lazy = new Lazy<Logger>(() => new Logger());
         public static Logger Instance
         {
             get { return _lazy.Value; }
         }
-
-
+        
         public TextWriter OutStream { get; set; }
         public TextWriter ErrorStream { get; set; }
 
@@ -36,7 +72,11 @@ namespace Edison.Engine
             set
             {
                 _consoleOutputType = value;
-                OutputRepo = OutputRepositoryFactory.Get(_consoleOutputType);
+
+                if (OutputRepository == default(IOutputRepository) || _consoleOutputType != OutputRepository.OutputType)
+                {
+                    OutputRepository = OutputRepositoryFactory.Get(_consoleOutputType);
+                }
 
                 if (IsSingleOrNoLined)
                 {
@@ -44,21 +84,25 @@ namespace Edison.Engine
                 }
             }
         }
-
-        private IOutputRepository OutputRepo = OutputRepositoryFactory.Get(OutputType.Txt);
-
+        
         public bool IsSingleOrNoLined
         {
             get { return ConsoleOutputType == OutputType.None || ConsoleOutputType == OutputType.Dot; }
         }
 
+        #endregion
+
+        #region Constructor
 
         private Logger()
         {
             SetOutput(Console.Out, Console.Error);
-            ConsoleOutputType = OutputType.Txt;
+            OutputRepository = OutputRepositoryFactory.Get(OutputType.Txt);
         }
 
+        #endregion
+
+        #region Public Helpers
 
         public void Disable()
         {
@@ -215,15 +259,15 @@ namespace Edison.Engine
                 outputFolder.EndsWith("/") || outputFolder.EndsWith("\\") ? string.Empty : "\\",
                 directoryName);
 
-            Directory.CreateDirectory(outputFolder);
+            DirectoryRepository.CreateDirectory(outputFolder);
             return outputFolder;
         }
 
         public string GetDateString(bool inUtc = false)
         {
             var now = inUtc
-                ? DateTime.UtcNow
-                : DateTime.Now;
+                ? DateTimeRepository.UtcNow
+                : DateTimeRepository.Now;
 
             return string.Format("{0:0000}-{1:00}-{2:00}_{3:00}-{4:00}-{5:00}", now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
         }
@@ -246,19 +290,19 @@ namespace Edison.Engine
                 date,
                 type.ToString().ToLower());
 
-            var stream = File.Create(outputFolder);
+            var stream = FileRepository.Create(outputFolder);
             stream.Dispose();
             return outputFolder;
         }
 
         public void WriteToFile(string filePath, string value)
         {
-            File.AppendAllText(filePath, value);
+            FileRepository.AppendAllText(filePath, value);
         }
 
         public void WriteResultToFile(string filePath, bool lastResult, TestResult result, IOutputRepository output)
         {
-            File.AppendAllText(filePath, output.ToString(result, !lastResult));
+            FileRepository.AppendAllText(filePath, output.ToString(result, !lastResult));
         }
 
         public void WriteTestResult(TestResult result)
@@ -268,7 +312,7 @@ namespace Edison.Engine
                 return;
             }
             
-            WriteMessage(OutputRepo.ToString(result, false), IsSingleOrNoLined);
+            WriteMessage(OutputRepository.ToString(result, false), IsSingleOrNoLined);
         }
 
         public void WriteSingleLine(string precede = "", string postcede = "")
@@ -290,6 +334,8 @@ namespace Edison.Engine
 
             WriteMessage(precede + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + postcede);
         }
+
+        #endregion
 
     }
 }
