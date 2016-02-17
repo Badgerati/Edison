@@ -13,7 +13,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Edison.Engine.Utilities.Extensions;
-using Edison.Engine.Utilities.Helpers;
 using System.Reflection;
 using System.IO;
 using Edison.Engine.Contexts;
@@ -22,11 +21,28 @@ using Edison.Engine;
 using System.Threading;
 using Edison.Framework;
 using Edison.Framework.Enums;
+using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 
 namespace Edison.GUI
 {
     public partial class EdisonForm : Form
     {
+
+        #region Repositories
+
+        private IAssemblyRepository AssemblyRepository
+        {
+            get { return DIContainer.Instance.Get<IAssemblyRepository>(); }
+        }
+
+        private IPathRepository PathRepository
+        {
+            get { return DIContainer.Instance.Get<IPathRepository>(); }
+        }
+
+        #endregion
+
 
         #region Properties
 
@@ -141,11 +157,11 @@ namespace Edison.GUI
             if (result == DialogResult.OK)
             {
                 FilePath = dialog.FileName;
-                FileName = Path.GetFileName(FilePath);
+                FileName = PathRepository.GetFileName(FilePath);
                 Text = MainTitle + " - " + FileName;
 
-                Assembly = AssemblyHelper.GetAssembly(FilePath);
-                PopulateTestTree(Assembly.GetAllTests().ToList());
+                Assembly = AssemblyRepository.LoadFile(FilePath);
+                PopulateTestTree(AssemblyRepository.GetAllTests(Assembly));
             }
             else if (result != DialogResult.Cancel)
             {
@@ -315,7 +331,8 @@ namespace Edison.GUI
             Logger.Instance.SetConsoleOutput(logger);
 
             CurrentNumberOfTestsRun = 0;
-            TotalNumberOfTestsRunning = Assembly.GetTestCount(
+            TotalNumberOfTestsRunning = AssemblyRepository.GetTestCount(
+                Assembly,
                 EdisonContext.IncludedCategories,
                 EdisonContext.ExcludedCategories,
                 EdisonContext.Fixtures,
@@ -461,7 +478,7 @@ namespace Edison.GUI
             }
         }
 
-        private void PopulateTestTree(List<MethodInfo> tests)
+        private void PopulateTestTree(IEnumerable<MethodInfo> tests)
         {
             TestTree.Nodes.Clear();
 

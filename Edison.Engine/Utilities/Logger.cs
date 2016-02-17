@@ -51,6 +51,11 @@ namespace Edison.Engine
         {
             get { return DIContainer.Instance.Get<IDateTimeRepository>(); }
         }
+
+        private IAssemblyRepository AssemblyRepository
+        {
+            get { return DIContainer.Instance.Get<IAssemblyRepository>(); }
+        }
         
         #endregion
 
@@ -205,7 +210,7 @@ namespace Edison.Engine
 
         public string GetVersion()
         {
-            return Assembly.GetEntryAssembly().GetName().Version.ToString();
+            return AssemblyRepository.GetEntryAssembly().GetName().Version.ToString();
         }
 
         public void WriteError(string error)

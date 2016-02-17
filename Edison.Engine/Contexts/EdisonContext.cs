@@ -22,14 +22,30 @@ using System.Diagnostics;
 using Edison.Engine.Repositories;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
+using Edison.Engine.Repositories.Interfaces;
+using Edison.Injector;
 
 namespace Edison.Engine.Contexts
 {
     public class EdisonContext
     {
 
+        #region Repositories
+
+        private IAssemblyRepository AssemblyRepository
+        {
+            get { return DIContainer.Instance.Get<IAssemblyRepository>(); }
+        }
+
+        private IPathRepository PathRepository
+        {
+            get { return DIContainer.Instance.Get<IPathRepository>(); }
+        }
+
+        #endregion
+
         #region Properties
-        
+
         public bool IsRunning { get; private set; }
 
         public List<string> AssemblyPaths { get; private set; }
@@ -120,10 +136,10 @@ namespace Edison.Engine.Contexts
 
             foreach (var assemblyPath in AssemblyPaths)
             {
-                var assembly = AssemblyHelper.GetAssembly(assemblyPath);
+                var assembly = AssemblyRepository.LoadFile(assemblyPath);
 
                 //global setup
-                var globalSetupFixture = assembly.GetTypes<SetupFixtureAttribute>().SingleOrDefault();
+                var globalSetupFixture = AssemblyRepository.GetTypes<SetupFixtureAttribute>(assembly).SingleOrDefault();
                 var globalActivator = default(object);
                 var globalSetupEx = default(Exception);
 
@@ -220,8 +236,8 @@ namespace Edison.Engine.Contexts
         private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name).Name;
-            var path = Path.GetDirectoryName(args.RequestingAssembly.Location);
-            return Assembly.LoadFrom(path + "\\" + name + ".dll");
+            var path = PathRepository.GetDirectoryName(args.RequestingAssembly.Location);
+            return AssemblyRepository.LoadFrom(path + "\\" + name + ".dll");
         }
 
         private Exception RunGlobalSetup(Type fixture, object activator)
@@ -264,7 +280,7 @@ namespace Edison.Engine.Contexts
 
         private void SetupThreads(Assembly assembly, Exception globalSetupEx)
         {
-            var testFixtures = assembly.GetTestFixtures(IncludedCategories, ExcludedCategories, Fixtures);
+            var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests);
 
             // if we're running in parallel, remove any singular test fixtures
             var singularTestFixtures = default(IOrderedEnumerable<Type>);

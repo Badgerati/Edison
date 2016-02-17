@@ -7,12 +7,11 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Utilities.Helpers;
+using Edison.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Edison.Engine.Utilities.Extensions
 {
@@ -21,14 +20,34 @@ namespace Edison.Engine.Utilities.Extensions
 
         public static IEnumerable<MethodInfo> GetMethods<T>(
             this Type fixture,
-            List<string> includedCategories = default(List<string>),
-            List<string> excludedCategories = default(List<string>),
-            List<string> tests = default(List<string>))
+            IList<string> includedCategories = default(List<string>),
+            IList<string> excludedCategories = default(List<string>),
+            IList<string> tests = default(List<string>))
         {
             return fixture
                 .GetMethods()
                 .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories))
                 .Where(t => tests == default(List<string>) || tests.Count == 0 || tests.Contains(t.GetFullNamespace()));
+        }
+
+        public static int GetRepeatValue(this Type type)
+        {
+            var attr = type.GetCustomAttribute<RepeatAttribute>();
+            return attr == default(RepeatAttribute)
+                ? -1
+                : attr.Value;
+        }
+
+        public static IList<TestCaseAttribute> GetTestCases(this Type type)
+        {
+            var cases = type.GetCustomAttributes<TestCaseAttribute>().ToList();
+
+            if (!cases.Any())
+            {
+                cases.Add(new TestCaseAttribute());
+            }
+
+            return cases;
         }
 
     }

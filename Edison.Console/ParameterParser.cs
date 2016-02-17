@@ -41,6 +41,11 @@ namespace Edison.Console
             get { return DIContainer.Instance.Get<IWebRequestRepository>(); }
         }
 
+        private static IPathRepository PathRepository
+        {
+            get { return DIContainer.Instance.Get<IPathRepository>(); }
+        }
+
         #endregion
 
         #region Keywords
@@ -165,8 +170,8 @@ namespace Edison.Console
 
             const string extension = ".dll";
             var assemblies = new List<string>(values.Length);
-            var files = values.Where(x => string.IsNullOrEmpty(Path.GetExtension(x.Trim())));
-            values = values.Where(x => !string.IsNullOrEmpty(Path.GetExtension(x.Trim()))).ToArray();
+            var files = values.Where(x => string.IsNullOrEmpty(PathRepository.GetExtension(x.Trim())));
+            values = values.Where(x => !string.IsNullOrEmpty(PathRepository.GetExtension(x.Trim()))).ToArray();
 
             foreach (var file in files)
             {
@@ -181,7 +186,7 @@ namespace Edison.Console
 
                 foreach (var assembly in possibleAssemblies)
                 {
-                    if (Path.GetExtension(assembly) != extension)
+                    if (PathRepository.GetExtension(assembly) != extension)
                     {
                         throw new ParseException(string.Format("Assembly it not a valid dll: '{0}' in file '{1}'", assembly, _file));
                     }
@@ -199,7 +204,7 @@ namespace Edison.Console
             {
                 var _value = value.Trim();
 
-                if (Path.GetExtension(_value) != extension)
+                if (PathRepository.GetExtension(_value) != extension)
                 {
                     throw new ParseException(string.Format("Assembly it not a valid dll: '{0}'", _value));
                 }

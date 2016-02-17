@@ -46,6 +46,8 @@ namespace Edison.Engine.Threading
         private EdisonContext Context = default(EdisonContext);
         private TestResultDictionary ResultQueue = default(TestResultDictionary);
         private Exception GlobalSetupException = default(Exception);
+        private Exception FixtureSetupException = default(Exception);
+        private Exception ActivatorException = default(Exception);
 
         #endregion
 
@@ -58,7 +60,7 @@ namespace Edison.Engine.Threading
             ResultQueue = resultQueue;
             GlobalSetupException = globalSetupEx;
             _testFixtures = fixtures;
-            _thread = new Thread(Run);
+            _thread = new Thread(RunTestFixtures);
         }
 
         #endregion
@@ -75,7 +77,7 @@ namespace Edison.Engine.Threading
 
         #region Private Methods
 
-        private void Run()
+        private void RunTestFixtures()
         {
             foreach (var testFixture in _testFixtures)
             {
@@ -86,7 +88,7 @@ namespace Edison.Engine.Threading
 
                 var setup = testFixture.GetMethods<TestFixtureSetupAttribute>().ToList();
                 var teardown = testFixture.GetMethods<TestFixtureTeardownAttribute>().ToList();
-
+                
                 //repeats
                 RunTestFixtureRepeats(testFixture, setup, teardown);
             }
@@ -94,22 +96,45 @@ namespace Edison.Engine.Threading
 
         private void RunTestFixtureRepeats(Type testFixture, List<MethodInfo> fixtureSetup, List<MethodInfo> fixtureTeardown)
         {
-            var activator = Activator.CreateInstance(testFixture, null);
-            var repeat = testFixture.GetCustomAttributes().OfType<RepeatAttribute>().SingleOrDefault();
-            var hasRepeat = repeat != default(RepeatAttribute);
-
-            var setupDone = false;
-            var testDone = false;
-
-            for (var r = 0; r < (!hasRepeat ? 1 : repeat.Value); r++)
+            var repeat = testFixture.GetRepeatValue();
+            var cases = testFixture.GetTestCases();
+            
+            for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
             {
                 if (Interrupt)
                 {
                     return;
                 }
+
+                //cases
+                RunTestFixtureCases(testFixture, cases, (repeat == -1 ? -1 : r), fixtureSetup, fixtureTeardown);
+            }
+        }
+
+        private void RunTestFixtureCases(Type testFixture, IList<TestCaseAttribute> cases, int testFixtureRepeat, List<MethodInfo> fixtureSetup, List<MethodInfo> fixtureTeardown)
+        {
+            var activator = default(object);
+            var setupDone = false;
+            var testDone = false;
+
+            foreach (var _case in cases)
+            {
+                if (Interrupt)
+                {
+                    return;
+                }
+
                 try
                 {
+                    activator = Activator.CreateInstance(testFixture, _case.Parameters);
+                }
+                catch (Exception ex)
+                {
+                    ActivatorException = ex;
+                }
 
+                try
+                {
                     setupDone = false;
                     testDone = false;
 
@@ -124,7 +149,7 @@ namespace Edison.Engine.Threading
                         setupDone = true;
 
                         //tests
-                        RunTests(testFixture, (hasRepeat ? r : -1), default(Exception), activator);
+                        RunTests(testFixture, testFixtureRepeat, _case, activator);
                         testDone = true;
                     }
                     catch (Exception ex)
@@ -132,11 +157,12 @@ namespace Edison.Engine.Threading
                         if (!setupDone)
                         {
                             //tests
-                            RunTests(testFixture, (hasRepeat ? r : -1), ex, activator);
+                            FixtureSetupException = ex;
+                            RunTests(testFixture, testFixtureRepeat, _case, activator);
                             testDone = true;
                         }
                     }
-                    
+
                     //fixture teardown
                     ReflectionHelper.Invoke(fixtureTeardown, activator);
                 }
@@ -156,10 +182,15 @@ namespace Edison.Engine.Threading
                         Logger.Instance.WriteInnerException(ex, true);
                     }
                 }
+                finally
+                {
+                    ActivatorException = default(Exception);
+                    FixtureSetupException = default(Exception);
+                }
             }
         }
 
-        private void RunTests(Type testFixture, int testFixtureRepeat, Exception fixSetupEx, object activator)
+        private void RunTests(Type testFixture, int testFixtureRepeat, TestCaseAttribute testFixtureCase, object activator)
         {
             var tests = testFixture.GetMethods<TestAttribute>(Context.IncludedCategories, Context.ExcludedCategories, Context.Tests).ToList();
 
@@ -178,33 +209,28 @@ namespace Edison.Engine.Threading
                     return;
                 }
 
-                RunTestRepeats(test, testFixtureRepeat, setup, teardown, fixSetupEx, activator);
+                RunTestRepeats(test, testFixtureRepeat, testFixtureCase, setup, teardown, activator);
             }
         }
 
-        private void RunTestRepeats(MethodInfo test, int testFixtureRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, Exception fixSetupEx, object activator)
+        private void RunTestRepeats(MethodInfo test, int testFixtureRepeat, TestCaseAttribute testFixtureCase, List<MethodInfo> setup, List<MethodInfo> teardown, object activator)
         {
-            var repeat = test.GetCustomAttributes().OfType<RepeatAttribute>().SingleOrDefault();
-            var hasRepeat = repeat != default(RepeatAttribute);
-            var cases = test.GetCustomAttributes().OfType<TestCaseAttribute>().ToList();
-
-            if (cases.Count == 0)
-            {
-                cases.Add(new TestCaseAttribute());
-            }
-
-            for (var r = 0; r < (!hasRepeat ? 1 : repeat.Value); r++)
+            var repeat = test.GetRepeatValue();
+            var cases = test.GetTestCases();
+            
+            for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
             {
                 if (Interrupt)
                 {
                     return;
                 }
 
-                RunTestCases(test, cases, testFixtureRepeat, (hasRepeat ? r : -1), setup, teardown, fixSetupEx, activator);
+                RunTestCases(test, testFixtureCase, cases, testFixtureRepeat, (repeat == -1 ? -1 : r), setup, teardown, activator);
             }
         }
 
-        private void RunTestCases(MethodInfo test, List<TestCaseAttribute> cases, int testFixtureRepeat, int testRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, Exception fixSetupEx, object activator)
+        private void RunTestCases(MethodInfo test, TestCaseAttribute testFixtureCase, IList<TestCaseAttribute> cases, int testFixtureRepeat,
+            int testRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, object activator)
         {
             var timeTaken = new Stopwatch();
             var testResult = default(TestResult);
@@ -225,6 +251,7 @@ namespace Edison.Engine.Threading
                     testResult = new TestResult(
                         TestResultState.Success,
                         test,
+                        testFixtureCase.Parameters,
                         _case.Parameters,
                         testFixtureRepeat,
                         testRepeat,
@@ -243,9 +270,13 @@ namespace Edison.Engine.Threading
                     {
                         testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                     }
-                    else if (fixSetupEx != default(Exception))
+                    else if (ActivatorException != default(Exception))
                     {
-                        testResult = PopulateTestResultOnException(test, testResult, fixSetupEx, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                        testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, timeTaken.Elapsed);
+                    }
+                    else if (FixtureSetupException != default(Exception))
+                    {
+                        testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                     }
                     else
                     {
