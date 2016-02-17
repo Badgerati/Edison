@@ -95,6 +95,10 @@
       <Project>{d7081147-8c02-4400-9b30-59d0aec9591b}</Project>
       <Name>Edison.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Edison.Injector\Edison.Injector.csproj">
+      <Project>{8683f1f4-d9f5-42e6-82c0-92f7d95c1001}</Project>
+      <Name>Edison.Injector</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

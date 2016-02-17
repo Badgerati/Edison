@@ -57,5 +57,25 @@ namespace Edison.Engine.Utilities.Extensions
             return method.DeclaringType.FullName + "." + method.Name;
         }
 
+        public static int GetRepeatValue(this MethodInfo method)
+        {
+            var attr = method.GetCustomAttribute<RepeatAttribute>();
+            return attr == default(RepeatAttribute)
+                ? -1
+                : attr.Value;
+        }
+
+        public static IList<TestCaseAttribute> GetTestCases(this MethodInfo method)
+        {
+            var cases = method.GetCustomAttributes<TestCaseAttribute>().ToList();
+
+            if (!cases.Any())
+            {
+                cases.Add(new TestCaseAttribute());
+            }
+
+            return cases;
+        }
+
     }
 }

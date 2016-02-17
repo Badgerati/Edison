@@ -53,7 +53,7 @@ namespace Edison.Engine.Utilities.Helpers
             }
         }
 
-        public static bool HasValidAttributes<T>(IEnumerable<Attribute> attributes, List<string> includedCategories, List<string> excludedCategories)
+        public static bool HasValidAttributes<T>(IEnumerable<Attribute> attributes, IList<string> includedCategories, IList<string> excludedCategories)
         {
             return attributes != default(IEnumerable<Attribute>)
                 && attributes.OfType<T>().Any()
@@ -61,7 +61,7 @@ namespace Edison.Engine.Utilities.Helpers
                 && HasValidCategories(attributes, includedCategories, excludedCategories);
         }
 
-        public static bool HasValidCategories(IEnumerable<Attribute> attributes, List<string> includedCategories, List<string> excludedCategories)
+        public static bool HasValidCategories(IEnumerable<Attribute> attributes, IList<string> includedCategories, IList<string> excludedCategories)
         {
             if (includedCategories == default(List<string>) && excludedCategories == default(List<string>))
             {
