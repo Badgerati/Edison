@@ -6,44 +6,41 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using Edison.Engine.Utilities.Extensions;
+using Edison.Engine.Repositories.Interfaces;
+using Edison.Engine.Utilities.Structures;
 using Edison.Framework;
-using Edison.Engine.Utilities.Helpers;
+using Edison.Framework.Enums;
+using Edison.Injector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using Edison.Engine.Contexts;
 using System.Diagnostics;
-using ThreadState = System.Threading.ThreadState;
-using Edison.Engine.Utilities.Structures;
-using Edison.Framework.Enums;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Edison.Engine.Threading
 {
-    public class EdisonTestThread
+    public class TestThread
     {
 
-        #region Properties
+        #region Repositories
 
-        private Thread _thread = default(Thread);
-        private IList<Type> _testFixtures = default(IList<Type>);
-
-        public bool IsFinished
+        private IReflectionRepository ReflectionRepository
         {
-            get
-            {
-                return _thread.ThreadState != ThreadState.Running
-                    && _thread.ThreadState != ThreadState.WaitSleepJoin;
-            }
+            get { return DIContainer.Instance.Get<IReflectionRepository>(); }
         }
 
-        public bool Interrupt { get; set; }
+        #endregion
 
+        #region Properties
+        
+        private object Activator = default(object);
+        private Type TestFixture = default(Type);
+        private int TestFixtureRepeatIndex = default(int);
+        private TestCaseAttribute TestFixtureCase = default(TestCaseAttribute);
+        private IEnumerable<MethodInfo> Tests = default(IEnumerable<MethodInfo>);
+        
         private int ThreadId = default(int);
-        private EdisonContext Context = default(EdisonContext);
+        private bool Interrupted { get; set; }
         private TestResultDictionary ResultQueue = default(TestResultDictionary);
         private Exception GlobalSetupException = default(Exception);
         private Exception FixtureSetupException = default(Exception);
@@ -53,184 +50,68 @@ namespace Edison.Engine.Threading
 
         #region Constructor
 
-        public EdisonTestThread(int threadId, EdisonContext context, TestResultDictionary resultQueue, IList<Type> fixtures, Exception globalSetupEx)
+        public TestThread(int threadId, TestResultDictionary resultQueue, IEnumerable<MethodInfo> tests, Type testFixture,
+            int testFixtureRepeatIndex, TestCaseAttribute testFixtureCase, object activator, Exception globalSetupEx,
+            Exception fixtureSetupEx, Exception activatorEx, ConcurrencyType concurrenyType)
         {
             ThreadId = threadId;
-            Context = context;
             ResultQueue = resultQueue;
+            TestFixture = testFixture;
+            TestFixtureRepeatIndex = testFixtureRepeatIndex;
+            Activator = activator;
+            TestFixtureCase = testFixtureCase;
             GlobalSetupException = globalSetupEx;
-            _testFixtures = fixtures;
-            _thread = new Thread(RunTestFixtures);
+            FixtureSetupException = fixtureSetupEx;
+            ActivatorException = activatorEx;
+            Tests = tests;
         }
 
         #endregion
 
         #region Public Methods
 
-        public void Start()
+        public void RunTests()
         {
-            Interrupt = false;
-            _thread.Start();
+            var setup = ReflectionRepository.GetMethods<SetupAttribute>(TestFixture);
+            var teardown = ReflectionRepository.GetMethods<TeardownAttribute>(TestFixture);
+
+            foreach (var test in Tests)
+            {
+                if (Interrupted)
+                {
+                    return;
+                }
+
+                RunTestRepeats(test, setup, teardown);
+            }
+        }
+
+        public void Interrupt()
+        {
+            Interrupted = true;
         }
 
         #endregion
 
         #region Private Methods
-
-        private void RunTestFixtures()
+        
+        private void RunTestRepeats(MethodInfo test, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
-            foreach (var testFixture in _testFixtures)
-            {
-                if (Interrupt)
-                {
-                    return;
-                }
+            var repeat = ReflectionRepository.GetRepeatValue(test);
+            var cases = ReflectionRepository.GetTestCases(test);
 
-                var setup = testFixture.GetMethods<TestFixtureSetupAttribute>().ToList();
-                var teardown = testFixture.GetMethods<TestFixtureTeardownAttribute>().ToList();
-                
-                //repeats
-                RunTestFixtureRepeats(testFixture, setup, teardown);
-            }
-        }
-
-        private void RunTestFixtureRepeats(Type testFixture, List<MethodInfo> fixtureSetup, List<MethodInfo> fixtureTeardown)
-        {
-            var repeat = testFixture.GetRepeatValue();
-            var cases = testFixture.GetTestCases();
-            
             for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
             {
-                if (Interrupt)
+                if (Interrupted)
                 {
                     return;
                 }
 
-                //cases
-                RunTestFixtureCases(testFixture, cases, (repeat == -1 ? -1 : r), fixtureSetup, fixtureTeardown);
+                RunTestCases(test, cases, (repeat == -1 ? -1 : r), setup, teardown);
             }
         }
 
-        private void RunTestFixtureCases(Type testFixture, IList<TestCaseAttribute> cases, int testFixtureRepeat, List<MethodInfo> fixtureSetup, List<MethodInfo> fixtureTeardown)
-        {
-            var activator = default(object);
-            var setupDone = false;
-            var testDone = false;
-
-            foreach (var _case in cases)
-            {
-                if (Interrupt)
-                {
-                    return;
-                }
-
-                try
-                {
-                    activator = Activator.CreateInstance(testFixture, _case.Parameters);
-                }
-                catch (Exception ex)
-                {
-                    ActivatorException = ex;
-                }
-
-                try
-                {
-                    setupDone = false;
-                    testDone = false;
-
-                    try
-                    {
-                        if (GlobalSetupException == default(Exception))
-                        {
-                            //fixture setup
-                            ReflectionHelper.Invoke(fixtureSetup, activator);
-                        }
-
-                        setupDone = true;
-
-                        //tests
-                        RunTests(testFixture, testFixtureRepeat, _case, activator);
-                        testDone = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!setupDone)
-                        {
-                            //tests
-                            FixtureSetupException = ex;
-                            RunTests(testFixture, testFixtureRepeat, _case, activator);
-                            testDone = true;
-                        }
-                    }
-
-                    //fixture teardown
-                    ReflectionHelper.Invoke(fixtureTeardown, activator);
-                }
-                catch (Exception ex)
-                {
-                    if (!setupDone || !testDone)
-                    {
-                        try
-                        {
-                            //fixture teardown
-                            ReflectionHelper.Invoke(fixtureTeardown, activator);
-                        }
-                        catch { }
-                    }
-                    else
-                    {
-                        Logger.Instance.WriteInnerException(ex, true);
-                    }
-                }
-                finally
-                {
-                    ActivatorException = default(Exception);
-                    FixtureSetupException = default(Exception);
-                }
-            }
-        }
-
-        private void RunTests(Type testFixture, int testFixtureRepeat, TestCaseAttribute testFixtureCase, object activator)
-        {
-            var tests = testFixture.GetMethods<TestAttribute>(Context.IncludedCategories, Context.ExcludedCategories, Context.Tests).ToList();
-
-            if (!tests.Any())
-            {
-                return;
-            }
-
-            var setup = testFixture.GetMethods<SetupAttribute>().ToList();
-            var teardown = testFixture.GetMethods<TeardownAttribute>().ToList();
-
-            foreach (var test in tests)
-            {
-                if (Interrupt)
-                {
-                    return;
-                }
-
-                RunTestRepeats(test, testFixtureRepeat, testFixtureCase, setup, teardown, activator);
-            }
-        }
-
-        private void RunTestRepeats(MethodInfo test, int testFixtureRepeat, TestCaseAttribute testFixtureCase, List<MethodInfo> setup, List<MethodInfo> teardown, object activator)
-        {
-            var repeat = test.GetRepeatValue();
-            var cases = test.GetTestCases();
-            
-            for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
-            {
-                if (Interrupt)
-                {
-                    return;
-                }
-
-                RunTestCases(test, testFixtureCase, cases, testFixtureRepeat, (repeat == -1 ? -1 : r), setup, teardown, activator);
-            }
-        }
-
-        private void RunTestCases(MethodInfo test, TestCaseAttribute testFixtureCase, IList<TestCaseAttribute> cases, int testFixtureRepeat,
-            int testRepeat, List<MethodInfo> setup, List<MethodInfo> teardown, object activator)
+        private void RunTestCases(MethodInfo test, IEnumerable<TestCaseAttribute> cases, int testRepeat, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
             var timeTaken = new Stopwatch();
             var testResult = default(TestResult);
@@ -241,7 +122,7 @@ namespace Edison.Engine.Threading
 
             foreach (var _case in cases)
             {
-                if (Interrupt)
+                if (Interrupted)
                 {
                     return;
                 }
@@ -251,15 +132,15 @@ namespace Edison.Engine.Threading
                     testResult = new TestResult(
                         TestResultState.Success,
                         test,
-                        testFixtureCase.Parameters,
+                        TestFixtureCase.Parameters,
                         _case.Parameters,
-                        testFixtureRepeat,
+                        TestFixtureRepeatIndex,
                         testRepeat,
                         string.Empty,
                         string.Empty,
                         TimeSpan.Zero,
                         string.Empty,
-                        default(IList<string>));
+                        default(IEnumerable<string>));
 
                     setupDone = false;
                     teardownDone = false;
@@ -281,17 +162,17 @@ namespace Edison.Engine.Threading
                     else
                     {
                         //setup
-                        ReflectionHelper.Invoke(setup, activator);
+                        ReflectionRepository.Invoke(setup, Activator);
                         setupDone = true;
 
                         //test
-                        ReflectionHelper.Invoke(test, activator, false, _case.Parameters);
+                        ReflectionRepository.Invoke(test, Activator, _case.Parameters);
                         testDone = true;
 
                         testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
 
                         //teardown
-                        ReflectionHelper.Invoke(teardown, activator, true, testResult);
+                        ReflectionRepository.Invoke(teardown, Activator, testResult);
                         teardownDone = true;
                     }
 
@@ -306,7 +187,7 @@ namespace Edison.Engine.Threading
                     {
                         try
                         {
-                            ReflectionHelper.Invoke(teardown, activator, true, testResult);
+                            ReflectionRepository.Invoke(teardown, Activator, testResult);
                         }
                         catch (Exception ex2)
                         {
@@ -330,7 +211,7 @@ namespace Edison.Engine.Threading
             var innerExceptionType = hasInner ? ex.InnerException.GetType() : default(Type);
             var isAssertFail = innerExceptionType == typeof(AssertException);
             var assertEx = isAssertFail ? (AssertException)ex.InnerException : default(AssertException);
-            var error = isAssertFail ? ex.InnerException.Message : (hasInner ? ex.InnerException.Message: ex.Message);
+            var error = isAssertFail ? ex.InnerException.Message : (hasInner ? ex.InnerException.Message : ex.Message);
             var stack = isAssertFail ? ex.InnerException.StackTrace : (hasInner ? ex.InnerException.StackTrace : ex.StackTrace);
             var state = TestResultState.Failure;
 
@@ -394,8 +275,8 @@ namespace Edison.Engine.Threading
 
             if (testMethod != default(MethodInfo))
             {
-                result.Authors = testMethod.GetAuthors();
-                result.Version = testMethod.GetVersion();
+                result.Authors = ReflectionRepository.GetAuthors(testMethod);
+                result.Version = ReflectionRepository.GetVersion(testMethod);
             }
 
             return result;
@@ -403,7 +284,7 @@ namespace Edison.Engine.Threading
 
         private bool CheckExpectedException(MethodInfo testMethod, Exception innerException)
         {
-            var expectedException = testMethod.GetExpectedException();
+            var expectedException = ReflectionRepository.GetExpectedException(testMethod);
 
             if (expectedException == default(ExpectedExceptionAttribute)
                 || expectedException.ExpectedException != innerException.GetType())

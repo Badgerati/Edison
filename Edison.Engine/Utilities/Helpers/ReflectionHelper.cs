@@ -11,47 +11,11 @@ using Edison.Framework.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Edison.Engine.Utilities.Helpers
 {
     public static class ReflectionHelper
     {
-
-        public static void Invoke(IList<MethodInfo> methods, object activator, bool parametersOptional = false, params object[] parameters)
-        {
-            if (methods != default(IList<MethodInfo>))
-            {
-                foreach (var method in methods)
-                {
-                    Invoke(method, activator, parametersOptional, parameters);
-                }
-            }
-        }
-
-        public static void Invoke(MethodInfo method, object activator, bool parametersOptional = false, params object[] parameters)
-        {
-            if (method != default(MethodInfo))
-            {
-                try
-                {
-                    method.Invoke(activator, parameters);
-                }
-                catch
-                {
-                    if (parametersOptional)
-                    {
-                        method.Invoke(activator, default(object[]));
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-        }
 
         public static bool HasValidAttributes<T>(IEnumerable<Attribute> attributes, IList<string> includedCategories, IList<string> excludedCategories)
         {
@@ -99,16 +63,13 @@ namespace Edison.Engine.Utilities.Helpers
             return true;
         }
 
-        public static bool HasValidConcurrency(IEnumerable<Attribute> attributes, ConcurrencyType concurrencyType)
+        public static bool HasValidConcurrency(IEnumerable<Attribute> attributes, ConcurrencyType concurrencyType, ConcurrencyType defaultConcurreny = ConcurrencyType.Parallel)
         {
-            var concurrency = attributes.OfType<ConcurrencyAttribute>();
+            var concurrency = attributes.OfType<ConcurrencyAttribute>().FirstOrDefault();
 
-            if (concurrency == default(IEnumerable<ConcurrencyAttribute>) || concurrency.Count() == 0)
-            {
-                return concurrencyType == ConcurrencyType.Parallel;
-            }
-
-            return concurrency.First().ConcurrencyType == concurrencyType;
+            return concurrency == default(ConcurrencyAttribute)
+                ? concurrencyType == defaultConcurreny
+                : concurrency.ConcurrencyType == concurrencyType;
         }
 
     }

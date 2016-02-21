@@ -6,12 +6,6 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Edison.Engine.Core.Enums
 {
     public enum OutputType : int

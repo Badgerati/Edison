@@ -7,14 +7,11 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
-using Edison.Engine.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Edison.Engine.Utilities.Helpers;
-using System.Threading;
 using Edison.Engine.Threading;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Utilities.Structures;
@@ -24,6 +21,7 @@ using Edison.Framework.Enums;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
+using System.Threading.Tasks;
 
 namespace Edison.Engine.Contexts
 {
@@ -42,6 +40,11 @@ namespace Edison.Engine.Contexts
             get { return DIContainer.Instance.Get<IPathRepository>(); }
         }
 
+        private IReflectionRepository ReflectionRepository
+        {
+            get { return DIContainer.Instance.Get<IReflectionRepository>(); }
+        }
+
         #endregion
 
         #region Properties
@@ -53,7 +56,8 @@ namespace Edison.Engine.Contexts
         public List<string> ExcludedCategories { get; private set; }
         public List<string> Fixtures { get; private set; }
         public List<string> Tests { get; private set; }
-        public int NumberOfThreads { get; set; }
+        public int NumberOfFixtureThreads { get; set; }
+        public int NumberOfTestThreads { get; set; }
         public string OutputFile { get; set; }
         public string OutputFolder { get; set; }
         public OutputType OutputType { get; set; }
@@ -67,8 +71,10 @@ namespace Edison.Engine.Contexts
         private Stopwatch Timer = default(Stopwatch);
         private TestResultDictionary ResultQueue;
 
-        private IList<EdisonTestThread> Threads = default(IList<EdisonTestThread>);
-        private EdisonTestThread SingularThread = default(EdisonTestThread);
+        private IList<TestFixtureThread> Threads = default(IList<TestFixtureThread>);
+        private IList<Task> Tasks = default(IList<Task>);
+        private TestFixtureThread SingularThread = default(TestFixtureThread);
+        private Task SingularTask = default(Task);
 
         #endregion
 
@@ -88,7 +94,8 @@ namespace Edison.Engine.Contexts
             ExcludedCategories = new List<string>();
             Fixtures = new List<string>();
             Tests = new List<string>();
-            NumberOfThreads = 1;
+            NumberOfFixtureThreads = 1;
+            NumberOfTestThreads = 1;
             ConsoleOutputType = OutputType.Txt;
             OutputType = OutputType.Json;
             OutputFolder = Environment.CurrentDirectory;
@@ -203,27 +210,20 @@ namespace Edison.Engine.Contexts
 
         public void Interrupt()
         {
-            if (Threads != default(IList<EdisonTestThread>))
+            if (Threads != default(IList<TestFixtureThread>))
             {
                 foreach (var thread in Threads)
                 {
-                    thread.Interrupt = true;
+                    thread.Interrupt();
                 }
-                
-                while (!Threads.All(x => x.IsFinished))
-                {
-                    Thread.Sleep(100);
-                }
+
+                Task.WaitAll(Tasks.ToArray());
             }
 
-            if (SingularThread != default(EdisonTestThread))
+            if (SingularThread != default(TestFixtureThread))
             {
-                SingularThread.Interrupt = true;
-
-                while (!SingularThread.IsFinished)
-                {
-                    Thread.Sleep(100);
-                }
+                SingularThread.Interrupt();
+                Task.WaitAll(SingularTask);
             }
 
             Logger.Instance.WriteMessage(string.Format("{1}{1}{0}", "EDISON STOPPED", Environment.NewLine));
@@ -249,8 +249,8 @@ namespace Edison.Engine.Contexts
 
             try
             {
-                var setup = fixture.GetMethods<SetupAttribute>().ToList();
-                ReflectionHelper.Invoke(setup, activator);
+                var setup = ReflectionRepository.GetMethods<SetupAttribute>(fixture);
+                ReflectionRepository.Invoke(setup, activator);
             }
             catch (Exception ex)
             {
@@ -269,8 +269,8 @@ namespace Edison.Engine.Contexts
 
             try
             {
-                var teardown = fixture.GetMethods<TeardownAttribute>().ToList();
-                ReflectionHelper.Invoke(teardown, activator);
+                var teardown = ReflectionRepository.GetMethods<TeardownAttribute>(fixture);
+                ReflectionRepository.Invoke(teardown, activator);
             }
             catch (Exception ex)
             {
@@ -284,64 +284,56 @@ namespace Edison.Engine.Contexts
 
             // if we're running in parallel, remove any singular test fixtures
             var singularTestFixtures = default(IOrderedEnumerable<Type>);
-            if (NumberOfThreads > 1 && testFixtures.Count() != 1)
+            if (NumberOfFixtureThreads > 1 && testFixtures.Count() != 1)
             {
                 singularTestFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Serial)).OrderBy(t => t.FullName);
                 testFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Parallel)).OrderBy(t => t.FullName);
             }
 
             var fixtures = testFixtures.Count();
-            if (fixtures < NumberOfThreads)
+            if (fixtures < NumberOfFixtureThreads)
             {
-                NumberOfThreads = fixtures;
+                NumberOfFixtureThreads = fixtures;
             }
 
-            Threads = new List<EdisonTestThread>(NumberOfThreads);
-            var segment = fixtures == 0 ? 0 : (double)fixtures / (double)NumberOfThreads;
+            Threads = new List<TestFixtureThread>(NumberOfFixtureThreads);
+            var segment = fixtures == 0 ? 0 : (double)fixtures / (double)NumberOfFixtureThreads;
 
             // setup all the threads that are to be run in parallel
             var i = 1;
-            for (i = 1; i <= NumberOfThreads; i++)
+            for (i = 1; i <= NumberOfFixtureThreads; i++)
             {
-                var testFixturesSegment = i == NumberOfThreads
-                    ? testFixtures.Skip((int)((i - 1) * segment)).ToList()
-                    : testFixtures.Skip((int)((i - 1) * segment)).Take((int)(segment)).ToList();
+                var testFixturesSegment = i == NumberOfFixtureThreads
+                    ? testFixtures.Skip((int)((i - 1) * segment))
+                    : testFixtures.Skip((int)((i - 1) * segment)).Take((int)(segment));
 
-                var thread = new EdisonTestThread(i, this, ResultQueue, testFixturesSegment, globalSetupEx);
+                var thread = new TestFixtureThread(i, this, ResultQueue, testFixturesSegment, globalSetupEx, ConcurrencyType.Parallel, NumberOfTestThreads);
                 Threads.Add(thread);
             }
 
             // setup - if needed - the singular thread
             SingularThread = singularTestFixtures != default(IOrderedEnumerable<Type>)
-                ? new EdisonTestThread(i + 1, this, ResultQueue, singularTestFixtures.ToList(), globalSetupEx)
-                : default(EdisonTestThread);
+                ? new TestFixtureThread(i + 1, this, ResultQueue, singularTestFixtures, globalSetupEx, ConcurrencyType.Serial, NumberOfTestThreads)
+                : default(TestFixtureThread);
 
             RunThreads();
         }
 
         private void RunThreads()
         {
+            Tasks = new List<Task>(Threads.Count);
             foreach (var thread in Threads)
             {
-                thread.Start();
+                Tasks.Add(Task.Factory.StartNew(() => thread.RunTestFixtures()));
             }
 
-            // keep polling the threads, so we know when they're finished
-            while (!Threads.All(x => x.IsFinished))
-            {
-                Thread.Sleep(500);
-            }
+            Task.WaitAll(Tasks.ToArray());
 
             // once finished, we need to run the possible singular tests
-            if (SingularThread != default(EdisonTestThread))
+            if (SingularThread != default(TestFixtureThread))
             {
-                SingularThread.Start();
-
-                // now keep polling again, so we know when it's finished
-                while (!SingularThread.IsFinished)
-                {
-                    Thread.Sleep(500);
-                }
+                SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
+                Task.WaitAll(SingularTask);
             }
         }
 

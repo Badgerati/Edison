@@ -12,7 +12,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Edison.Engine.Utilities.Extensions;
 using System.Reflection;
 using System.IO;
 using Edison.Engine.Contexts;
@@ -41,9 +40,13 @@ namespace Edison.GUI
             get { return DIContainer.Instance.Get<IPathRepository>(); }
         }
 
+        private IReflectionRepository ReflectionRepository
+        {
+            get { return DIContainer.Instance.Get<IReflectionRepository>(); }
+        }
+
         #endregion
-
-
+        
         #region Properties
 
         public const string MainTitle = "Edison";
@@ -76,7 +79,8 @@ namespace Edison.GUI
             FailedTestListBox.MeasureItem += FailedTestListBox_MeasureItem;
             FailedTestListBox.DrawItem += FailedTestListBox_DrawItem;
 
-            ThreadNumericBox.Value = 1;
+            FixtureThreadNumericBox.Value = 1;
+            TestThreadNumericBox.Value = 1;
             TestProgressBar.Value = 0;
         }
 
@@ -418,19 +422,20 @@ namespace Edison.GUI
         {
             EdisonContext = new EdisonContext();
             EdisonContext.AssemblyPaths.Add(FilePath);
-            EdisonContext.NumberOfThreads = (int)ThreadNumericBox.Value;
+            EdisonContext.NumberOfFixtureThreads = (int)FixtureThreadNumericBox.Value;
+            EdisonContext.NumberOfTestThreads = (int)TestThreadNumericBox.Value;
             EdisonContext.DisableConsoleOutput = DisableConsoleCheckBox.Checked;
             EdisonContext.DisableTestOutput = DisableTestCheckBox.Checked;
 
             if (!string.IsNullOrWhiteSpace(IncludeCategoriesTextBox.Text))
             {
-                var categories = IncludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim()).ToList();
+                var categories = IncludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim());
                 EdisonContext.IncludedCategories.AddRange(categories);
             }
 
             if (!string.IsNullOrWhiteSpace(ExcludeCategoriesTextBox.Text))
             {
-                var categories = ExcludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim()).ToList();
+                var categories = ExcludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim());
                 EdisonContext.ExcludedCategories.AddRange(categories);
             }
 
@@ -492,7 +497,7 @@ namespace Edison.GUI
             foreach (var test in tests)
             {
                 var currentNode = rootNode;
-                var pathItems = test.GetFullNamespace().Split(Separator);
+                var pathItems = ReflectionRepository.GetFullNamespace(test).Split(Separator);
 
                 foreach (var item in pathItems)
                 {

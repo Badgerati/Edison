@@ -63,7 +63,8 @@ namespace Edison.Console
                 { "od", new Action<string[]>(OutputDirectoryAction) },
                 { "of", new Action<string[]>(OutputFileAction) },
                 { "ot", new Action<string[]>(OutputTypeAction) },
-                { "t", new Action<string[]>(ThreadsAction) },
+                { "ft", new Action<string[]>(FixtureThreadsAction) },
+                { "tt", new Action<string[]>(TestThreadsAction) },
                 { "ts", new Action<string[]>(TestsAction) },
                 { "url", new Action<string[]>(TestResultUrlAction) },
                 { "version", new Action<string[]>(VersionAction) },
@@ -98,7 +99,7 @@ namespace Edison.Console
 
             Context = context;
 
-            var keys = Keywords.Keys.ToList();
+            var keys = Keywords.Keys;
 
             var regex = new Regex("--(?<key>.+)");
             var sets = new Dictionary<string, IList<string>>();
@@ -127,7 +128,7 @@ namespace Edison.Console
                 return false;
             }
 
-            var passedKeys = sets.Keys.ToList();
+            var passedKeys = sets.Keys;
 
             foreach (var key in passedKeys)
             {
@@ -230,25 +231,46 @@ namespace Edison.Console
             Logger.Instance.WriteVersion();
         }
 
-        private static void ThreadsAction(string[] values)
+        private static void FixtureThreadsAction(string[] values)
         {
             if (values.Length != 1)
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of threads. Expected 1 but got {0}", values.Length));
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of fixture threads. Expected 1 but got {0}", values.Length));
             }
 
             var threads = 1;
             if (!int.TryParse(values[0], out threads))
             {
-                throw new ParseException(string.Format("Invalid integer supplied for number of threads: '{0}'", values[0]));
+                throw new ParseException(string.Format("Invalid integer supplied for number of fixture threads: '{0}'", values[0]));
             }
 
             if (threads <= 0)
             {
-                throw new ParseException(string.Format("Value must be greater than 0 for threading, but got '{0}'", values[0]));
+                throw new ParseException(string.Format("Value must be greater than 0 for fixture threading, but got '{0}'", values[0]));
             }
 
-            Context.NumberOfThreads = threads;
+            Context.NumberOfFixtureThreads = threads;
+        }
+
+        private static void TestThreadsAction(string[] values)
+        {
+            if (values.Length != 1)
+            {
+                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of test threads. Expected 1 but got {0}", values.Length));
+            }
+
+            var threads = 1;
+            if (!int.TryParse(values[0], out threads))
+            {
+                throw new ParseException(string.Format("Invalid integer supplied for number of test threads: '{0}'", values[0]));
+            }
+
+            if (threads <= 0)
+            {
+                throw new ParseException(string.Format("Value must be greater than 0 for test threading, but got '{0}'", values[0]));
+            }
+
+            Context.NumberOfTestThreads = threads;
         }
 
         private static void IncludedAction(string[] values)

@@ -62,28 +62,28 @@ namespace Edison.Console.Test
         #region Threads
 
         [TestMethod]
-        public void ValidNumberOfThreadsTest()
+        public void ValidNumberOfFixtureThreadsTest()
         {
             var context = new EdisonContext();
-            var result = ParameterParser.Parse(context, new string[] { "--t", "2" });
+            var result = ParameterParser.Parse(context, new string[] { "--ft", "2" });
             Assert.IsTrue(result);
-            Assert.AreEqual(2, context.NumberOfThreads);
+            Assert.AreEqual(2, context.NumberOfFixtureThreads);
         }
 
         [TestMethod]
-        public void InvalidValueForThreadsTest()
+        public void InvalidValueForFixtureThreadsTest()
         {
             var context = new EdisonContext();
 
             try
             {
-                ParameterParser.Parse(context, new string[] { "--t", "-2" });
+                ParameterParser.Parse(context, new string[] { "--ft", "-2" });
             }
             catch (TargetInvocationException ex)
             {
                 Assert.IsNotNull(ex.InnerException);
                 Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Value must be greater than 0 for threading");
+                StringAssert.Contains(ex.InnerException.Message, "Value must be greater than 0 for fixture threading");
             }
             catch (Exception)
             {
@@ -92,13 +92,64 @@ namespace Edison.Console.Test
         }
 
         [TestMethod]
-        public void TooManyValuesForThreadsTest()
+        public void TooManyValuesForFixtureThreadsTest()
         {
             var context = new EdisonContext();
 
             try
             {
-                ParameterParser.Parse(context, new string[] { "--t", "2", "1" });
+                ParameterParser.Parse(context, new string[] { "--ft", "2", "1" });
+            }
+            catch (TargetInvocationException ex)
+            {
+                Assert.IsNotNull(ex.InnerException);
+                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
+                StringAssert.Contains(ex.InnerException.Message, "Incorrect number of arguments supplied");
+            }
+            catch (Exception)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void ValidNumberOfTestThreadsTest()
+        {
+            var context = new EdisonContext();
+            var result = ParameterParser.Parse(context, new string[] { "--tt", "2" });
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, context.NumberOfTestThreads);
+        }
+
+        [TestMethod]
+        public void InvalidValueForTestThreadsTest()
+        {
+            var context = new EdisonContext();
+
+            try
+            {
+                ParameterParser.Parse(context, new string[] { "--tt", "-2" });
+            }
+            catch (TargetInvocationException ex)
+            {
+                Assert.IsNotNull(ex.InnerException);
+                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
+                StringAssert.Contains(ex.InnerException.Message, "Value must be greater than 0 for test threading");
+            }
+            catch (Exception)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TooManyValuesForTestThreadsTest()
+        {
+            var context = new EdisonContext();
+
+            try
+            {
+                ParameterParser.Parse(context, new string[] { "--tt", "2", "1" });
             }
             catch (TargetInvocationException ex)
             {

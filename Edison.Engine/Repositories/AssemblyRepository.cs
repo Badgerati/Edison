@@ -30,6 +30,11 @@ namespace Edison.Engine.Repositories
             get { return DIContainer.Instance.Get<IPathRepository>(); }
         }
 
+        private IReflectionRepository ReflectionRepository
+        {
+            get { return DIContainer.Instance.Get<IReflectionRepository>(); }
+        }
+
         #endregion
 
         public Assembly LoadFile(string path)
@@ -56,7 +61,7 @@ namespace Edison.Engine.Repositories
         {
             return GetTypes<TestFixtureAttribute>(assembly, includedCategories, excludedCategories)
                 .Where(t => fixtures == default(List<string>) || fixtures.Count == 0 || fixtures.Contains(t.FullName))
-                .Where(x => x.GetMethods<TestAttribute>(includedCategories, excludedCategories, tests).Any())
+                .Where(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests).Any())
                 .OrderBy(t => t.FullName);
         }
 
@@ -67,7 +72,7 @@ namespace Edison.Engine.Repositories
 
             foreach (var fixture in _fixtures)
             {
-                _tests.AddRange(fixture.GetMethods<TestAttribute>(includedCategories, excludedCategories, tests));
+                _tests.AddRange(ReflectionRepository.GetMethods<TestAttribute>(fixture, includedCategories, excludedCategories, tests));
             }
 
             return _tests;
@@ -98,7 +103,7 @@ namespace Edison.Engine.Repositories
                 _testCaseCount = 0;
                 _fixtureCaseCount = 0;
 
-                var _tests = fixture.GetMethods<TestAttribute>(includedCategories, excludedCategories, tests);
+                var _tests = ReflectionRepository.GetMethods<TestAttribute>(fixture, includedCategories, excludedCategories, tests);
 
                 foreach (var test in _tests)
                 {
