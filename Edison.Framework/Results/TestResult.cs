@@ -28,7 +28,7 @@ namespace Edison.Framework
         public int TestRepeatIndex { get; set; }
         public int TestFixtureRepeatIndex { get; set; }
         public string Version { get; set; }
-        public IList<string> Authors { get; set; }
+        public IEnumerable<string> Authors { get; set; }
 
         public string CreateDateTimeString
         {
@@ -50,7 +50,7 @@ namespace Edison.Framework
             string stackTrace,
             TimeSpan timeTaken,
             string version,
-            IList<string> authors)
+            IEnumerable<string> authors)
         {
             State = state;
             TestRepeatIndex = testRepeatIndex;

@@ -89,18 +89,18 @@ SetupFixture -> Teardown
 Example of running a test assembly from the command-line:
 
 ```bash
-.\Edison.Console.exe --a path/to/test/assembly.dll --t 2 --ot json
+.\Edison.Console.exe --a path/to/test/assembly.dll --ft 2 --ot json
 ```
 
-This will run the tests across two threads (--t) from the assembly.dll file (--a). The results of the tests will be output to the working directory in json format (--ot).
+This will run the test fixtures across two threads (--ft) from the assembly.dll file (--a). The results of the tests will be output to the working directory in json format (--ot).
 
 Do you have your own in-house test history storage? You can post the test results from Edison.Console to a given URL. Also you can specify a Test Run ID to help uniquely identify the run the results came from:
 
 ```bash
-.\Edison.Console.exe --a path/to/test/assembly.dll --t 2 --dfo true -dco true --ot json --url http://someurl.com --tid 702
+.\Edison.Console.exe --a path/to/test/assembly.dll --ft 2 --dfo true -dco true --ot json --url http://someurl.com --tid 702
 ```
 
-Again this will run the tests across two threads however, this time we won't be creating an output file (--dfo) or outputting the results to the console (--dco). Instead, the results will be posted to the passed URL (--url) and also use the test run ID specified (--tid).
+Again this will run the test fixtures across two threads however, this time we won't be creating an output file (--dfo) or outputting the results to the console (--dco). Instead, the results will be posted to the passed URL (--url) and also use the test run ID specified (--tid).
 
 To see more parameters use:
 

@@ -48,7 +48,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.DisableConsoleCheckBox = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.ThreadNumericBox = new System.Windows.Forms.NumericUpDown();
+            this.FixtureThreadNumericBox = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.TestProgressBar = new System.Windows.Forms.ProgressBar();
             this.RunTestsButton = new System.Windows.Forms.Button();
@@ -67,12 +67,14 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.checkboxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uncheckAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label6 = new System.Windows.Forms.Label();
+            this.TestThreadNumericBox = new System.Windows.Forms.NumericUpDown();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ThreadNumericBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FixtureThreadNumericBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -85,6 +87,7 @@
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             this.TestTreeContextMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -172,6 +175,8 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.splitContainer1.Panel1.Controls.Add(this.TestThreadNumericBox);
+            this.splitContainer1.Panel1.Controls.Add(this.label6);
             this.splitContainer1.Panel1.Controls.Add(this.ExcludeCategoriesTextBox);
             this.splitContainer1.Panel1.Controls.Add(this.label5);
             this.splitContainer1.Panel1.Controls.Add(this.IncludeCategoriesTextBox);
@@ -180,7 +185,7 @@
             this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.DisableConsoleCheckBox);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
-            this.splitContainer1.Panel1.Controls.Add(this.ThreadNumericBox);
+            this.splitContainer1.Panel1.Controls.Add(this.FixtureThreadNumericBox);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
             this.splitContainer1.Panel1.Controls.Add(this.TestProgressBar);
             this.splitContainer1.Panel1.Controls.Add(this.RunTestsButton);
@@ -195,15 +200,15 @@
             // 
             // ExcludeCategoriesTextBox
             // 
-            this.ExcludeCategoriesTextBox.Location = new System.Drawing.Point(919, 33);
+            this.ExcludeCategoriesTextBox.Location = new System.Drawing.Point(1013, 33);
             this.ExcludeCategoriesTextBox.Name = "ExcludeCategoriesTextBox";
-            this.ExcludeCategoriesTextBox.Size = new System.Drawing.Size(132, 20);
+            this.ExcludeCategoriesTextBox.Size = new System.Drawing.Size(101, 20);
             this.ExcludeCategoriesTextBox.TabIndex = 21;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(812, 36);
+            this.label5.Location = new System.Drawing.Point(906, 36);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(101, 13);
             this.label5.TabIndex = 20;
@@ -211,15 +216,15 @@
             // 
             // IncludeCategoriesTextBox
             // 
-            this.IncludeCategoriesTextBox.Location = new System.Drawing.Point(637, 33);
+            this.IncludeCategoriesTextBox.Location = new System.Drawing.Point(773, 33);
             this.IncludeCategoriesTextBox.Name = "IncludeCategoriesTextBox";
-            this.IncludeCategoriesTextBox.Size = new System.Drawing.Size(132, 20);
+            this.IncludeCategoriesTextBox.Size = new System.Drawing.Size(102, 20);
             this.IncludeCategoriesTextBox.TabIndex = 19;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(533, 36);
+            this.label4.Location = new System.Drawing.Point(669, 36);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(98, 13);
             this.label4.TabIndex = 18;
@@ -228,7 +233,7 @@
             // DisableTestCheckBox
             // 
             this.DisableTestCheckBox.AutoSize = true;
-            this.DisableTestCheckBox.Location = new System.Drawing.Point(474, 36);
+            this.DisableTestCheckBox.Location = new System.Drawing.Point(627, 36);
             this.DisableTestCheckBox.Name = "DisableTestCheckBox";
             this.DisableTestCheckBox.Size = new System.Drawing.Size(15, 14);
             this.DisableTestCheckBox.TabIndex = 17;
@@ -237,7 +242,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(364, 36);
+            this.label3.Location = new System.Drawing.Point(517, 36);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(104, 13);
             this.label3.TabIndex = 16;
@@ -247,7 +252,7 @@
             // DisableConsoleCheckBox
             // 
             this.DisableConsoleCheckBox.AutoSize = true;
-            this.DisableConsoleCheckBox.Location = new System.Drawing.Point(315, 36);
+            this.DisableConsoleCheckBox.Location = new System.Drawing.Point(473, 36);
             this.DisableConsoleCheckBox.Name = "DisableConsoleCheckBox";
             this.DisableConsoleCheckBox.Size = new System.Drawing.Size(15, 14);
             this.DisableConsoleCheckBox.TabIndex = 15;
@@ -258,32 +263,32 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(229, 36);
+            this.label2.Location = new System.Drawing.Point(387, 36);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(80, 13);
             this.label2.TabIndex = 14;
             this.label2.Text = "Disable Output:";
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
-            // ThreadNumericBox
+            // FixtureThreadNumericBox
             // 
-            this.ThreadNumericBox.Location = new System.Drawing.Point(148, 34);
-            this.ThreadNumericBox.Maximum = new decimal(new int[] {
+            this.FixtureThreadNumericBox.Location = new System.Drawing.Point(182, 34);
+            this.FixtureThreadNumericBox.Maximum = new decimal(new int[] {
             20,
             0,
             0,
             0});
-            this.ThreadNumericBox.Minimum = new decimal(new int[] {
+            this.FixtureThreadNumericBox.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.ThreadNumericBox.Name = "ThreadNumericBox";
-            this.ThreadNumericBox.Size = new System.Drawing.Size(46, 20);
-            this.ThreadNumericBox.TabIndex = 13;
-            this.ThreadNumericBox.TabStop = false;
-            this.ThreadNumericBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.ThreadNumericBox.Value = new decimal(new int[] {
+            this.FixtureThreadNumericBox.Name = "FixtureThreadNumericBox";
+            this.FixtureThreadNumericBox.Size = new System.Drawing.Size(40, 20);
+            this.FixtureThreadNumericBox.TabIndex = 13;
+            this.FixtureThreadNumericBox.TabStop = false;
+            this.FixtureThreadNumericBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.FixtureThreadNumericBox.Value = new decimal(new int[] {
             1,
             0,
             0,
@@ -294,9 +299,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(93, 36);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 13);
+            this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 12;
-            this.label1.Text = "Threads:";
+            this.label1.Text = "Fixture Threads:";
             // 
             // TestProgressBar
             // 
@@ -476,6 +481,39 @@
             this.uncheckAllToolStripMenuItem.Text = "Uncheck All";
             this.uncheckAllToolStripMenuItem.Click += new System.EventHandler(this.uncheckAllToolStripMenuItem_Click);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(244, 36);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(73, 13);
+            this.label6.TabIndex = 22;
+            this.label6.Text = "Test Threads:";
+            // 
+            // TestThreadNumericBox
+            // 
+            this.TestThreadNumericBox.Location = new System.Drawing.Point(323, 34);
+            this.TestThreadNumericBox.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.TestThreadNumericBox.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.TestThreadNumericBox.Name = "TestThreadNumericBox";
+            this.TestThreadNumericBox.Size = new System.Drawing.Size(40, 20);
+            this.TestThreadNumericBox.TabIndex = 23;
+            this.TestThreadNumericBox.TabStop = false;
+            this.TestThreadNumericBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.TestThreadNumericBox.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // EdisonForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -495,7 +533,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ThreadNumericBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FixtureThreadNumericBox)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
@@ -508,6 +546,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             this.TestTreeContextMenu.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -541,7 +580,7 @@
         private System.Windows.Forms.ToolStripMenuItem uncheckAllToolStripMenuItem;
         private System.Windows.Forms.ProgressBar TestProgressBar;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown ThreadNumericBox;
+        private System.Windows.Forms.NumericUpDown FixtureThreadNumericBox;
         private System.Windows.Forms.CheckBox DisableTestCheckBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox DisableConsoleCheckBox;
@@ -552,6 +591,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.NumericUpDown TestThreadNumericBox;
+        private System.Windows.Forms.Label label6;
     }
 }
 

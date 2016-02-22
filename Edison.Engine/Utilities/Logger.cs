@@ -11,7 +11,6 @@ using Edison.Engine.Repositories;
 using Edison.Framework;
 using System;
 using System.IO;
-using System.Reflection;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 
@@ -155,17 +154,19 @@ namespace Edison.Engine
             --cot    -   Type of output for the console, default is TXT.
 
             --dco    -   Boolean flag to state whether all output to the console is
-                        disabled (default is false).
+                         disabled (default is false).
 
             --dfo    -   Boolean flag to state whether an output file should be
-                        disabled (default is false).
+                         disabled (default is false).
 
             --dto    -   Boolean flag to state whether user produced output from
-                        tests should be disabled (default is false).
+                         tests should be disabled (default is false).
 
             --e      -   List of categories to be excluded, separated by spaces.
 
             --f      -   List of TestFixtures that should be run, separated by spaces.
+
+            --ft     -   Number of threads on which to execute the test fixtures (default is 1).
 
             --help   -   Displays help manual (this page).
 
@@ -174,18 +175,18 @@ namespace Edison.Engine
             --tid    -   Test run ID that can be used to identify this run.
 
             --od     -   Output directory for the output file created (default is
-                        the working directory).
+                         the working directory).
 
             --of     -   Name of the output file created.
 
             --ot     -   Type of the output file (default is JSON).
 
-            --t      -   Number of threads on which to execute the tests (default is 1).
-
             --ts     -   List of Tests that should be run, separated by spaces.
 
+            --tt     -   Number of threads on which to execute tests within fixtures (default is 1).
+
             --url    -   Test result URL where test results and ID will be POSTed to,
-                        after each test. Format is determined by -ot.
+                         after each test. Format is determined by -ot.
 
             --v      -   Displays the current version of Edison.
 

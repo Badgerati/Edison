@@ -54,11 +54,13 @@
     <Compile Include="Repositories\Interfaces\IDirectoryRepository.cs" />
     <Compile Include="Repositories\Interfaces\IFileRepository.cs" />
     <Compile Include="Repositories\CsvOutputRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IReflectionRepository.cs" />
     <Compile Include="Repositories\Interfaces\IOutputRepository.cs" />
     <Compile Include="Repositories\DotOutputRepository.cs" />
     <Compile Include="Repositories\Interfaces\IPathRepository.cs" />
     <Compile Include="Repositories\Interfaces\IWebRequestRepository.cs" />
     <Compile Include="Repositories\Interfaces\IWebResponseRepository.cs" />
+    <Compile Include="Repositories\ReflectionRepository.cs" />
     <Compile Include="Repositories\NoneOutputRepository.cs" />
     <Compile Include="Repositories\JsonOutputRepository.cs" />
     <Compile Include="Repositories\OutputRepositoryFactory.cs" />
@@ -69,10 +71,9 @@
     <Compile Include="Repositories\XmlOutputRepository.cs" />
     <Compile Include="Events\EventDelegates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Threading\EdisonTestThread.cs" />
-    <Compile Include="Utilities\Extensions\MethodInfoExtension.cs" />
+    <Compile Include="Threading\TestFixtureThread.cs" />
+    <Compile Include="Threading\TestThread.cs" />
     <Compile Include="Utilities\Extensions\StringExtension.cs" />
-    <Compile Include="Utilities\Extensions\TypeExtension.cs" />
     <Compile Include="Utilities\Helpers\ReflectionHelper.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\Structures\TestResultDictionary.cs" />
