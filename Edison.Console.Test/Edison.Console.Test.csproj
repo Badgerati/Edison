@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -52,7 +56,6 @@
   <ItemGroup>
     <Compile Include="ParameterParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestRepositories\MockFileRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Edison.Console\Edison.Console.csproj">
@@ -67,6 +70,9 @@
       <Project>{8683f1f4-d9f5-42e6-82c0-92f7d95c1001}</Project>
       <Name>Edison.Injector</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

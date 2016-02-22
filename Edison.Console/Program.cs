@@ -5,7 +5,7 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
-
+ 
 using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Injector;
@@ -19,6 +19,7 @@ namespace Edison.Console
         public static void Main(string[] args)
         {
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+
             var context = new EdisonContext();
 
             try
@@ -49,5 +50,6 @@ namespace Edison.Console
         {
             DIContainer.Instance.Dispose();
         }
+
     }
 }

@@ -18,6 +18,7 @@ namespace Edison.Injector
         void Bind(Type binder, Type bindee);
         void Bind<T, U>() where U : T;
         T BindAndCache<T, U>(IDictionary<string, object> parameters) where U : T;
+        T BindAndCacheInstance<T>(T instance);
         void Unbind<T>();
         T Get<T>(IDictionary<string, object> parameters = null, bool overwrite = false);
 

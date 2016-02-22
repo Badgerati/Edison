@@ -85,6 +85,13 @@ namespace Edison.Injector
             return Get<T>(parameters, true);
         }
 
+        public T BindAndCacheInstance<T>(T instance)
+        {
+            KernelCache.Remove(typeof(T));
+            KernelCache.Add(typeof(T), instance);
+            return instance;
+        }
+
         public void Unbind<T>()
         {
             Kernel.Unbind<T>();

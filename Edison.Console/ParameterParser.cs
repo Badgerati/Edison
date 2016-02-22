@@ -6,6 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using CommandLine;
 using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
@@ -16,8 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 
 namespace Edison.Console
 {
@@ -47,35 +46,7 @@ namespace Edison.Console
         }
 
         #endregion
-
-        #region Keywords
-
-        private static IDictionary<string, Delegate> Keywords = new Dictionary<string, Delegate>
-            {
-                { "a", new Action<string[]>(AssemblyAction) },
-                { "dfo", new Action<string[]>(DisableFileOutputAction) },
-                { "e", new Action<string[]>(ExcludedAction) },
-                { "f", new Action<string[]>(FixtureAction) },
-                { "h", new Action<string[]>(HelpAction) },
-                { "help", new Action<string[]>(HelpAction) },
-                { "i", new Action<string[]>(IncludedAction) },
-                { "tid", new Action<string[]>(TestRunIdAction) },
-                { "od", new Action<string[]>(OutputDirectoryAction) },
-                { "of", new Action<string[]>(OutputFileAction) },
-                { "ot", new Action<string[]>(OutputTypeAction) },
-                { "ft", new Action<string[]>(FixtureThreadsAction) },
-                { "tt", new Action<string[]>(TestThreadsAction) },
-                { "ts", new Action<string[]>(TestsAction) },
-                { "url", new Action<string[]>(TestResultUrlAction) },
-                { "version", new Action<string[]>(VersionAction) },
-                { "v", new Action<string[]>(VersionAction) },
-                { "dco", new Action<string[]>(DisableOutputAction) },
-                { "cot", new Action<string[]>(ConsoleOutputTypeAction) },
-                { "dto", new Action<string[]>(DisableTestOutputAction) }
-            };
-
-        #endregion
-
+        
         #region Instance Variables
         
         private static EdisonContext Context;
@@ -83,7 +54,7 @@ namespace Edison.Console
         #endregion
 
         #region Parser
-
+        
         public static bool Parse(EdisonContext context, string[] args)
         {
             if (context == default(EdisonContext))
@@ -91,69 +62,49 @@ namespace Edison.Console
                 throw new Exception("No EdisonContext supplied for parsing parameters");
             }
 
+            var options = new ConsoleOptions();
             if (args == default(string[]) || args.Length == 0)
             {
-                HelpAction(default(string[]));
+                options.GetUsage();
+                return false;
+            }
+            
+            if (!Parser.Default.ParseArguments(args, options))
+            {
+                Logger.Instance.WriteMessage(options.GetUsage());
+                return false;
+            }
+
+            if (options.ShowHelp)
+            {
+                Logger.Instance.WriteMessage(options.GetUsage());
+                return false;
+            }
+
+            if (options.ShowVersion)
+            {
+                Logger.Instance.WriteMessage(options.GetVersion());
                 return false;
             }
 
             Context = context;
 
-            var keys = Keywords.Keys;
-
-            var regex = new Regex("--(?<key>.+)");
-            var sets = new Dictionary<string, IList<string>>();
-            var currentKey = string.Empty;
-
-            foreach (var arg in args)
-            {
-                if (regex.IsMatch(arg))
-                {
-                    currentKey = regex.Match(arg).Groups["key"].Value;
-
-                    if (!sets.ContainsKey(currentKey))
-                    {
-                        sets.Add(currentKey, new List<string>());
-                    }
-                }
-                else if (!string.IsNullOrEmpty(currentKey))
-                {
-                    sets[currentKey].Add(arg);
-                }
-            }
-
-            if (sets.Count == 0)
-            {
-                HelpAction(default(string[]));
-                return false;
-            }
-
-            var passedKeys = sets.Keys;
-
-            foreach (var key in passedKeys)
-            {
-                if (keys.Contains(key))
-                {
-                    if (key == "help" || key == "h")
-                    {
-                        HelpAction(default(string[]));
-                        return false;
-                    }
-
-                    if (key == "v" || key == "version")
-                    {
-                        VersionAction(default(string[]));
-                        return false;
-                    }
-
-                    Keywords[key].DynamicInvoke(new object[] { sets[key].ToArray() });
-                }
-                else
-                {
-                    Logger.Instance.WriteError(string.Format("Invalid argument keyword '{0}'.", key));
-                    return false;
-                }
-            }
+            AssemblyAction(options.Assemblies);
+            FixtureThreadsAction(options.FixtureThreads);
+            TestThreadsAction(options.TestThreads);
+            IncludedAction(options.Includes);
+            ExcludedAction(options.Excludes);
+            FixtureAction(options.Fixtures);
+            TestsAction(options.Tests);
+            OutputFileAction(options.OutputFile);
+            OutputDirectoryAction(options.OutputDirectory);
+            OutputTypeAction(options.OutputType);
+            TestResultUrlAction(options.TestResultUrl);
+            TestRunIdAction(options.TestRunId);
+            ConsoleOutputTypeAction(options.ConsoleOutputType);
+            DisableOutputAction(options.DisableConsoleOutput);
+            DisableTestOutputAction(options.DisableTestOutput);
+            DisableFileOutputAction(options.DisableFileOutput);
 
             return true;
         }
@@ -162,15 +113,15 @@ namespace Edison.Console
 
         #region Actions
 
-        private static void AssemblyAction(string[] values)
+        private static void AssemblyAction(IList<string> values)
         {
-            if (values.Length == 0)
+            if (values == default(IList<string>) || values.Count == 0)
             {
                 throw new ParseException("No assembly paths supplied");
             }
 
             const string extension = ".dll";
-            var assemblies = new List<string>(values.Length);
+            var assemblies = new List<string>(values.Count);
             var files = values.Where(x => string.IsNullOrEmpty(PathRepository.GetExtension(x.Trim())));
             values = values.Where(x => !string.IsNullOrEmpty(PathRepository.GetExtension(x.Trim()))).ToArray();
 
@@ -221,91 +172,64 @@ namespace Edison.Console
             Context.AssemblyPaths.AddRange(assemblies);
         }
 
-        private static void HelpAction(string[] values)
+        private static void FixtureThreadsAction(int value)
         {
-            Logger.Instance.WriteHelp();
+            if (value <= 0)
+            {
+                throw new ParseException(string.Format("Value must be greater than 0 for fixture threading, but got '{0}'", value));
+            }
+
+            Context.NumberOfFixtureThreads = value;
         }
 
-        private static void VersionAction(string[] values)
+        private static void TestThreadsAction(int value)
         {
-            Logger.Instance.WriteVersion();
+            if (value <= 0)
+            {
+                throw new ParseException(string.Format("Value must be greater than 0 for test threading, but got '{0}'", value));
+            }
+
+            Context.NumberOfTestThreads = value;
         }
 
-        private static void FixtureThreadsAction(string[] values)
+        private static void IncludedAction(IList<string> values)
         {
-            if (values.Length != 1)
+            if (values == default(IList<string>))
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of fixture threads. Expected 1 but got {0}", values.Length));
+                return;
             }
 
-            var threads = 1;
-            if (!int.TryParse(values[0], out threads))
-            {
-                throw new ParseException(string.Format("Invalid integer supplied for number of fixture threads: '{0}'", values[0]));
-            }
-
-            if (threads <= 0)
-            {
-                throw new ParseException(string.Format("Value must be greater than 0 for fixture threading, but got '{0}'", values[0]));
-            }
-
-            Context.NumberOfFixtureThreads = threads;
-        }
-
-        private static void TestThreadsAction(string[] values)
-        {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for number of test threads. Expected 1 but got {0}", values.Length));
-            }
-
-            var threads = 1;
-            if (!int.TryParse(values[0], out threads))
-            {
-                throw new ParseException(string.Format("Invalid integer supplied for number of test threads: '{0}'", values[0]));
-            }
-
-            if (threads <= 0)
-            {
-                throw new ParseException(string.Format("Value must be greater than 0 for test threading, but got '{0}'", values[0]));
-            }
-
-            Context.NumberOfTestThreads = threads;
-        }
-
-        private static void IncludedAction(string[] values)
-        {
-            if (values.Length == 0)
+            if (values.Count == 0)
             {
                 throw new ParseException("No included categories supplied");
-            }
-
-            if (Context.ExcludedCategories.Count > 0)
-            {
-                throw new ParseException("Cannot supply both included and excluded categories");
             }
 
             Context.IncludedCategories.AddRange(values);
         }
 
-        private static void ExcludedAction(string[] values)
+        private static void ExcludedAction(IList<string> values)
         {
-            if (values.Length == 0)
+            if (values == default(IList<string>))
             {
-                throw new ParseException("No excluded categories supplied");
+                return;
             }
 
-            if (Context.IncludedCategories.Count > 0)
+            if (values.Count == 0)
             {
-                throw new ParseException("Cannot supply both included and excluded categories");
+                throw new ParseException("No excluded categories supplied");
             }
 
             Context.ExcludedCategories.AddRange(values);
         }
 
-        private static void FixtureAction(string[] values)
+        private static void FixtureAction(IList<string> values)
         {
-            if (values.Length == 0)
+            if (values == default(IList<string>))
+            {
+                return;
+            }
+
+            if (values.Count == 0)
             {
                 throw new ParseException("No fixtures supplied");
             }
@@ -328,9 +252,14 @@ namespace Edison.Console
             Context.Fixtures.AddRange(fixtures.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
-        private static void TestsAction(string[] values)
+        private static void TestsAction(IList<string> values)
         {
-            if (values.Length == 0)
+            if (values == default(IList<string>))
+            {
+                return;
+            }
+
+            if (values.Count == 0)
             {
                 throw new ParseException("No tests supplied");
             }
@@ -353,57 +282,41 @@ namespace Edison.Console
             Context.Tests.AddRange(tests.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
-        private static void OutputFileAction(string[] values)
+        private static void OutputFileAction(string value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied output file name. Expected 1 but got {0}", values.Length));
-            }
-
-            Context.OutputFile = values[0];
+            Context.OutputFile = value;
         }
 
-        private static void OutputDirectoryAction(string[] values)
+        private static void OutputDirectoryAction(string value)
         {
-            if (values.Length != 1)
+            if (string.IsNullOrEmpty(value))
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for output directory. Expected 1 but got {0}", values.Length));
+                return;
             }
 
-            if (!DirectoryRepository.Exists(values[0]))
+            if (!DirectoryRepository.Exists(value))
             {
-                throw new ParseException(string.Format("Output directory supplied does not exist: '{0}'", values[0]));
+                throw new ParseException(string.Format("Output directory supplied does not exist: '{0}'", value));
             }
 
-            Context.OutputFolder = values[0];
+            Context.OutputFolder = value;
         }
 
-        private static void OutputTypeAction(string[] values)
+        private static void OutputTypeAction(OutputType value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for output type Expected 1 but got {0}", values.Length));
-            }
-
-            var type = OutputType.Xml;
-            if (!Enum.TryParse(values[0], true, out type))
-            {
-                throw new ParseException(string.Format("Output type supplied is incorrect: '{0}'", values[0]));
-            }
-
-            Context.OutputType = type;
+            Context.OutputType = value;
         }
 
-        private static void TestResultUrlAction(string[] values)
+        private static void TestResultUrlAction(string value)
         {
-            if (values.Length != 1)
+            if (string.IsNullOrEmpty(value))
             {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for test run URL. Expected 1 but got {0}", values.Length));
+                return;
             }
 
             try
             {
-                var request = WebRequestRepository.Create(values[0]); // WebRequest.Create(values[0]);
+                var request = WebRequestRepository.Create(value);
                 request.Timeout = 30;
 
                 using (var response = request.GetResponse())
@@ -419,81 +332,32 @@ namespace Edison.Console
                 throw new ParseException(string.Format("Connection to provided test run URL failed:\n{0}", ex.Message));
             }
 
-            Context.TestResultURL = values[0];
+            Context.TestResultURL = value;
         }
 
-        private static void TestRunIdAction(string[] values)
+        private static void TestRunIdAction(string value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for test run ID. Expected 1 but got {0}", values.Length));
-            }
-
-            Context.TestRunId = values[0];
+            Context.TestRunId = value;
         }
 
-        private static void ConsoleOutputTypeAction(string[] values)
+        private static void ConsoleOutputTypeAction(OutputType value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for console output type. Expected 1 but got {0}", values.Length));
-            }
-
-            var type = OutputType.Xml;
-            if (!Enum.TryParse<OutputType>(values[0], true, out type))
-            {
-                throw new ParseException(string.Format("Console output type supplied is incorrect: '{0}'", values[0]));
-            }
-
-            Context.ConsoleOutputType = type;
+            Context.ConsoleOutputType = value;
         }
 
-        private static void DisableOutputAction(string[] values)
+        private static void DisableOutputAction(bool value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling console output. Expected 1 but got {0}", values.Length));
-            }
-
-            var disbale = true;
-            if (!bool.TryParse(values[0], out disbale))
-            {
-                throw new ParseException(string.Format("Disable console output value supplied is incorrect: '{0}'", values[0]));
-            }
-
-            Context.DisableConsoleOutput = disbale;
+            Context.DisableConsoleOutput = value;
         }
 
-        private static void DisableTestOutputAction(string[] values)
+        private static void DisableTestOutputAction(bool value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling test output. Expected 1 but got {0}", values.Length));
-            }
-
-            var disbale = true;
-            if (!bool.TryParse(values[0], out disbale))
-            {
-                throw new ParseException(string.Format("Disable test output value supplied is incorrect: '{0}'", values[0]));
-            }
-
-            Context.DisableTestOutput = disbale;
+            Context.DisableTestOutput = value;
         }
 
-        private static void DisableFileOutputAction(string[] values)
+        private static void DisableFileOutputAction(bool value)
         {
-            if (values.Length != 1)
-            {
-                throw new ParseException(string.Format("Incorrect number of arguments supplied for disabling file output. Expected 1 but got {0}", values.Length));
-            }
-
-            var disable = true;
-            if (!bool.TryParse(values[0], out disable))
-            {
-                throw new ParseException(string.Format("Disable file output value supplied is incorrect: '{0}'", values[0]));
-            }
-
-            Context.DisableFileOutput = disable;
+            Context.DisableFileOutput = value;
         }
 
         #endregion

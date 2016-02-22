@@ -139,70 +139,7 @@ namespace Edison.Engine
             Console.SetOut(output);
             Console.SetError(error);
         }
-
-        public void WriteHelp()
-        {
-            SetOutput(Console.Out, Console.Error);
-
-            Console.WriteLine(@"
-            Edison :: Help Manual
-            
-            The following tags are accepted as input:
-            
-            --a      -   List of paths to assemblies (.dll) to run, separated by spaces.
-
-            --cot    -   Type of output for the console, default is TXT.
-
-            --dco    -   Boolean flag to state whether all output to the console is
-                         disabled (default is false).
-
-            --dfo    -   Boolean flag to state whether an output file should be
-                         disabled (default is false).
-
-            --dto    -   Boolean flag to state whether user produced output from
-                         tests should be disabled (default is false).
-
-            --e      -   List of categories to be excluded, separated by spaces.
-
-            --f      -   List of TestFixtures that should be run, separated by spaces.
-
-            --ft     -   Number of threads on which to execute the test fixtures (default is 1).
-
-            --help   -   Displays help manual (this page).
-
-            --i      -   List of categories to be included, separated by spaces.
-
-            --tid    -   Test run ID that can be used to identify this run.
-
-            --od     -   Output directory for the output file created (default is
-                         the working directory).
-
-            --of     -   Name of the output file created.
-
-            --ot     -   Type of the output file (default is JSON).
-
-            --ts     -   List of Tests that should be run, separated by spaces.
-
-            --tt     -   Number of threads on which to execute tests within fixtures (default is 1).
-
-            --url    -   Test result URL where test results and ID will be POSTed to,
-                         after each test. Format is determined by -ot.
-
-            --v      -   Displays the current version of Edison.
-
-
-
-            The following are possible output types:
-            
-            XML     -   Typical XML formatted output.
-            JSON    -   Typical JSON formatted output.
-            TXT     -   Plain text output.
-            CSV     -   Comma-separated output.
-            Dot     -   Dot notation output. (ie, F=Fail, S=Skipped/Ignored, .=Success, I=Inconclusive)
-            None    -   No output.
-            ");
-        }
-        
+                
         public void WriteVersion()
         {
             SetOutput(Console.Out, Console.Error);

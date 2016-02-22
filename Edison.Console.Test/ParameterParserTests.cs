@@ -11,23 +11,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Edison.Engine.Contexts;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Engine.Core.Exceptions;
-using System.Reflection;
-using Edison.Console.Test.TestRepositories;
 using Edison.Engine.Core.Enums;
 using Edison.Injector;
-using System.Collections.Generic;
+using Moq;
 
 namespace Edison.Console.Test
 {
     [TestClass]
     public class ParameterParserTests
     {
-
-        [TestInitialize]
-        public void Setup()
-        {
-            DIContainer.Instance.Bind<IFileRepository, MockFileRepository>();
-        }
 
         [TestCleanup]
         public void Teardown()
@@ -64,8 +56,14 @@ namespace Edison.Console.Test
         [TestMethod]
         public void ValidNumberOfFixtureThreadsTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
-            var result = ParameterParser.Parse(context, new string[] { "--ft", "2" });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--ft", "2" });
             Assert.IsTrue(result);
             Assert.AreEqual(2, context.NumberOfFixtureThreads);
         }
@@ -73,50 +71,39 @@ namespace Edison.Console.Test
         [TestMethod]
         public void InvalidValueForFixtureThreadsTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
 
             try
             {
-                ParameterParser.Parse(context, new string[] { "--ft", "-2" });
+                ParameterParser.Parse(context, new string[] { "--a", dll, "--ft", "-2" });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Value must be greater than 0 for fixture threading");
+                StringAssert.Contains(ex.Message, "Value must be greater than 0 for fixture threading");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
-            }
-        }
-
-        [TestMethod]
-        public void TooManyValuesForFixtureThreadsTest()
-        {
-            var context = new EdisonContext();
-
-            try
-            {
-                ParameterParser.Parse(context, new string[] { "--ft", "2", "1" });
-            }
-            catch (TargetInvocationException ex)
-            {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Incorrect number of arguments supplied");
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
         [TestMethod]
         public void ValidNumberOfTestThreadsTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
-            var result = ParameterParser.Parse(context, new string[] { "--tt", "2" });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--tt", "2" });
             Assert.IsTrue(result);
             Assert.AreEqual(2, context.NumberOfTestThreads);
         }
@@ -124,42 +111,25 @@ namespace Edison.Console.Test
         [TestMethod]
         public void InvalidValueForTestThreadsTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
 
             try
             {
-                ParameterParser.Parse(context, new string[] { "--tt", "-2" });
+                ParameterParser.Parse(context, new string[] { "--a", dll, "--tt", "-2" });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Value must be greater than 0 for test threading");
+                StringAssert.Contains(ex.Message, "Value must be greater than 0 for test threading");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
-            }
-        }
-
-        [TestMethod]
-        public void TooManyValuesForTestThreadsTest()
-        {
-            var context = new EdisonContext();
-
-            try
-            {
-                ParameterParser.Parse(context, new string[] { "--tt", "2", "1" });
-            }
-            catch (TargetInvocationException ex)
-            {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Incorrect number of arguments supplied");
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -170,11 +140,14 @@ namespace Edison.Console.Test
         [TestMethod]
         public void ValidDllForAssemblyTest()
         {
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>() { { "exists", true } });
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
-
-            var dll = "dummy/path/to.dll";
+            
             var result = ParameterParser.Parse(context, new string[] { "--a", dll });
             Assert.IsTrue(result);
             Assert.AreEqual(1, context.AssemblyPaths.Count);
@@ -184,24 +157,25 @@ namespace Edison.Console.Test
         [TestMethod]
         public void InvalidDllForAssemblyTest()
         {
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>() { { "exists", false } });
-            var context = new EdisonContext();
-
             var dll = "dummy/path/to.txt";
 
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(false);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+            
             try
             {
                 var result = ParameterParser.Parse(context, new string[] { "--a", dll });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Assembly it not a valid dll");
+                StringAssert.Contains(ex.Message, "Assembly it not a valid dll");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -210,15 +184,16 @@ namespace Edison.Console.Test
         {
             var dll1 = "dummy/path/to.dll";
             var dll2 = "dummy/path/to2.dll";
-            
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", true },
-                { "readAllLines", new string[] { dll1, dll2 } }
-            });
+            var file = "dummy/path/to/file";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(file)).Returns(true);
+            fileMock.Setup(x => x.Exists(dll1)).Returns(true);
+            fileMock.Setup(x => x.Exists(dll2)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll1, dll2 });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
-            var file = "dummy/path/to/file";
 
             var result = ParameterParser.Parse(context, new string[] { "--a", file });
             Assert.IsTrue(result);
@@ -231,29 +206,26 @@ namespace Edison.Console.Test
         public void ValidFileWithInvalidDllForAssemblyTest()
         {
             var dll = "dummy/path/to.txt";
-
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", true },
-                { "readAllLines", new string[] { dll } }
-            });
-
-            var context = new EdisonContext();
             var file = "dummy/path/to/file";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(file)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+            
+            var context = new EdisonContext();
 
             try
             {
                 var result = ParameterParser.Parse(context, new string[] { "--a", file });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Assembly it not a valid dll");
+                StringAssert.Contains(ex.Message, "Assembly it not a valid dll");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -261,29 +233,26 @@ namespace Edison.Console.Test
         public void InvalidFileForAssemblyTest()
         {
             var dll = "dummy/path/to.dll";
-
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", false },
-                { "readAllLines", new string[] { dll } }
-            });
-
-            var context = new EdisonContext();
             var file = "dummy/path/to/file";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(file)).Returns(false);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+            
+            var context = new EdisonContext();
 
             try
             {
                 var result = ParameterParser.Parse(context, new string[] { "--a", file });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "File for list of asemblies not found");
+                StringAssert.Contains(ex.Message, "File for list of asemblies not found");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -294,10 +263,16 @@ namespace Edison.Console.Test
         [TestMethod]
         public void ValidFixtureTest()
         {
+            var fixture = "this.is.some.fixture";
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
 
-            var fixture = "this.is.some.fixture";
-            var result = ParameterParser.Parse(context, new string[] { "--f", fixture });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--f", fixture });
             Assert.IsTrue(result);
             Assert.AreEqual(1, context.Fixtures.Count);
             Assert.AreEqual(fixture, context.Fixtures[0]);
@@ -308,17 +283,18 @@ namespace Edison.Console.Test
         {
             var fixture1 = "this.is.some.fixture";
             var fixture2 = "this.is.some.fixture2";
-
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", true },
-                { "readAllLines", new string[] { fixture1, fixture2 } }
-            });
-
-            var context = new EdisonContext();
             var file = "dummy/path/to/file";
+            var dll = "dummy/path/to.dll";
 
-            var result = ParameterParser.Parse(context, new string[] { "--f", file });
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            fileMock.Setup(x => x.Exists(file)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { fixture1, fixture2 });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+            
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--f", file });
             Assert.IsTrue(result);
             Assert.AreEqual(2, context.Fixtures.Count);
             Assert.AreEqual(fixture1, context.Fixtures[0]);
@@ -328,30 +304,29 @@ namespace Edison.Console.Test
         [TestMethod]
         public void InvalidFileForFixturesTest()
         {
+            var dll = "dummy/path/to.dll";
             var fixture = "this.is.some.fixture";
+            var file = "dummy/path/to/file";
 
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", false },
-                { "readAllLines", new string[] { fixture } }
-            });
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(file)).Returns(false);
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { fixture });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
             
             var context = new EdisonContext();
-            var file = "dummy/path/to/file";
 
             try
             {
-                var result = ParameterParser.Parse(context, new string[] { "--f", file });
+                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--f", file });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "File for list of fixtures not found");
+                StringAssert.Contains(ex.Message, "File for list of fixtures not found");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -362,10 +337,16 @@ namespace Edison.Console.Test
         [TestMethod]
         public void ValidTestTest()
         {
+            var test = "this.is.some.test";
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
 
-            var test = "this.is.some.test";
-            var result = ParameterParser.Parse(context, new string[] { "--ts", test });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--t", test });
             Assert.IsTrue(result);
             Assert.AreEqual(1, context.Tests.Count);
             Assert.AreEqual(test, context.Tests[0]);
@@ -376,17 +357,18 @@ namespace Edison.Console.Test
         {
             var test1 = "this.is.some.test";
             var test2 = "this.is.some.test2";
+            var file = "dummy/path/to/file";
+            var dll = "dummy/path/to.dll";
 
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", true },
-                { "readAllLines", new string[] { test1, test2 } }
-            });
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            fileMock.Setup(x => x.Exists(file)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { test1, test2 });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
-            var file = "dummy/path/to/file";
 
-            var result = ParameterParser.Parse(context, new string[] { "--ts", file });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--t", file });
             Assert.IsTrue(result);
             Assert.AreEqual(2, context.Tests.Count);
             Assert.AreEqual(test1, context.Tests[0]);
@@ -397,29 +379,28 @@ namespace Edison.Console.Test
         public void InvalidFileForTestsTest()
         {
             var test = "this.is.some.test";
+            var file = "dummy/path/to/file";
+            var dll = "dummy/path/to.dll";
 
-            DIContainer.Instance.BindAndCache<IFileRepository, MockFileRepository>(new Dictionary<string, object>()
-            {
-                { "exists", false },
-                { "readAllLines", new string[] { test } }
-            });
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            fileMock.Setup(x => x.Exists(file)).Returns(true);
+            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { test });
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
-            var file = "dummy/path/to/file";
 
             try
             {
                 var result = ParameterParser.Parse(context, new string[] { "--ts", file });
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "File for list of tests not found");
+                StringAssert.Contains(ex.Message, "File for list of tests not found");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
@@ -430,10 +411,16 @@ namespace Edison.Console.Test
         [TestMethod]
         public void ValidConsoleOutputTypeTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
 
             var type = "csv";
-            var result = ParameterParser.Parse(context, new string[] { "--cot", type });
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--cot", type });
             Assert.IsTrue(result);
             Assert.AreEqual(OutputType.Csv, context.ConsoleOutputType);
         }
@@ -441,21 +428,26 @@ namespace Edison.Console.Test
         [TestMethod]
         public void InvalidConsoleOutputTypeTest()
         {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
             var context = new EdisonContext();
             
             try
             {
-                var result = ParameterParser.Parse(context, new string[] { "--cot", "dummy" });
+                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--cot", "dummy" });
+                Assert.IsFalse(result);
             }
-            catch (TargetInvocationException ex)
+            catch (ParseException ex)
             {
-                Assert.IsNotNull(ex.InnerException);
-                Assert.IsInstanceOfType(ex.InnerException, typeof(ParseException));
-                StringAssert.Contains(ex.InnerException.Message, "Console output type supplied is incorrect");
+                StringAssert.Contains(ex.Message, "Console output type supplied is incorrect");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail();
+                Assert.Fail(ex.Message);
             }
         }
 
