@@ -7,7 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Edison.Engine.Contexts;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Engine.Core.Exceptions;
@@ -17,17 +17,17 @@ using Moq;
 
 namespace Edison.Console.Test
 {
-    [TestClass]
+    [TestFixture]
     public class ParameterParserTests
     {
 
-        [TestCleanup]
+        [TearDown]
         public void Teardown()
         {
             DIContainer.Instance.Unbind<IFileRepository>();
         }
 
-        [ClassCleanup]
+        [TestFixtureTearDown]
         public static void ClassTeardown()
         {
             DIContainer.Instance.Dispose();
@@ -35,14 +35,14 @@ namespace Edison.Console.Test
 
         #region Constructor
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "No EdisonContext supplied for parsing parameters")]
+        [Test]
+        [ExpectedException(ExpectedException = typeof(Exception), ExpectedMessage = "No EdisonContext supplied for parsing parameters", MatchType = MessageMatch.Contains)]
         public void NoEdisonContextTest()
         {
             ParameterParser.Parse(default(EdisonContext), default(string[]));
         }
 
-        [TestMethod]
+        [Test]
         public void NoArgsTest()
         {
             var result = ParameterParser.Parse(new EdisonContext(), default(string[]));
@@ -53,7 +53,7 @@ namespace Edison.Console.Test
 
         #region Threads
 
-        [TestMethod]
+        [Test]
         public void ValidNumberOfFixtureThreadsTest()
         {
             var dll = "dummy/path/to.dll";
@@ -68,7 +68,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(2, context.NumberOfFixtureThreads);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidValueForFixtureThreadsTest()
         {
             var dll = "dummy/path/to.dll";
@@ -85,7 +85,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "Value must be greater than 0 for fixture threading");
+                StringAssert.Contains("Value must be greater than 0 for fixture threading", ex.Message);
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace Edison.Console.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ValidNumberOfTestThreadsTest()
         {
             var dll = "dummy/path/to.dll";
@@ -108,7 +108,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(2, context.NumberOfTestThreads);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidValueForTestThreadsTest()
         {
             var dll = "dummy/path/to.dll";
@@ -125,7 +125,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "Value must be greater than 0 for test threading");
+                StringAssert.Contains("Value must be greater than 0 for test threading", ex.Message);
             }
             catch (Exception ex)
             {
@@ -137,7 +137,7 @@ namespace Edison.Console.Test
 
         #region Assembly
 
-        [TestMethod]
+        [Test]
         public void ValidDllForAssemblyTest()
         {
             var dll = "dummy/path/to.dll";
@@ -154,7 +154,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(dll, context.AssemblyPaths[0]);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidDllForAssemblyTest()
         {
             var dll = "dummy/path/to.txt";
@@ -171,7 +171,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "Assembly it not a valid dll");
+                StringAssert.Contains("Assembly is not a valid dll", ex.Message);
             }
             catch (Exception ex)
             {
@@ -179,7 +179,7 @@ namespace Edison.Console.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ValidFileForAssemblyTest()
         {
             var dll1 = "dummy/path/to.dll";
@@ -202,7 +202,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(dll2, context.AssemblyPaths[1]);
         }
 
-        [TestMethod]
+        [Test]
         public void ValidFileWithInvalidDllForAssemblyTest()
         {
             var dll = "dummy/path/to.txt";
@@ -221,7 +221,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "Assembly it not a valid dll");
+                StringAssert.Contains("Assembly is not a valid dll", ex.Message);
             }
             catch (Exception ex)
             {
@@ -229,7 +229,7 @@ namespace Edison.Console.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidFileForAssemblyTest()
         {
             var dll = "dummy/path/to.dll";
@@ -248,7 +248,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "File for list of asemblies not found");
+                StringAssert.Contains("File for list of asemblies not found", ex.Message);
             }
             catch (Exception ex)
             {
@@ -260,7 +260,7 @@ namespace Edison.Console.Test
 
         #region Fixtures
 
-        [TestMethod]
+        [Test]
         public void ValidFixtureTest()
         {
             var fixture = "this.is.some.fixture";
@@ -278,7 +278,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(fixture, context.Fixtures[0]);
         }
 
-        [TestMethod]
+        [Test]
         public void ValidFileForFixturesTest()
         {
             var fixture1 = "this.is.some.fixture";
@@ -301,7 +301,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(fixture2, context.Fixtures[1]);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidFileForFixturesTest()
         {
             var dll = "dummy/path/to.dll";
@@ -322,7 +322,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "File for list of fixtures not found");
+                StringAssert.Contains("File for list of fixtures not found", ex.Message);
             }
             catch (Exception ex)
             {
@@ -334,7 +334,7 @@ namespace Edison.Console.Test
 
         #region Fixtures
 
-        [TestMethod]
+        [Test]
         public void ValidTestTest()
         {
             var test = "this.is.some.test";
@@ -352,7 +352,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(test, context.Tests[0]);
         }
 
-        [TestMethod]
+        [Test]
         public void ValidFileForTestsTest()
         {
             var test1 = "this.is.some.test";
@@ -375,7 +375,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(test2, context.Tests[1]);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidFileForTestsTest()
         {
             var test = "this.is.some.test";
@@ -396,7 +396,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "File for list of tests not found");
+                StringAssert.Contains("File for list of tests not found", ex.Message);
             }
             catch (Exception ex)
             {
@@ -408,7 +408,7 @@ namespace Edison.Console.Test
 
         #region Console Output Type
 
-        [TestMethod]
+        [Test]
         public void ValidConsoleOutputTypeTest()
         {
             var dll = "dummy/path/to.dll";
@@ -425,7 +425,7 @@ namespace Edison.Console.Test
             Assert.AreEqual(OutputType.Csv, context.ConsoleOutputType);
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidConsoleOutputTypeTest()
         {
             var dll = "dummy/path/to.dll";
@@ -443,7 +443,7 @@ namespace Edison.Console.Test
             }
             catch (ParseException ex)
             {
-                StringAssert.Contains(ex.Message, "Console output type supplied is incorrect");
+                StringAssert.Contains("Console output type supplied is incorrect", ex.Message);
             }
             catch (Exception ex)
             {

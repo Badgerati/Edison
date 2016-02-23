@@ -140,7 +140,7 @@ namespace Edison.Console
                 {
                     if (PathRepository.GetExtension(assembly) != extension)
                     {
-                        throw new ParseException(string.Format("Assembly it not a valid dll: '{0}' in file '{1}'", assembly, _file));
+                        throw new ParseException(string.Format("Assembly is not a valid dll: '{0}' in file '{1}'", assembly, _file));
                     }
 
                     if (!FileRepository.Exists(assembly))
@@ -158,7 +158,7 @@ namespace Edison.Console
 
                 if (PathRepository.GetExtension(_value) != extension)
                 {
-                    throw new ParseException(string.Format("Assembly it not a valid dll: '{0}'", _value));
+                    throw new ParseException(string.Format("Assembly is not a valid dll: '{0}'", _value));
                 }
 
                 if (!FileRepository.Exists(_value))

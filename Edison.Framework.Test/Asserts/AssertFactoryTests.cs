@@ -7,23 +7,22 @@ License: MIT (see LICENSE for details)
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EAssert = Edison.Framework.Assert;
-using MAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using NAssert = NUnit.Framework.Assert;
 using Edison.Framework.Enums;
 
 namespace Edison.Framework.Test.Asserts
 {
-    [TestClass]
+    [NUnit.Framework.TestFixture]
     public class AssertFactoryTests
     {
 
-        [TestMethod]
+        [NUnit.Framework.Test]
         public void DefaultAssertFactoryTest()
         {
-            AssertFactory.Instance = new Assert();
+            AssertFactory.Instance = new EAssert();
             var assert = AssertFactory.Instance;
-            MAssert.IsInstanceOfType(assert, typeof(IAssert));
+            NAssert.IsInstanceOf(typeof(IAssert), assert);
 
             try
             {
@@ -31,20 +30,20 @@ namespace Edison.Framework.Test.Asserts
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod]
-        public void CustomAssertFactoryTest()
+        [NUnit.Framework.Test]
+        public void CustoNAssertFactoryTest()
         {
             AssertFactory.Instance = new CustomAssert();
             var assert = AssertFactory.Instance;
-            MAssert.IsInstanceOfType(assert, typeof(IAssert));
+            NAssert.IsInstanceOf(typeof(IAssert), assert);
 
             try
             {
@@ -52,13 +51,13 @@ namespace Edison.Framework.Test.Asserts
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 

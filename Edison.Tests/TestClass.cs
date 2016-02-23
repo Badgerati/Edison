@@ -94,5 +94,11 @@ namespace Edison.Tests
             Console.WriteLine("WOO3!!!");
         }
 
+        [Test]
+        public void TestMethod4()
+        {
+            AssertFactory.Instance.AreEqual(1 + 1, 2);
+        }
+
     }
 }

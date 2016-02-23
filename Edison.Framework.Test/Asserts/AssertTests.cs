@@ -1,5 +1,5 @@
 ﻿/*
-Edison is designed to be simpler and more performant unit/integration testing framework.
+Edison is designed to be simpler and more performant unit/integration NUnit.Framework.Testing framework.
 
 Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
@@ -7,25 +7,24 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework.Enums;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using EAssert = Edison.Framework.Assert;
-using MAssert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using NAssert = NUnit.Framework.Assert;
 
 namespace Edison.Framework.Tests
 {
-    [TestClass()]
+    [NUnit.Framework.TestFixture]
     public class AssertTests
     {
 
         private IAssert GetAssert()
         {
             var assert = new EAssert();
-            MAssert.IsInstanceOfType(assert, typeof(IAssert));
+            NAssert.IsInstanceOf(typeof(IAssert), assert);
             return assert;
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void InconclusiveTest()
         {
             var assert = GetAssert();
@@ -36,17 +35,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Inconclusive, aex.TestResultState);
-                MAssert.AreEqual("Test marked as inconclusive", aex.Message);
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Inconclusive, aex.TestResultState);
+                NAssert.AreEqual("Test marked as inconclusive", aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void FailTest()
         {
             var assert = GetAssert();
@@ -57,17 +56,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.AreEqual("Test marked as failed", aex.Message);
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.AreEqual("Test marked as failed", aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void PassTest()
         {
             var assert = GetAssert();
@@ -78,17 +77,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Success, aex.TestResultState);
-                MAssert.AreEqual("Test marked as passed", aex.Message);
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Success, aex.TestResultState);
+                NAssert.AreEqual("Test marked as passed", aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreEqualTest()
         {
             var assert = GetAssert();
@@ -99,15 +98,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreNotEqualTest()
         {
             var assert = GetAssert();
@@ -118,17 +117,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreSameReferenceTest()
         {
             var assert = GetAssert();
@@ -142,15 +141,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreNotSameReferenceTest()
         {
             var assert = GetAssert();
@@ -163,61 +162,61 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsInstanceOfTest()
         {
             var assert = GetAssert();
 
             try
             {
-                var value = "test string";
+                var value = "NUnit.Framework.Test string";
                 assert.IsInstanceOf<IComparable>(value);
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotInstanceOfTest()
         {
             var assert = GetAssert();
 
             try
             {
-                var value = "test string";
+                var value = "NUnit.Framework.Test string";
                 assert.IsNotInstanceOf<int>(value);
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsTrueTest()
         {
             var assert = GetAssert();
@@ -229,17 +228,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsFalseTest()
         {
             var assert = GetAssert();
@@ -251,17 +250,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsGreaterThanTest()
         {
             var assert = GetAssert();
@@ -272,15 +271,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsGreaterThanOrEqualTest()
         {
             var assert = GetAssert();
@@ -291,15 +290,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotGreaterThanTest()
         {
             var assert = GetAssert();
@@ -310,17 +309,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotGreaterThanOrEqualTest()
         {
             var assert = GetAssert();
@@ -331,17 +330,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsLessThanTest()
         {
             var assert = GetAssert();
@@ -352,15 +351,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsLessThanOrEqualTest()
         {
             var assert = GetAssert();
@@ -371,15 +370,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotLessThanTest()
         {
             var assert = GetAssert();
@@ -390,17 +389,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotLessThanOrEqualTest()
         {
             var assert = GetAssert();
@@ -411,17 +410,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void FileExistsTest()
         {
             var assert = GetAssert();
@@ -432,15 +431,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void FileDoesNotExistTest()
         {
             var assert = GetAssert();
@@ -451,17 +450,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void DirectoryExistsTest()
         {
             var assert = GetAssert();
@@ -472,15 +471,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void DirectoryDoesNotExistsTest()
         {
             var assert = GetAssert();
@@ -491,17 +490,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNullTest()
         {
             var assert = GetAssert();
@@ -512,15 +511,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotNullTest()
         {
             var assert = GetAssert();
@@ -531,17 +530,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsDefaultTest()
         {
             var assert = GetAssert();
@@ -553,15 +552,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotDefaultTest()
         {
             var assert = GetAssert();
@@ -573,17 +572,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsInstanceOfTypeTest()
         {
             var assert = GetAssert();
@@ -594,15 +593,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotInstanceOfTypeTest()
         {
             var assert = GetAssert();
@@ -613,17 +612,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsZeroTest()
         {
             var assert = GetAssert();
@@ -634,15 +633,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotZeroTest()
         {
             var assert = GetAssert();
@@ -653,17 +652,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreDatesEqualTest()
         {
             var assert = GetAssert();
@@ -675,15 +674,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreDatesNotEqualTest()
         {
             var assert = GetAssert();
@@ -695,17 +694,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreTimesEqualTest()
         {
             var assert = GetAssert();
@@ -717,15 +716,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void AreTimesNotEqualTest()
         {
             var assert = GetAssert();
@@ -737,17 +736,17 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsBetweenTest()
         {
             var assert = GetAssert();
@@ -758,15 +757,15 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
-        [TestMethod()]
+        [NUnit.Framework.Test]
         public void IsNotBetweenTest()
         {
             var assert = GetAssert();
@@ -777,13 +776,13 @@ namespace Edison.Framework.Tests
             }
             catch (AssertException aex)
             {
-                MAssert.IsNotNull(aex);
-                MAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
-                MAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
             }
             catch (Exception)
             {
-                MAssert.Fail("Incorrect exception type");
+                NAssert.Fail("Incorrect exception type");
             }
         }
 
