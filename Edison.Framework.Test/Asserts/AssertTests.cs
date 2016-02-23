@@ -7,6 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework.Enums;
+using Moq;
 using System;
 using EAssert = Edison.Framework.Assert;
 using NAssert = NUnit.Framework.Assert;
@@ -463,11 +464,12 @@ namespace Edison.Framework.Tests
         [NUnit.Framework.Test]
         public void DirectoryExistsTest()
         {
-            var assert = GetAssert();
-
+            var assertMock = new Mock<IAssert>();
+            assertMock.Setup(x => x.DirectoryExists("C:/Users", string.Empty));
+            
             try
             {
-                assert.DirectoryExists("C:/Users");
+                assertMock.Object.DirectoryExists("C:/Users");
             }
             catch (AssertException aex)
             {
