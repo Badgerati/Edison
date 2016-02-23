@@ -7,4 +7,4 @@ install:
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release /p:TargetFrameworkVersion="v4.5" /p:DebugSymbols=False Edison.sln
-  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Edison.Console.Tests/bin/Release/Edison.Console.Tests.dll ./Edison.Framework.Tests/bin/Release/Edison.Framework.Tests.dll
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Edison.Console.Test/bin/Release/Edison.Console.Test.dll ./Edison.Framework.Test/bin/Release/Edison.Framework.Test.dll
