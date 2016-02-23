@@ -1,2 +1,4 @@
 language: csharp
 solution: Edison.sln
+script:
+  - xbuild /p:Configuration=Release /p:TargetFrameworkVersion="v4.5" /p:DebugSymbols=False Edison.sln
