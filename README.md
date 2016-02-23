@@ -1,6 +1,8 @@
 Edison
 ======
 
+![](https://travis-ci.org/Badgerati/Edison.svg?branch=master)
+
 Edison is designed to be a more performant unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.
 
