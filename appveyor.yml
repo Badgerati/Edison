@@ -1,0 +1,23 @@
+version: 1.0.{build}
+
+os: Windows Server 2012
+
+branches:
+  except:
+    - gh-pages
+
+skip_tags: true
+
+configuration: Release
+
+build:
+  project: ./Edison.sln
+  verbosity: minimal
+
+before_build:
+  - cmd: nuget restore ./Edison.sln
+
+test:
+  assemblies:
+    - ./Edison.Console.Test/bin/Release/Edison.Console.Test.dll
+    - ./Edison.Framework.Test/bin/Release/Edison.Framework.Test.dll
