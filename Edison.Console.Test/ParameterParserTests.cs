@@ -14,6 +14,7 @@ using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Core.Enums;
 using Edison.Injector;
 using Moq;
+using Edison.Engine;
 
 namespace Edison.Console.Test
 {
@@ -392,7 +393,7 @@ namespace Edison.Console.Test
 
             try
             {
-                var result = ParameterParser.Parse(context, new string[] { "--ts", file });
+                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--ts", file });
             }
             catch (ParseException ex)
             {
@@ -438,6 +439,7 @@ namespace Edison.Console.Test
             
             try
             {
+                Logger.Instance.Disable();
                 var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--cot", "dummy" });
                 Assert.IsFalse(result);
             }
