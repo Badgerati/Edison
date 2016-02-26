@@ -19,6 +19,15 @@ Features
 * GUI for a more visual look on running tests.
 
 
+Installing Edison
+=================
+You can now install Edison using [Chocolatey](https://chocolatey.org/packages/edison/1.0.0.6 "Chocolatey") using the following:
+
+```bash
+choco install edison
+```
+
+
 Usage
 =====
 
