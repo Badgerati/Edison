@@ -21,10 +21,17 @@ Features
 
 Installing Edison
 =================
+
 You can now install Edison using [Chocolatey](https://chocolatey.org/packages/edison/1.0.0.6 "Chocolatey") using the following:
 
 ```bash
 choco install edison
+```
+
+Also with [NuGet](https://www.nuget.org/packages/Edison.Framework "NuGet") as well:
+
+```bash
+Install-Package Edison.Framework
 ```
 
 
