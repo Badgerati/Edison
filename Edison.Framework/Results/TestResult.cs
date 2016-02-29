@@ -20,7 +20,9 @@ namespace Edison.Framework
         #region Properties
 
         public TestResultState State { get; set; }
-        public string Name { get; set; }
+        public string NameSpace { get; set; }
+        public string TestName { get; set; }
+        public string FullName { get; set; }
         public string ErrorMessage { get; set; }
         public string StackTrace { get; set; }
         public TimeSpan TimeTaken { get; set; }
@@ -33,6 +35,18 @@ namespace Edison.Framework
         public string CreateDateTimeString
         {
             get { return CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); }
+        }
+
+        public string BasicName
+        {
+            get { return (NameSpace + "." + TestName); }
+        }
+
+        [Obsolete("This property will soon be deprecated, please use FullName instead.")]
+        public string Name
+        {
+            get { return FullName; }
+            set { FullName = value; }
         }
 
         #endregion
@@ -55,7 +69,9 @@ namespace Edison.Framework
             State = state;
             TestRepeatIndex = testRepeatIndex;
             TestFixtureRepeatIndex = testFixtureRepeatIndex;
-            Name = GetName(test, GetParameters(fixtureParameters), GetParameters(testParameters));
+            NameSpace = test.DeclaringType.FullName;
+            TestName = test.Name;
+            FullName = GetName(GetParameters(fixtureParameters), GetParameters(testParameters));
             ErrorMessage = errorMessage;
             StackTrace = stackTrace;
             TimeTaken = timeTaken;
@@ -70,46 +86,53 @@ namespace Edison.Framework
 
         private string GetParameters(object[] parameters)
         {
-            var _parameters = string.Empty;
+            var _parameters = new StringBuilder();
 
             if (parameters == default(object[]) || parameters.Length == 0)
             {
-                return _parameters;
+                return string.Empty;
             }
 
             foreach (var parameter in parameters)
             {
                 if (parameter == default(object))
                 {
-                    _parameters += "NULL, ";
-                    continue;
-                }
-
-                var paramType = parameter.GetType();
-                if (paramType == typeof(string))
-                {
-                    _parameters += ("\"" + parameter + "\", ");
+                    _parameters.Append("NULL");
                 }
                 else
                 {
-                    _parameters += (parameter + ", ");
+                    var paramType = parameter.GetType();
+                    if (paramType == typeof(string))
+                    {
+                        _parameters.Append("\"" + parameter + "\"");
+                    }
+                    else if (paramType == typeof(char))
+                    {
+                        _parameters.Append("'" + parameter + "'");
+                    }
+                    else
+                    {
+                        _parameters.Append(parameter);
+                    }
                 }
+
+                _parameters.Append(", ");
             }
 
-            return _parameters.Trim(',', ' ');
+            return _parameters.ToString().Trim(',', ' ');
         }
 
-        private string GetName(MethodInfo test, string fixtureParameters, string testParameters)
+        private string GetName(string fixtureParameters, string testParameters)
         {
             var name = new StringBuilder();
-            name.Append(test.DeclaringType.FullName + "(" + fixtureParameters + ")");
+            name.Append(NameSpace + "(" + fixtureParameters + ")");
 
             if (TestFixtureRepeatIndex != -1)
             {
                 name.Append("_" + (TestFixtureRepeatIndex + 1));
             }
 
-            name.Append("." + test.Name + "(" + testParameters + ")");
+            name.Append("." + TestName + "(" + testParameters + ")");
 
             if (TestRepeatIndex != -1)
             {
@@ -122,4 +145,5 @@ namespace Edison.Framework
         #endregion
 
     }
+
 }

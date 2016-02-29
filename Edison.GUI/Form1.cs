@@ -113,7 +113,7 @@ namespace Edison.GUI
 
             e.DrawBackground();
             var item = (TestResult)(FailedTestListBox.Items[e.Index]);
-            e.Graphics.DrawString(item.Name + Environment.NewLine + item.ErrorMessage, e.Font, new SolidBrush(e.ForeColor), e.Bounds);
+            e.Graphics.DrawString(item.FullName + Environment.NewLine + item.ErrorMessage, e.Font, new SolidBrush(e.ForeColor), e.Bounds);
         }
 
         private void FailedTestListBox_MeasureItem(object sender, MeasureItemEventArgs e)

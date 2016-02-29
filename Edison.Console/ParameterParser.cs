@@ -105,6 +105,8 @@ namespace Edison.Console
             DisableOutputAction(options.DisableConsoleOutput);
             DisableTestOutputAction(options.DisableTestOutput);
             DisableFileOutputAction(options.DisableFileOutput);
+            RerunFailedTestsAction(options.RerunFailedTests);
+            RerunThresholdAction(options.RerunThreshold);
 
             return true;
         }
@@ -115,7 +117,7 @@ namespace Edison.Console
 
         private static void AssemblyAction(IList<string> values)
         {
-            if (values == default(IList<string>) || values.Count == 0)
+            if (values == default(IList<string>) || !values.Any())
             {
                 throw new ParseException("No assembly paths supplied");
             }
@@ -199,7 +201,7 @@ namespace Edison.Console
                 return;
             }
 
-            if (values.Count == 0)
+            if (!values.Any())
             {
                 throw new ParseException("No included categories supplied");
             }
@@ -214,7 +216,7 @@ namespace Edison.Console
                 return;
             }
 
-            if (values.Count == 0)
+            if (!values.Any())
             {
                 throw new ParseException("No excluded categories supplied");
             }
@@ -229,7 +231,7 @@ namespace Edison.Console
                 return;
             }
 
-            if (values.Count == 0)
+            if (!values.Any())
             {
                 throw new ParseException("No fixtures supplied");
             }
@@ -259,7 +261,7 @@ namespace Edison.Console
                 return;
             }
 
-            if (values.Count == 0)
+            if (!values.Any())
             {
                 throw new ParseException("No tests supplied");
             }
@@ -358,6 +360,26 @@ namespace Edison.Console
         private static void DisableFileOutputAction(bool value)
         {
             Context.DisableFileOutput = value;
+        }
+
+        private static void RerunFailedTestsAction(bool value)
+        {
+            Context.RerunFailedTests = value;
+        }
+
+        private static void RerunThresholdAction(int value)
+        {
+            if (value < 0)
+            {
+                throw new ParseException(string.Format("Value must be greater than or equal to 0 for re-run threshold, but got '{0}'", value));
+            }
+
+            if (value > 100)
+            {
+                throw new ParseException(string.Format("Value must be less than or equal to 100 for re-run threshold, but got '{0}'", value));
+            }
+
+            Context.RerunThreshold = value;
         }
 
         #endregion

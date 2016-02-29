@@ -17,6 +17,7 @@ Features
 * Ability to send test results, in real-time, to a URL for later analysis.
 * Console application from which to run your tests.
 * GUI for a more visual look on running tests.
+* Ability to re-run tests that have failed, for ones that may pass if run seconds later.
 
 
 Installing Edison

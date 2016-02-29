@@ -56,45 +56,50 @@ namespace Edison.Engine.Utilities.Structures
             get { return Results.Values.Where(x => x.State == TestResultState.Success); }
         }
 
-        public int Total
+        public int TotalCount
         {
             get { return Results.Count; }
         }
 
-        public int Passed
+        public int TotalFailedCount
+        {
+            get { return Results.Count(x => x.Value.State != TestResultState.Success); }
+        }
+
+        public int PassedCount
         {
             get { return Count(TestResultState.Success); }
         }
 
-        public int Failed
+        public int FailedCount
         {
             get
             {
-                return Count(TestResultState.Failure)
-                    + Count(TestResultState.GlobalSetupFailure)
-                    + Count(TestResultState.GlobalTeardownFailure)
-                    + Count(TestResultState.SetupFailure)
-                    + Count(TestResultState.TeardownFailure)
-                    + Count(TestResultState.TestFixtureSetupFailure)
-                    + Count(TestResultState.TestFixtureTeardownFailure);
+                return Count(TestResultState.Failure,
+                    TestResultState.GlobalSetupFailure,
+                    TestResultState.GlobalTeardownFailure,
+                    TestResultState.SetupFailure,
+                    TestResultState.TeardownFailure,
+                    TestResultState.TestFixtureSetupFailure,
+                    TestResultState.TestFixtureTeardownFailure);
             }
         }
 
-        public int Errored
+        public int ErroredCount
         {
             get
             {
-                return Count(TestResultState.Error)
-                    + Count(TestResultState.GlobalSetupError)
-                    + Count(TestResultState.GlobalTeardownError)
-                    + Count(TestResultState.SetupError)
-                    + Count(TestResultState.TeardownError)
-                    + Count(TestResultState.TestFixtureSetupError)
-                    + Count(TestResultState.TestFixtureTeardownError);
+                return Count(TestResultState.Error,
+                    TestResultState.GlobalSetupError,
+                    TestResultState.GlobalTeardownError,
+                    TestResultState.SetupError,
+                    TestResultState.TeardownError,
+                    TestResultState.TestFixtureSetupError,
+                    TestResultState.TestFixtureTeardownError);
             }
         }
 
-        public int Skipped
+        public int SkippedCount
         {
             get
             {
@@ -102,7 +107,7 @@ namespace Edison.Engine.Utilities.Structures
             }
         }
 
-        public int Inconclusive
+        public int InconclusiveCount
         {
             get
             {
@@ -129,16 +134,16 @@ namespace Edison.Engine.Utilities.Structures
             var response = false;
             var _result = default(TestResult);
 
-            if (Results.TryGetValue(result.Name, out _result))
+            if (Results.TryGetValue(result.FullName, out _result))
             {
                 if (_result != default(TestResult) && _result.State != TestResultState.Success)
                 {
-                    response = Results.TryUpdate(result.Name, result, _result);
+                    response = Results.TryUpdate(result.FullName, result, _result);
                 }
             }
             else
             {
-                response = Results.TryAdd(result.Name, result);
+                response = Results.TryAdd(result.FullName, result);
             }
 
             if (Logger.Instance.ConsoleOutputType != OutputType.None)
@@ -174,20 +179,25 @@ namespace Edison.Engine.Utilities.Structures
             return _result;
         }
 
-        public int Count(TestResultState state)
+        public int Count(params TestResultState[] states)
         {
-            return Results.Count(x => x.Value.State == state);
+            if (states == default(TestResultState[]) || !states.Any())
+            {
+                return 0;
+            }
+
+            return states.Select(s => Results.Count(r => r.Value.State == s)).Sum();
         }
 
         public string ToTotalString()
         {
             return string.Format("Total: {0}, Passed: {1}, Failed: {2}, Errored: {3}, Inconclusive: {4}, Skipped: {5}",
-                Total,
-                Passed,
-                Failed,
-                Errored,
-                Inconclusive,
-                Skipped);
+                TotalCount,
+                PassedCount,
+                FailedCount,
+                ErroredCount,
+                InconclusiveCount,
+                SkippedCount);
         }
 
         #endregion

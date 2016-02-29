@@ -136,7 +136,7 @@ namespace Edison.Engine.Repositories
             return type
                 .GetMethods()
                 .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories))
-                .Where(t => tests == default(List<string>) || tests.Count == 0 || tests.Contains(GetFullNamespace(t)));
+                .Where(t => tests == default(IList<string>) || !tests.Any() || tests.Contains(GetFullNamespace(t)));
         }
 
         #endregion
