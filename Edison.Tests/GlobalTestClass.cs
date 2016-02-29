@@ -22,7 +22,7 @@ namespace Edison.Tests
         public void Setup()
         {
             Console.WriteLine("This is the global setup");
-            TestStatisClass.Value = "YAY!!!!";
+            TestStatisClass.StringValue = "YAY!!!!";
         }
 
         [Teardown]

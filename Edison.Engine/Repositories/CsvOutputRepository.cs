@@ -48,7 +48,7 @@ namespace Edison.Engine.Repositories
         {
             return string.Format("\"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\"{0}",
                 withTrail ? Environment.NewLine : string.Empty,
-                RemoveNewLines(result.Name),
+                RemoveNewLines(result.FullName),
                 result.State,
                 result.TimeTaken,
                 RemoveNewLines(result.ErrorMessage.Replace("Error Message: ", string.Empty)),

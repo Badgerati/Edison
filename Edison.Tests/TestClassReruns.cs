@@ -8,25 +8,18 @@ License: MIT (see LICENSE for details)
 
 using Edison.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Edison.Tests
 {
     [TestFixture]
-    public class TestClass2
+    public class TestClassReruns
     {
 
         [Test]
-        [Repeat(2)]
         public void TestMethod()
         {
-            Console.WriteLine("WOO8!!!");
-            Console.WriteLine(TestStatisClass.StringValue);
-            AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
-            Console.WriteLine("WOO9!!!");
+            TestStatisClass.IntValue++;
+            AssertFactory.Instance.AreEqual(2, TestStatisClass.IntValue, "Values are not equal");
         }
 
     }

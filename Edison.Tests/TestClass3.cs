@@ -20,7 +20,7 @@ namespace Edison.Tests
         public void TestMethod()
         {
             Console.WriteLine("WOO7!!!");
-            Console.WriteLine(TestStatisClass.Value);
+            Console.WriteLine(TestStatisClass.StringValue);
             AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
             Console.WriteLine("WOO4!!!");
         }

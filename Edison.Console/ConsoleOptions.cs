@@ -65,6 +65,12 @@ namespace Edison.Console
         [Option("url", Required = false, HelpText = "Test result URL where test results and the Test run ID will be POSTed to after each test.")]
         public string TestResultUrl { get; set; }
 
+        [Option("rft", Required = false, DefaultValue = false, HelpText = "Boolean flag specifying whether failed tests should be re-run post main threads. This re-run thread never run in parallel.")]
+        public bool RerunFailedTests { get; set; }
+
+        [Option("rt", Required = false, DefaultValue = 100, HelpText = "Value to specify the re-run failed test threshold. If the number of failed tests is greater than this percentage, the re-run will not happen.")]
+        public int RerunThreshold { get; set; }
+
         [Option('h', "help", Required = false, HelpText = "Displays the help text.")]
         public bool ShowHelp { get; set; }
 

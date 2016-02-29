@@ -6,18 +6,13 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Edison.Tests
 {
     public static class TestStatisClass
     {
 
-        public static string Value = "WOOP!!";
+        public static string StringValue = "WOOP!!";
+        public static int IntValue = 0;
 
     }
 }

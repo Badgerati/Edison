@@ -75,7 +75,7 @@ namespace Edison.Tests
             //AssertFactory.Instance.Inconclusive("Hmm");
             Console.WriteLine("WOO2!!!");
             Console.WriteLine(test);
-            Console.WriteLine(TestStatisClass.Value);
+            Console.WriteLine(TestStatisClass.StringValue);
             AssertFactory.Instance.AreEqual(1, 2, "Values are not equal");
             Console.WriteLine("WOO2!!!");
         }

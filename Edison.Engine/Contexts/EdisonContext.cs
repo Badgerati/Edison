@@ -67,11 +67,13 @@ namespace Edison.Engine.Contexts
         public bool DisableTestOutput { get; set; }
         public string TestResultURL { get; set; }
         public string TestRunId { get; set; }
+        public bool RerunFailedTests { get; set; }
+        public int RerunThreshold { get; set; }
 
         private Stopwatch Timer = default(Stopwatch);
         private TestResultDictionary ResultQueue;
 
-        private IList<TestFixtureThread> Threads = default(IList<TestFixtureThread>);
+        private IList<TestFixtureThread> ParallelThreads = default(IList<TestFixtureThread>);
         private IList<Task> Tasks = default(IList<Task>);
         private TestFixtureThread SingularThread = default(TestFixtureThread);
         private Task SingularTask = default(Task);
@@ -157,7 +159,7 @@ namespace Edison.Engine.Contexts
                 }
 
                 //test fixtures an threads
-                SetupThreads(assembly, globalSetupEx);
+                RunThreads(assembly, globalSetupEx);
 
                 //global teardown
                 if (globalSetupFixture != default(Type))
@@ -210,9 +212,9 @@ namespace Edison.Engine.Contexts
 
         public void Interrupt()
         {
-            if (Threads != default(IList<TestFixtureThread>))
+            if (ParallelThreads != default(IList<TestFixtureThread>))
             {
-                foreach (var thread in Threads)
+                foreach (var thread in ParallelThreads)
                 {
                     thread.Interrupt();
                 }
@@ -277,66 +279,7 @@ namespace Edison.Engine.Contexts
                 Logger.Instance.WriteInnerException(ex, true);
             }
         }
-
-        private void SetupThreads(Assembly assembly, Exception globalSetupEx)
-        {
-            var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests);
-
-            // if we're running in parallel, remove any singular test fixtures
-            var singularTestFixtures = default(IOrderedEnumerable<Type>);
-            if (NumberOfFixtureThreads > 1 && testFixtures.Count() != 1)
-            {
-                singularTestFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Serial)).OrderBy(t => t.FullName);
-                testFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Parallel)).OrderBy(t => t.FullName);
-            }
-
-            var fixtures = testFixtures.Count();
-            if (fixtures < NumberOfFixtureThreads)
-            {
-                NumberOfFixtureThreads = fixtures;
-            }
-
-            Threads = new List<TestFixtureThread>(NumberOfFixtureThreads);
-            var segment = fixtures == 0 ? 0 : (double)fixtures / (double)NumberOfFixtureThreads;
-
-            // setup all the threads that are to be run in parallel
-            var i = 1;
-            for (i = 1; i <= NumberOfFixtureThreads; i++)
-            {
-                var testFixturesSegment = i == NumberOfFixtureThreads
-                    ? testFixtures.Skip((int)((i - 1) * segment))
-                    : testFixtures.Skip((int)((i - 1) * segment)).Take((int)(segment));
-
-                var thread = new TestFixtureThread(i, this, ResultQueue, testFixturesSegment, globalSetupEx, ConcurrencyType.Parallel, NumberOfTestThreads);
-                Threads.Add(thread);
-            }
-
-            // setup - if needed - the singular thread
-            SingularThread = singularTestFixtures != default(IOrderedEnumerable<Type>)
-                ? new TestFixtureThread(i + 1, this, ResultQueue, singularTestFixtures, globalSetupEx, ConcurrencyType.Serial, NumberOfTestThreads)
-                : default(TestFixtureThread);
-
-            RunThreads();
-        }
-
-        private void RunThreads()
-        {
-            Tasks = new List<Task>(Threads.Count);
-            foreach (var thread in Threads)
-            {
-                Tasks.Add(Task.Factory.StartNew(() => thread.RunTestFixtures()));
-            }
-
-            Task.WaitAll(Tasks.ToArray());
-
-            // once finished, we need to run the possible singular tests
-            if (SingularThread != default(TestFixtureThread))
-            {
-                SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
-                Task.WaitAll(SingularTask);
-            }
-        }
-
+                
         private void WriteResultsToFile(string file)
         {
             var results = ResultQueue.TestResults.ToList();
@@ -379,6 +322,120 @@ namespace Edison.Engine.Contexts
                 Logger.Instance.ConsoleOutputType = ConsoleOutputType;
             }
         }
+
+        #endregion
+
+        #region Threading
+
+        private void RunThreads(Assembly assembly, Exception globalSetupEx)
+        {
+            // get all possible test fixtures
+            var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests);
+
+            #region Parallel
+            // if we're running in parallel, remove any singular test fixtures
+            if (NumberOfFixtureThreads > 1 && testFixtures.Count() != 1)
+            {
+                testFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Parallel)).OrderBy(t => t.FullName);
+            }
+
+            var fixturesCount = testFixtures.Count();
+            if (fixturesCount < NumberOfFixtureThreads)
+            {
+                NumberOfFixtureThreads = fixturesCount;
+            }
+
+            ParallelThreads = new List<TestFixtureThread>(NumberOfFixtureThreads);
+            var segment = fixturesCount == 0 ? 0 : (double)fixturesCount / (double)NumberOfFixtureThreads;
+
+            // setup all the threads that are to be run in parallel
+            var threadCount = 1;
+            for (threadCount = 1; threadCount <= NumberOfFixtureThreads; threadCount++)
+            {
+                var testFixturesSegment = threadCount == NumberOfFixtureThreads
+                    ? testFixtures.Skip((int)((threadCount - 1) * segment))
+                    : testFixtures.Skip((int)((threadCount - 1) * segment)).Take((int)(segment));
+
+                var thread = new TestFixtureThread(threadCount, this, ResultQueue, testFixturesSegment, globalSetupEx, ConcurrencyType.Parallel, NumberOfTestThreads);
+                ParallelThreads.Add(thread);
+            }
+
+            // run the parallel threads
+            Tasks = new List<Task>(ParallelThreads.Count);
+            foreach (var thread in ParallelThreads)
+            {
+                Tasks.Add(Task.Factory.StartNew(() => thread.RunTestFixtures()));
+            }
+
+            Task.WaitAll(Tasks.ToArray());
+
+            #endregion
+
+            #region Singular
+
+            // setup - if needed - the singular thread
+            var singularTestFixtures = testFixtures.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Serial)).OrderBy(t => t.FullName);
+
+            // run the singular thread
+            if (singularTestFixtures != default(IOrderedEnumerable<Type>) && singularTestFixtures.Any())
+            {
+                SingularThread = new TestFixtureThread(threadCount + 1, this, ResultQueue, singularTestFixtures, globalSetupEx, ConcurrencyType.Serial, NumberOfTestThreads);
+                SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
+                Task.WaitAll(SingularTask);
+            }
+
+            // if an exception was thrown in global setup, return at this point
+            if (globalSetupEx != default(Exception))
+            {
+                return;
+            }
+
+            #endregion
+
+            #region Rerun Failed Tests
+
+            // if enabled, and under threshold, re-run failed tests
+            if (RerunFailedTests && ResultQueue.TotalFailedCount != 0 && ResultQueue.TotalCount != 0)
+            {
+                var percentageFailed = (int)(((double)ResultQueue.TotalFailedCount / (double)ResultQueue.TotalCount) * 100d);
+                if (percentageFailed <= RerunThreshold)
+                {
+                    var failedTests = ResultQueue.FailedTestResults.Select(x => x.BasicName).ToList();
+                    var rerunTestFixtures = AssemblyRepository.GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), failedTests);
+                    SingularThread = new TestFixtureThread(threadCount + 2, this, ResultQueue, rerunTestFixtures, default(Exception), ConcurrencyType.Serial, 1);
+                    SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
+                    Task.WaitAll(SingularTask);
+                }
+            }
+
+            #endregion
+
+
+
+            //RunThreads();
+        }
+
+        //private void RunThreads()
+        //{
+            // run parallel threads
+            //Tasks = new List<Task>(Threads.Count);
+            //foreach (var thread in Threads)
+            //{
+            //    Tasks.Add(Task.Factory.StartNew(() => thread.RunTestFixtures()));
+            //}
+
+            //Task.WaitAll(Tasks.ToArray());
+
+            // once finished, we need to run the possible singular tests
+            //if (SingularThread != default(TestFixtureThread))
+            //{
+            //    SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
+            //    Task.WaitAll(SingularTask);
+            //}
+
+            // if enabled, and under threshold, re-run failed tests
+            //if (globalS)
+        //}
 
         #endregion
 

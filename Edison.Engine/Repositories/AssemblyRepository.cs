@@ -12,9 +12,7 @@ using System.Linq;
 using System.Reflection;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using System.IO;
 using Edison.Engine.Utilities.Helpers;
-using Edison.Engine.Utilities.Extensions;
 using Edison.Framework;
 
 namespace Edison.Engine.Repositories
@@ -60,7 +58,7 @@ namespace Edison.Engine.Repositories
         public IOrderedEnumerable<Type> GetTestFixtures(Assembly assembly, IList<string> includedCategories, IList<string> excludedCategories, IList<string> fixtures, IList<string> tests)
         {
             return GetTypes<TestFixtureAttribute>(assembly, includedCategories, excludedCategories)
-                .Where(t => fixtures == default(List<string>) || fixtures.Count == 0 || fixtures.Contains(t.FullName))
+                .Where(t => fixtures == default(IList<string>) || !fixtures.Any() || fixtures.Contains(t.FullName))
                 .Where(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests).Any())
                 .OrderBy(t => t.FullName);
         }

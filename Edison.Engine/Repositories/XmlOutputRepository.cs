@@ -47,7 +47,7 @@ namespace Edison.Engine.Repositories
 
         public string ToString(TestResult result, bool withTrail)
         {
-            var test = string.Format("<Test>{0}</Test>", ToHtmlString(result.Name));
+            var test = string.Format("<Test>{0}</Test>", ToHtmlString(result.FullName));
             var state = string.Format("<State>{0}</State>", result.State);
             var timeTaken = string.Format("<TimeTaken>{0}</TimeTaken>", result.TimeTaken);
             var message = string.Format("<ErrorMessage>{0}</ErrorMessage>", ToHtmlString(result.ErrorMessage.Replace("Error Message: ", string.Empty)));

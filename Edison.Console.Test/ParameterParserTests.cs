@@ -455,5 +455,106 @@ namespace Edison.Console.Test
 
         #endregion
 
+        #region Rerun Failed Tests
+
+        [Test]
+        public void ValidRerunFailedTestsTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--rft" });
+            Assert.IsTrue(result);
+            Assert.IsTrue(context.RerunFailedTests);
+        }
+
+        [Test]
+        public void DefaultRerunFailedTestsTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll });
+            Assert.IsTrue(result);
+            Assert.IsFalse(context.RerunFailedTests);
+        }
+
+        #endregion
+
+        #region Rerun Threshold
+
+        [Test]
+        public void ValidRerunThresholdTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var threshold = 33;
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--rt", threshold.ToString() });
+            Assert.IsTrue(result);
+            Assert.AreEqual(threshold, context.RerunThreshold);
+        }
+
+        [Test]
+        public void DefaultRerunThresholdTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+            
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll });
+            Assert.IsTrue(result);
+            Assert.AreEqual(100, context.RerunThreshold);
+        }
+
+        [Test]
+        [TestCase(-1)]
+        [TestCase(101)]
+        public void InvalidRerunThresholdTest(int threshold)
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            try
+            {
+                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--rt", threshold.ToString() });
+                Assert.IsFalse(result);
+            }
+            catch (ParseException ex)
+            {
+                StringAssert.IsMatch(@"Value must be (less|greater) than or equal to \d+ for re-run threshold, but got '-*\d+'", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        #endregion
+
     }
 }
