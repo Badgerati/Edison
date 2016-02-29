@@ -31,7 +31,7 @@ Edison is an open source unit/integration test framework for .NET.
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://cdn.rawgit.com/Badgerati/Edison/master/Images/icon.png</iconUrl>
     <dependencies>
-      <dependency id="dotnet4.5.2" version="4.5.2.20140902" />
+      <dependency id="dotnet4.5" version="4.5.20120822" />
     </dependencies>
     <releaseNotes>https://github.com/Badgerati/Edison/releases</releaseNotes>
   </metadata>
