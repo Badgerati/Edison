@@ -8,7 +8,12 @@ License: MIT (see LICENSE for details)
 
 using Edison.Framework.Enums;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Edison.Framework
 {
@@ -50,17 +55,85 @@ namespace Edison.Framework
 
         public virtual void AreEqual(IComparable expected, IComparable actual, string message = null)
         {
-            if (!expected.Equals(actual))
+            if (!Equals(expected, actual))
             {
-                throw new AssertException(ExpectedActualMessage(message, expected, actual));
+                throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
             }
         }
 
         public virtual void AreNotEqual(IComparable expected, IComparable actual, string message = null)
         {
-            if (expected.Equals(actual))
+            if (Equals(expected, actual))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not " + expected, actual));
+                throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
+            }
+        }
+
+        public virtual void AreEnumerablesEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
+        {
+            if (expected == default(IEnumerable<T>) && actual == default(IEnumerable<T>))
+            {
+                return;
+            }
+
+            if (expected == default(IEnumerable<T>) || actual == default(IEnumerable<T>) || expected.Count() != actual.Count())
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
+            }
+
+            var _expected = expected.ToList();
+            var _actual = actual.ToList();
+
+            for (var i = 0; i < _expected.Count; i++)
+            {
+                if (!Equals(_expected[i], _actual[i]))
+                {
+                    throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
+                }
+            }
+        }
+
+        public virtual void AreEnumerablesNotEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
+        {
+            if (expected == default(IEnumerable<T>) && actual == default(IEnumerable<T>))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
+            }
+
+            if ((expected == default(IEnumerable<T>) && actual != default(IEnumerable<T>))
+                || (expected != default(IEnumerable<T>) && actual == default(IEnumerable<T>))
+                || (expected.Count() != actual.Count()))
+            {
+                return;
+            }            
+
+            var _expected = expected.ToList();
+            var _actual = actual.ToList();
+
+            for (var i = 0; i < _expected.Count; i++)
+            {
+                if (!Equals(_expected[i], _actual[i]))
+                {
+                    return;
+                }
+            }
+
+            throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
+        }
+
+        public virtual void AreEqualIgnoreCase(string expected, string actual, string message = null)
+        {
+            if (!string.Equals(expected, actual, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
+            }
+        }
+
+        public virtual void AreNotEqualIgnoreCase(string expected, string actual, string message = null)
+        {
+            if (string.Equals(expected, actual, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
             }
         }
 
@@ -70,17 +143,17 @@ namespace Edison.Framework
 
         public virtual void AreSameReference(object expected, object actual, string message = null)
         {
-            if (!object.ReferenceEquals(expected, actual))
+            if (!ReferenceEquals(expected, actual))
             {
-                throw new AssertException(ExpectedActualMessage(message, expected, actual));
+                throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
             }
         }
 
         public virtual void AreNotSameReference(object expected, object actual, string message = null)
         {
-            if (object.ReferenceEquals(expected, actual))
+            if (ReferenceEquals(expected, actual))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not " + expected, actual));
+                throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
             }
         }
 
@@ -92,12 +165,12 @@ namespace Edison.Framework
         {
             if (value == default(object))
             {
-                throw new AssertException(ExpectedActualMessage(message, typeof(T).Name, "NULL"));
+                throw new AssertException(ExpectedActualMessage(message, null, typeof(T).Name, null, null, null, null));
             }
 
             if (!(value is T))
             {
-                throw new AssertException(ExpectedActualMessage(message, typeof(T).Name, value.GetType().Name));
+                throw new AssertException(ExpectedActualMessage(message, null, typeof(T).Name, null, null, value.GetType().Name, null));
             }
         }
 
@@ -105,7 +178,7 @@ namespace Edison.Framework
         {
             if (value != default(object) && (value is T))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not " + typeof(T).Name, value.GetType().Name));
+                throw new AssertException(ExpectedActualMessage(message, "Not ", typeof(T).Name, null, null, value.GetType().Name, null));
             }
         }
 
@@ -117,7 +190,7 @@ namespace Edison.Framework
         {
             if (!value)
             {
-                throw new AssertException(ExpectedActualMessage(message, "TRUE", value));
+                throw new AssertException(ExpectedActualMessage(message, null, true, null, null, value, null));
             }
         }
 
@@ -125,7 +198,7 @@ namespace Edison.Framework
         {
             if (value)
             {
-                throw new AssertException(ExpectedActualMessage(message, "FALSE", value));
+                throw new AssertException(ExpectedActualMessage(message, null, false, null, null, value, null));
             }
         }
 
@@ -135,33 +208,33 @@ namespace Edison.Framework
 
         public virtual void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
         {
-            if (value.CompareTo(greaterThanThis) <= 0)
+            if (value == null || value.CompareTo(greaterThanThis) <= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">" + greaterThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Greater than ", greaterThanThis, null, null, value, null));
             }
         }
 
         public virtual void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(greaterThanOrEqualToThis) < 0)
+            if (value == null || value.CompareTo(greaterThanOrEqualToThis) < 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">=" + greaterThanOrEqualToThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Greater than or equal to ", greaterThanOrEqualToThis, null, null, value, null));
             }
         }
 
         public virtual void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null)
         {
-            if (value.CompareTo(notGreaterThanThis) > 0)
+            if (value == null || value.CompareTo(notGreaterThanThis) > 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<=" + notGreaterThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Less than or equal to ", notGreaterThanThis, null, null, value, null));
             }
         }
 
         public virtual void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(notGreaterThanOrEqualToThis) >= 0)
+            if (value == null || value.CompareTo(notGreaterThanOrEqualToThis) >= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<" + notGreaterThanOrEqualToThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Less than ", notGreaterThanOrEqualToThis, null, null, value, null));
             }
         }
 
@@ -171,33 +244,33 @@ namespace Edison.Framework
 
         public virtual void IsLessThan(IComparable value, IComparable lessThanThis, string message = null)
         {
-            if (value.CompareTo(lessThanThis) >= 0)
+            if (value == null || value.CompareTo(lessThanThis) >= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<" + lessThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Less than ", lessThanThis, null, null, value, null));
             }
         }
 
         public virtual void IsLessThanOrEqual(IComparable value, IComparable lessThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(lessThanOrEqualToThis) > 0)
+            if (value == null || value.CompareTo(lessThanOrEqualToThis) > 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "<=" + lessThanOrEqualToThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Less than or equal to ", lessThanOrEqualToThis, null, null, value, null));
             }
         }
 
         public virtual void IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null)
         {
-            if (value.CompareTo(notLessThanThis) < 0)
+            if (value == null || value.CompareTo(notLessThanThis) < 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">=" + notLessThanThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Greater than or equal to ", notLessThanThis, null, null, value, null));
             }
         }
 
         public virtual void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanOrEqualToThis, string message = null)
         {
-            if (value.CompareTo(notLessThanOrEqualToThis) <= 0)
+            if (value == null || value.CompareTo(notLessThanOrEqualToThis) <= 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, ">" + notLessThanOrEqualToThis, value));
+                throw new AssertException(ExpectedActualMessage(message, "Greater than ", notLessThanOrEqualToThis, null, null, value, null));
             }
         }
 
@@ -209,7 +282,7 @@ namespace Edison.Framework
         {
             if (!File.Exists(path))
             {
-                throw new AssertException(ExpectedActualMessage(message, "File exists: " + path, "File does not exist"));
+                throw new AssertException(ExpectedActualMessage(message, "File exists: ", path, null, null, "File does not exist", null));
             }
         }
 
@@ -217,7 +290,7 @@ namespace Edison.Framework
         {
             if (File.Exists(path))
             {
-                throw new AssertException(ExpectedActualMessage(message, "File does not exist: " + path, "File exists"));
+                throw new AssertException(ExpectedActualMessage(message, "File does not exist: ", path, null, null, "File exists", null));
             }
         }
 
@@ -225,7 +298,7 @@ namespace Edison.Framework
         {
             if (!Directory.Exists(path))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Directory exists: " + path, "Directory does not exist"));
+                throw new AssertException(ExpectedActualMessage(message, "Directory exists: ", path, null, null, "Directory does not exist", null));
             }
         }
 
@@ -233,7 +306,7 @@ namespace Edison.Framework
         {
             if (Directory.Exists(path))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Directory does not exists: " + path, "Directory exists"));
+                throw new AssertException(ExpectedActualMessage(message, "Directory does not exists: ", path, null, null, "Directory exists", null));
             }
         }
 
@@ -245,7 +318,7 @@ namespace Edison.Framework
         {
             if (value != null)
             {
-                throw new AssertException(ExpectedActualMessage(message, "NULL", value));
+                throw new AssertException(ExpectedActualMessage(message, null, null, null, null, value, null));
             }
         }
 
@@ -253,23 +326,23 @@ namespace Edison.Framework
         {
             if (value == null)
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not NULL", "NULL"));
+                throw new AssertException(ExpectedActualMessage(message, "Not ", null, null, null, null, null));
             }
         }
 
         public virtual void IsDefault<T>(T value, string message = null)
         {
-            if (!object.Equals(value, default(T)))
+            if (!Equals(value, default(T)))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Default " + typeof(T).Name, "Not default " + value.GetType().Name));
+                throw new AssertException(ExpectedActualMessage(message, "Default ", typeof(T).Name, null, "Not default ", value.GetType().Name, null));
             }
         }
 
         public virtual void IsNotDefault<T>(T value, string message = null)
         {
-            if (object.Equals(value, default(T)))
+            if (Equals(value, default(T)))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not default " + typeof(T).Name, "Default " + typeof(T).Name));
+                throw new AssertException(ExpectedActualMessage(message, "Not default ", typeof(T).Name, null, "Default ", typeof(T).Name, null));
             }
         }
 
@@ -277,7 +350,7 @@ namespace Edison.Framework
         {
             if (!type.IsInstanceOfType(value))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Instance of type " + type.Name, "Not instance of type " + value.GetType().Name));
+                throw new AssertException(ExpectedActualMessage(message, "Instance of type ", type.Name, null, "Not instance of type ", value.GetType().Name, null));
             }
         }
 
@@ -285,7 +358,7 @@ namespace Edison.Framework
         {
             if (type.IsInstanceOfType(value))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not instance of type " + type.Name, "Instance of type " + value.GetType().Name));
+                throw new AssertException(ExpectedActualMessage(message, "Not instance of type ", type.Name, null, "Instance of type ", value.GetType().Name, null));
             }
         }
 
@@ -295,17 +368,17 @@ namespace Edison.Framework
 
         public virtual void IsZero(IComparable value, string message = null)
         {
-            if (!value.Equals(0))
+            if (!Equals(0, value))
             {
-                throw new AssertException(ExpectedActualMessage(message, "0", value));
+                throw new AssertException(ExpectedActualMessage(message, null, 0, null, null, value, null));
             }
         }
 
         public virtual void IsNotZero(IComparable value, string message = null)
         {
-            if (value.Equals(0))
+            if (Equals(0, value))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not 0", value));
+                throw new AssertException(ExpectedActualMessage(message, "Not ", 0, null, null, value, null));
             }
         }
 
@@ -367,17 +440,145 @@ namespace Edison.Framework
 
         public virtual void IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
-            if (value.CompareTo(lowerBound) < 0 || value.CompareTo(upperBound) > 0)
+            if (value == null || value.CompareTo(lowerBound) < 0 || value.CompareTo(upperBound) > 0)
             {
-                throw new AssertException(ExpectedActualMessage(message, "Between " + lowerBound + " and " + upperBound, value));
+                throw new AssertException(ExpectedActualMessage(message, "Between ", Safeguard(lowerBound, "NULL") + " and " + Safeguard(upperBound, "NULL"), null, null, value, null));
             }
         }
 
         public virtual void IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
-            if (value.CompareTo(lowerBound) >= 0 && value.CompareTo(upperBound) <= 0)
+            if (value != null && (value.CompareTo(lowerBound) >= 0 && value.CompareTo(upperBound) <= 0))
             {
-                throw new AssertException(ExpectedActualMessage(message, "Not between " + lowerBound + " and " + upperBound, value));
+                throw new AssertException(ExpectedActualMessage(message, "Not between ", Safeguard(lowerBound, "NULL") + " and " + Safeguard(upperBound, "NULL"), null, null, value, null));
+            }
+        }
+
+        #endregion
+
+        #region Contains
+
+        public virtual void DoesContain(string value, string containsThis, string message = null)
+        {
+            if (value == null || !value.Contains(containsThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Contains '", containsThis, "'", null, value, null));
+            }
+        }
+
+        public virtual void DoesNotContain(string value, string doesNotContainThis, string message = null)
+        {
+            if (value != null && value.Contains(doesNotContainThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Does not contain '", doesNotContainThis, "'", null, value, null));
+            }
+        }
+
+        public virtual void DoesEnumerableContain<T>(IEnumerable<T> items, T containsThisItem, string message = null)
+        {
+            if (items == default(IEnumerable<T>) || !items.Contains(containsThisItem))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Contains ", containsThisItem, null, null, items, null));
+            }
+        }
+
+        public virtual void DoesEnumerableNotContain<T>(IEnumerable<T> items, T doesNotContainThisItem, string message = null)
+        {
+            if (items != null && items.Contains(doesNotContainThisItem))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Does not contain ", doesNotContainThisItem, null, null, items, null));
+            }
+        }
+
+        #endregion
+
+        #region Matches
+
+        public virtual void IsMatch(string pattern, string value, string message = null)
+        {
+            if (value == null || pattern == null || !Regex.IsMatch(value, pattern))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Matches '", pattern, "'", null, value, null));
+            }
+        }
+
+        public virtual void IsNotMatch(string pattern, string value, string message = null)
+        {
+            if (value != null && (pattern == null || Regex.IsMatch(value, pattern)))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Does not match '", pattern, "'", null, value, null));
+            }
+        }
+
+        #endregion
+
+        #region Starts and Ends With
+
+        public virtual void StartsWith(string value, string startsWithThis, string message = null)
+        {
+            if (value == null || !value.StartsWith(startsWithThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Starts with '", startsWithThis, "'", null, value, null));
+            }
+        }
+
+        public virtual void DoesNotStartWith(string value, string doesNotStartsWithThis, string message = null)
+        {
+            if (value != null && value.StartsWith(doesNotStartsWithThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Does not start with '", doesNotStartsWithThis, "'", null, value, null));
+            }
+        }
+
+        public virtual void EndsWith(string value, string endsWithThis, string message = null)
+        {
+            if (value == null || !value.EndsWith(endsWithThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "End with '", endsWithThis, "'", null, value, null));
+            }
+        }
+
+        public virtual void DoesNotEndWith(string value, string doesNotEndsWithThis, string message = null)
+        {
+            if (value != null && value.EndsWith(doesNotEndsWithThis))
+            {
+                throw new AssertException(ExpectedActualMessage(message, "Does not end with '", doesNotEndsWithThis, "'", null, value, null));
+            }
+        }
+
+        #endregion
+
+        #region Empty
+
+        public virtual void IsEmpty(string value, string message = null)
+        {
+            if (!Equals(value, string.Empty))
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, "Empty string", null, null, value, null));
+            }
+        }
+
+        public virtual void IsNotEmpty(string value, string message = null)
+        {
+            if (Equals(value, string.Empty))
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, "Not an empty string", null, null, "Empty string", null));
+            }
+        }
+
+        public virtual void IsEnumerableEmpty<T>(IEnumerable<T> value, string message = null)
+        {
+            if (value != default(IEnumerable<T>) && value.Any())
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, "Empty enumerable", null, null, value, null));
+            }
+        }
+
+        public virtual void IsEnumerableNotEmpty<T>(IEnumerable<T> value, string message = null)
+        {
+            if (value == default(IEnumerable<T>) || !value.Any())
+            {
+                throw new AssertException(ExpectedActualMessage(message, null, "Not an empty enumerable", null, null, "Empty enumerable", null));
             }
         }
 
@@ -385,15 +586,44 @@ namespace Edison.Framework
 
         #region Protected Helpers
 
-        protected string ExpectedActualMessage(string premessage, object expected, object actual)
+        protected virtual string ExpectedActualMessage(string premessage, string preExpected, object expected, string postExpected, string preActual, object actual, string postActual)
         {
+            if (expected != default(object) && expected is IEnumerable)
+            {
+                expected = BuildEnumerableString((IEnumerable)expected);
+            }
+
+            if (actual != default(object) && actual is IEnumerable)
+            {
+                actual = BuildEnumerableString((IEnumerable)actual);
+            }
+
             return string.Format("Error Message: {1}{0}Expected:\t{2}{0}But was:\t{3}",
                 Environment.NewLine,
                 string.IsNullOrEmpty(premessage) ? "Test assertion failed" : premessage,
-                expected,
-                actual);
+                Safeguard(preExpected) + Safeguard(expected, "NULL") + Safeguard(postExpected),
+                Safeguard(preActual) + Safeguard(actual, "NULL") + Safeguard(postActual));
         }
 
+        protected string Safeguard(object value, string defaultValue = "")
+        {
+            return value == default(object)
+                ? defaultValue
+                : value.ToString();
+        }
+
+        protected string BuildEnumerableString(IEnumerable items)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var item in items)
+            {
+                builder.Append(item + ", ");
+            }
+
+            return builder.ToString().Replace(Environment.NewLine, string.Empty).Trim('\n', ',', ' ', '\r');
+        }
+        
         #endregion
 
     }

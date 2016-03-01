@@ -7,6 +7,7 @@ License: MIT (see LICENSE for details)
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Edison.Framework
 {
@@ -19,6 +20,27 @@ namespace Edison.Framework
 
         void AreEqual(IComparable expected, IComparable actual, string message = null);
         void AreNotEqual(IComparable expected, IComparable actual, string message = null);
+
+        void AreEnumerablesEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable;
+        void AreEnumerablesNotEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable;
+
+        void AreEqualIgnoreCase(string expected, string actual, string message = null);
+        void AreNotEqualIgnoreCase(string expected, string actual, string message = null);
+
+        void DoesEnumerableContain<T>(IEnumerable<T> items, T containsThisItem, string message = null);
+        void DoesEnumerableNotContain<T>(IEnumerable<T> items, T doesNotContainThisItem, string message = null);
+
+        void DoesContain(string value, string containsThis, string message = null);
+        void DoesNotContain(string value, string doesNotContainThis, string message = null);
+
+        void IsMatch(string pattern, string value, string message = null);
+        void IsNotMatch(string pattern, string value, string message = null);
+
+        void StartsWith(string value, string startsWithThis, string message = null);
+        void DoesNotStartWith(string value, string doeNotStartWithThis, string message = null);
+
+        void EndsWith(string value, string endsWithThis, string message = null);
+        void DoesNotEndWith(string value, string doesNotEndWithThis, string message = null);
 
         void AreSameReference(object expected, object actual, string message = null);
         void AreNotSameReference(object expected, object actual, string message = null);
@@ -65,6 +87,12 @@ namespace Edison.Framework
 
         void IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null);
         void IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null);
+
+        void IsEmpty(string value, string message = null);
+        void IsNotEmpty(string value, string message = null);
+
+        void IsEnumerableEmpty<T>(IEnumerable<T> value, string message = null);
+        void IsEnumerableNotEmpty<T>(IEnumerable<T> value, string message = null);
 
     }
 }

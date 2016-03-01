@@ -29,5 +29,13 @@ namespace Edison.Tests
             Console.WriteLine("WOO9!!!");
         }
 
+        [Test]
+        public void TestListFailure()
+        {
+            var values1 = new[] { 1, 2, 3 };
+            var values2 = new[] { 1, 2, 4 };
+            AssertFactory.Instance.AreEnumerablesEqual(values1, values2);
+        }
+
     }
 }

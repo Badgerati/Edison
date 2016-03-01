@@ -68,7 +68,7 @@ namespace Edison.Framework.Test.Asserts
             {
                 if (expected.Equals(actual))
                 {
-                    throw new AssertException(ExpectedActualMessage(message, expected, actual));
+                    throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
                 }
             }
         }
