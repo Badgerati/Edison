@@ -127,6 +127,372 @@ namespace Edison.Framework.Tests
                 NAssert.Fail("Incorrect exception type");
             }
         }
+        
+        [NUnit.Framework.Test]
+        public void AreEnumerablesEqualTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var values1 = new[] { 1, 3, 7, 4 };
+                var values2 = new[] { 1, 3, 7, 4 };
+                assert.AreEnumerablesEqual(values1, values2);
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void AreEnumerablesNotEqualTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var values1 = new[] { 1, 3, 7, 4 };
+                var values2 = new[] { 1, 3, 7, 5 };
+                assert.AreEnumerablesNotEqual(values1, values2);
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void AreEqualIgnoreCaseTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.AreEqualIgnoreCase("Hello", "hELLO");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void AreNotEqualIgnoreCaseTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.AreNotEqualIgnoreCase("Hello, World", "hELLo wORLd");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void ContainsTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.DoesContain("This is a test", "a tes");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void DoesNotContainTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.DoesNotContain("This is a test", "hello");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void ListContainsTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var values = new[] { 1, 2, 3, 4, 5 };
+                assert.DoesEnumerableContain(values, 3);
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void ListDoesNotContainTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                var values = new[] { 1, 2, 3, 4, 5 };
+                assert.DoesEnumerableNotContain(values, 7);
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+        
+        [NUnit.Framework.Test]
+        public void IsMatchTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsMatch(@"^\d+$", "13579");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void IsNotMatchTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsNotMatch(@"^\d+$", "13a79");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+                
+        [NUnit.Framework.Test]
+        public void StartsWithTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.StartsWith("Hello, world", "Hello");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void DoesNotStartWithTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.DoesNotStartWith("Hello, world", "Bob");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void EndsWithTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.EndsWith("Hello, world", "world");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void DoesNotEndWithTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.DoesNotEndWith("Hello, world", "Bob");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void IsEmptyTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsEmpty(string.Empty);
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void IsNotEmptyTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsNotEmpty("Test");
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void IsEnumerableEmptyTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsEnumerableEmpty(new int[] { });
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void IsEnumerbaleNotEmptyTest()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.IsEnumerableNotEmpty(new int[] { 1 });
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
 
         [NUnit.Framework.Test]
         public void AreSameReferenceTest()
