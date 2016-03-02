@@ -556,5 +556,42 @@ namespace Edison.Console.Test
 
         #endregion
 
+        #region Suite Tests
+
+        [Test]
+        public void ValidSuiteTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+            var suite = "some name";
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--s", suite });
+            Assert.IsTrue(result);
+            Assert.AreEqual(suite, context.Suite);
+        }
+
+        [Test]
+        public void DefaultSuiteTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll });
+            Assert.IsTrue(result);
+            Assert.IsNull(context.Suite);
+        }
+
+        #endregion
+
     }
 }

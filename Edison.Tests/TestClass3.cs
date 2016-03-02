@@ -12,11 +12,13 @@ using System;
 namespace Edison.Tests
 {
     [TestFixture]
+    [Category("some category")]
     public class TestClass3
     {
 
         [Test]
         [Repeat(2)]
+        [Category("hmm")]
         public void TestMethod()
         {
             Console.WriteLine("WOO7!!!");

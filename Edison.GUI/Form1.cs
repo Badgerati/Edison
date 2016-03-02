@@ -78,6 +78,7 @@ namespace Edison.GUI
             TestTree.KeyDown += TestTree_KeyDown;
             FailedTestListBox.MeasureItem += FailedTestListBox_MeasureItem;
             FailedTestListBox.DrawItem += FailedTestListBox_DrawItem;
+            SuiteCheckList.ItemCheck += SuiteCheckList_ItemCheck;
 
             FixtureThreadNumericBox.Value = 1;
             TestThreadNumericBox.Value = 1;
@@ -87,7 +88,7 @@ namespace Edison.GUI
         #endregion
 
         #region Events
-        
+
         private void EdisonForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             var abortThread = new Thread(() => AbortThreads());
@@ -165,7 +166,7 @@ namespace Edison.GUI
                 Text = MainTitle + " - " + FileName;
 
                 Assembly = AssemblyRepository.LoadFile(FilePath);
-                PopulateTestTree(AssemblyRepository.GetAllTests(Assembly));
+                PopulateForm();
             }
             else if (result != DialogResult.Cancel)
             {
@@ -311,6 +312,20 @@ namespace Edison.GUI
             catch (ObjectDisposedException) { }
         }
 
+        private void SuiteCheckList_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (e.NewValue != CheckState.Checked)
+            {
+                return;
+            }
+
+            var selectedItems = SuiteCheckList.CheckedIndices;
+            if (selectedItems.Count > 0)
+            {
+                SuiteCheckList.SetItemCheckState(selectedItems[0], CheckState.Unchecked);
+            }
+        }
+
         #endregion
 
         #region Helpers
@@ -340,7 +355,8 @@ namespace Edison.GUI
                 EdisonContext.IncludedCategories,
                 EdisonContext.ExcludedCategories,
                 EdisonContext.Fixtures,
-                EdisonContext.Tests);
+                EdisonContext.Tests,
+                EdisonContext.Suite);
 
             MainThread = new Thread(() => Run(EdisonContext));
             MainThread.Start();
@@ -426,18 +442,9 @@ namespace Edison.GUI
             EdisonContext.NumberOfTestThreads = (int)TestThreadNumericBox.Value;
             EdisonContext.DisableConsoleOutput = DisableConsoleCheckBox.Checked;
             EdisonContext.DisableTestOutput = DisableTestCheckBox.Checked;
-
-            if (!string.IsNullOrWhiteSpace(IncludeCategoriesTextBox.Text))
-            {
-                var categories = IncludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim());
-                EdisonContext.IncludedCategories.AddRange(categories);
-            }
-
-            if (!string.IsNullOrWhiteSpace(ExcludeCategoriesTextBox.Text))
-            {
-                var categories = ExcludeCategoriesTextBox.Text.Split(',').Select(x => x.Trim());
-                EdisonContext.ExcludedCategories.AddRange(categories);
-            }
+            EdisonContext.IncludedCategories.AddRange(IncludedCategoriesCheckList.CheckedItems.Cast<string>());
+            EdisonContext.ExcludedCategories.AddRange(ExcludedCategoriesCheckList.CheckedItems.Cast<string>());
+            EdisonContext.Suite = SuiteCheckList.CheckedItems.Cast<string>().FirstOrDefault();
 
             if (tests != default(List<string>))
             {
@@ -483,15 +490,57 @@ namespace Edison.GUI
             }
         }
 
-        private void PopulateTestTree(IEnumerable<MethodInfo> tests)
+        private void PopulateForm()
         {
             TestTree.Nodes.Clear();
+            IncludedCategoriesCheckList.Items.Clear();
+            ExcludedCategoriesCheckList.Items.Clear();
+            SuiteCheckList.Items.Clear();
+            
+            var tests = AssemblyRepository.GetTests(Assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null);
+            PopulateTests(tests.Item1);
 
-            if (tests == default(List<MethodInfo>) || !tests.Any())
+            var categories = AssemblyRepository.GetCategories(Assembly, tests.Item1, tests.Item2);
+            PopulateCategories(categories);
+
+            var suites = AssemblyRepository.GetSuites(Assembly, tests.Item2);
+            PopulateSuites(suites);
+        }
+
+        private void PopulateSuites(IEnumerable<string> suites)
+        {
+            if (!suites.Any())
             {
                 return;
             }
-            
+
+            foreach (var suite in suites)
+            {
+                SuiteCheckList.Items.Add(suite, CheckState.Unchecked);
+            }
+        }
+
+        private void PopulateCategories(IEnumerable<string> categories)
+        {
+            if (!categories.Any())
+            {
+                return;
+            }
+
+            foreach (var category in categories)
+            {
+                IncludedCategoriesCheckList.Items.Add(category, CheckState.Unchecked);
+                ExcludedCategoriesCheckList.Items.Add(category, CheckState.Unchecked);
+            }
+        }
+
+        private void PopulateTests(IEnumerable<MethodInfo> tests)
+        {
+            if (!tests.Any())
+            {
+                return;
+            }
+
             var rootNode = new TreeNode(FileName);
 
             foreach (var test in tests)

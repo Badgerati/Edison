@@ -16,7 +16,6 @@ using Edison.Engine.Utilities.Structures;
 using Edison.Framework.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using Edison.Engine.Utilities.Helpers;
 using System.Threading.Tasks;
 
 namespace Edison.Engine.Threading
@@ -221,8 +220,8 @@ namespace Edison.Engine.Threading
             var singularTests = default(IOrderedEnumerable<MethodInfo>);
             if (NumberOfTestThreads > 1 && tests.Count() != 1)
             {
-                singularTests = tests.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name);
-                tests = tests.Where(t => ReflectionHelper.HasValidConcurrency(t.GetCustomAttributes(), ConcurrencyType.Parallel, ConcurrencyType)).OrderBy(t => t.Name);
+                singularTests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name);
+                tests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Parallel, ConcurrencyType)).OrderBy(t => t.Name);
             }
 
             var _tests = tests.Count();

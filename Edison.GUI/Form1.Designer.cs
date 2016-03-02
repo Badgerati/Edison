@@ -40,10 +40,8 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.ExcludeCategoriesTextBox = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.IncludeCategoriesTextBox = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.TestThreadNumericBox = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
             this.DisableTestCheckBox = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.DisableConsoleCheckBox = new System.Windows.Forms.CheckBox();
@@ -67,13 +65,22 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.checkboxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uncheckAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label6 = new System.Windows.Forms.Label();
-            this.TestThreadNumericBox = new System.Windows.Forms.NumericUpDown();
+            this.tabControl2 = new System.Windows.Forms.TabControl();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.splitContainer4 = new System.Windows.Forms.SplitContainer();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.IncludedCategoriesCheckList = new System.Windows.Forms.CheckedListBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ExcludedCategoriesCheckList = new System.Windows.Forms.CheckedListBox();
+            this.SuiteCheckList = new System.Windows.Forms.CheckedListBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.FixtureThreadNumericBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -87,7 +94,16 @@
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             this.TestTreeContextMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).BeginInit();
+            this.tabControl2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
+            this.splitContainer4.Panel1.SuspendLayout();
+            this.splitContainer4.Panel2.SuspendLayout();
+            this.splitContainer4.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -177,10 +193,6 @@
             this.splitContainer1.Panel1.BackColor = System.Drawing.SystemColors.ControlDark;
             this.splitContainer1.Panel1.Controls.Add(this.TestThreadNumericBox);
             this.splitContainer1.Panel1.Controls.Add(this.label6);
-            this.splitContainer1.Panel1.Controls.Add(this.ExcludeCategoriesTextBox);
-            this.splitContainer1.Panel1.Controls.Add(this.label5);
-            this.splitContainer1.Panel1.Controls.Add(this.IncludeCategoriesTextBox);
-            this.splitContainer1.Panel1.Controls.Add(this.label4);
             this.splitContainer1.Panel1.Controls.Add(this.DisableTestCheckBox);
             this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.DisableConsoleCheckBox);
@@ -198,37 +210,38 @@
             this.splitContainer1.TabIndex = 1000;
             this.splitContainer1.TabStop = false;
             // 
-            // ExcludeCategoriesTextBox
+            // TestThreadNumericBox
             // 
-            this.ExcludeCategoriesTextBox.Location = new System.Drawing.Point(1013, 33);
-            this.ExcludeCategoriesTextBox.Name = "ExcludeCategoriesTextBox";
-            this.ExcludeCategoriesTextBox.Size = new System.Drawing.Size(101, 20);
-            this.ExcludeCategoriesTextBox.TabIndex = 21;
+            this.TestThreadNumericBox.Location = new System.Drawing.Point(323, 34);
+            this.TestThreadNumericBox.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.TestThreadNumericBox.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.TestThreadNumericBox.Name = "TestThreadNumericBox";
+            this.TestThreadNumericBox.Size = new System.Drawing.Size(40, 20);
+            this.TestThreadNumericBox.TabIndex = 23;
+            this.TestThreadNumericBox.TabStop = false;
+            this.TestThreadNumericBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.TestThreadNumericBox.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
-            // label5
+            // label6
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(906, 36);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(101, 13);
-            this.label5.TabIndex = 20;
-            this.label5.Text = "Exclude Categories:";
-            // 
-            // IncludeCategoriesTextBox
-            // 
-            this.IncludeCategoriesTextBox.Location = new System.Drawing.Point(773, 33);
-            this.IncludeCategoriesTextBox.Name = "IncludeCategoriesTextBox";
-            this.IncludeCategoriesTextBox.Size = new System.Drawing.Size(102, 20);
-            this.IncludeCategoriesTextBox.TabIndex = 19;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(669, 36);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(98, 13);
-            this.label4.TabIndex = 18;
-            this.label4.Text = "Include Categories:";
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(244, 36);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(73, 13);
+            this.label6.TabIndex = 22;
+            this.label6.Text = "Test Threads:";
             // 
             // DisableTestCheckBox
             // 
@@ -331,7 +344,7 @@
             // 
             // splitContainer2.Panel1
             // 
-            this.splitContainer2.Panel1.Controls.Add(this.TestTree);
+            this.splitContainer2.Panel1.Controls.Add(this.tabControl2);
             // 
             // splitContainer2.Panel2
             // 
@@ -343,9 +356,9 @@
             // TestTree
             // 
             this.TestTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TestTree.Location = new System.Drawing.Point(0, 0);
+            this.TestTree.Location = new System.Drawing.Point(3, 3);
             this.TestTree.Name = "TestTree";
-            this.TestTree.Size = new System.Drawing.Size(307, 546);
+            this.TestTree.Size = new System.Drawing.Size(293, 514);
             this.TestTree.TabIndex = 1;
             this.TestTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.TestTree_AfterCheck);
             // 
@@ -481,38 +494,120 @@
             this.uncheckAllToolStripMenuItem.Text = "Uncheck All";
             this.uncheckAllToolStripMenuItem.Click += new System.EventHandler(this.uncheckAllToolStripMenuItem_Click);
             // 
-            // label6
+            // tabControl2
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(244, 36);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(73, 13);
-            this.label6.TabIndex = 22;
-            this.label6.Text = "Test Threads:";
+            this.tabControl2.Controls.Add(this.tabPage3);
+            this.tabControl2.Controls.Add(this.tabPage4);
+            this.tabControl2.Controls.Add(this.tabPage5);
+            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl2.Location = new System.Drawing.Point(0, 0);
+            this.tabControl2.Name = "tabControl2";
+            this.tabControl2.SelectedIndex = 0;
+            this.tabControl2.Size = new System.Drawing.Size(307, 546);
+            this.tabControl2.TabIndex = 2;
             // 
-            // TestThreadNumericBox
+            // tabPage3
             // 
-            this.TestThreadNumericBox.Location = new System.Drawing.Point(323, 34);
-            this.TestThreadNumericBox.Maximum = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
-            this.TestThreadNumericBox.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.TestThreadNumericBox.Name = "TestThreadNumericBox";
-            this.TestThreadNumericBox.Size = new System.Drawing.Size(40, 20);
-            this.TestThreadNumericBox.TabIndex = 23;
-            this.TestThreadNumericBox.TabStop = false;
-            this.TestThreadNumericBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.TestThreadNumericBox.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.tabPage3.Controls.Add(this.TestTree);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(299, 520);
+            this.tabPage3.TabIndex = 0;
+            this.tabPage3.Text = "Tests";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.splitContainer4);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(299, 520);
+            this.tabPage4.TabIndex = 1;
+            this.tabPage4.Text = "Categories";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.SuiteCheckList);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(299, 520);
+            this.tabPage5.TabIndex = 2;
+            this.tabPage5.Text = "Suites";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer4
+            // 
+            this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer4.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer4.Name = "splitContainer4";
+            this.splitContainer4.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer4.Panel1
+            // 
+            this.splitContainer4.Panel1.Controls.Add(this.groupBox1);
+            // 
+            // splitContainer4.Panel2
+            // 
+            this.splitContainer4.Panel2.Controls.Add(this.groupBox2);
+            this.splitContainer4.Size = new System.Drawing.Size(293, 514);
+            this.splitContainer4.SplitterDistance = 229;
+            this.splitContainer4.TabIndex = 0;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.IncludedCategoriesCheckList);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(0, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(293, 229);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Included Categories";
+            // 
+            // IncludedCategoriesCheckList
+            // 
+            this.IncludedCategoriesCheckList.CheckOnClick = true;
+            this.IncludedCategoriesCheckList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.IncludedCategoriesCheckList.FormattingEnabled = true;
+            this.IncludedCategoriesCheckList.Location = new System.Drawing.Point(3, 16);
+            this.IncludedCategoriesCheckList.Name = "IncludedCategoriesCheckList";
+            this.IncludedCategoriesCheckList.Size = new System.Drawing.Size(287, 210);
+            this.IncludedCategoriesCheckList.TabIndex = 0;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.ExcludedCategoriesCheckList);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox2.Location = new System.Drawing.Point(0, 0);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(293, 281);
+            this.groupBox2.TabIndex = 0;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Excluded Categories";
+            // 
+            // ExcludedCategoriesCheckList
+            // 
+            this.ExcludedCategoriesCheckList.CheckOnClick = true;
+            this.ExcludedCategoriesCheckList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ExcludedCategoriesCheckList.FormattingEnabled = true;
+            this.ExcludedCategoriesCheckList.Location = new System.Drawing.Point(3, 16);
+            this.ExcludedCategoriesCheckList.Name = "ExcludedCategoriesCheckList";
+            this.ExcludedCategoriesCheckList.Size = new System.Drawing.Size(287, 262);
+            this.ExcludedCategoriesCheckList.TabIndex = 0;
+            // 
+            // SuiteCheckList
+            // 
+            this.SuiteCheckList.CheckOnClick = true;
+            this.SuiteCheckList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SuiteCheckList.FormattingEnabled = true;
+            this.SuiteCheckList.Location = new System.Drawing.Point(3, 3);
+            this.SuiteCheckList.Name = "SuiteCheckList";
+            this.SuiteCheckList.Size = new System.Drawing.Size(293, 514);
+            this.SuiteCheckList.TabIndex = 0;
             // 
             // EdisonForm
             // 
@@ -533,6 +628,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.FixtureThreadNumericBox)).EndInit();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
@@ -546,7 +642,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             this.TestTreeContextMenu.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.TestThreadNumericBox)).EndInit();
+            this.tabControl2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
+            this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
+            this.splitContainer4.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -585,14 +690,20 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox DisableConsoleCheckBox;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox ExcludeCategoriesTextBox;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox IncludeCategoriesTextBox;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.NumericUpDown TestThreadNumericBox;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TabControl tabControl2;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.SplitContainer splitContainer4;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckedListBox IncludedCategoriesCheckList;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.CheckedListBox ExcludedCategoriesCheckList;
+        private System.Windows.Forms.CheckedListBox SuiteCheckList;
     }
 }
 
