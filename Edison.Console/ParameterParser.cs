@@ -107,6 +107,7 @@ namespace Edison.Console
             DisableFileOutputAction(options.DisableFileOutput);
             RerunFailedTestsAction(options.RerunFailedTests);
             RerunThresholdAction(options.RerunThreshold);
+            SuiteAction(options.Suite);
 
             return true;
         }
@@ -380,6 +381,11 @@ namespace Edison.Console
             }
 
             Context.RerunThreshold = value;
+        }
+
+        private static void SuiteAction(string value)
+        {
+            Context.Suite = value;
         }
 
         #endregion

@@ -13,7 +13,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Injector;
 using System;
-using Edison.Engine.Utilities.Helpers;
+using Edison.Framework.Enums;
 
 namespace Edison.Engine.Repositories
 {
@@ -74,6 +74,79 @@ namespace Edison.Engine.Repositories
                 : versionAttribute.First().Value;
         }
 
+        public IEnumerable<string> GetCategories(MemberInfo member)
+        {
+            return member.GetCustomAttributes<CategoryAttribute>().Select(x => x.Name);
+        }
+
+        public bool HasValidAttributes<T>(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, string suite) where T : Attribute
+        {
+            var attributes = member.GetCustomAttributes();
+
+            return member.GetCustomAttribute<T>() != default(T)
+                && member.GetCustomAttribute<IgnoreAttribute>() == default(IgnoreAttribute)
+                && HasValidCategories(member, includedCategories, excludedCategories)
+                && HasValidSuite(member, suite);
+        }
+
+        public bool HasValidSuite(MemberInfo member, string suite)
+        {
+            if (string.IsNullOrWhiteSpace(suite))
+            {
+                return true;
+            }
+
+            var suiteAttr = member.GetCustomAttribute<SuiteAttribute>();
+            return suiteAttr != default(SuiteAttribute) && suiteAttr.Name.Equals(suite, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories)
+        {
+            if (includedCategories == default(List<string>) && excludedCategories == default(List<string>))
+            {
+                return true;
+            }
+
+            var categories = member.GetCustomAttributes<CategoryAttribute>();
+            var isTestFixture = member.GetCustomAttribute<TestFixtureAttribute>() != default(TestFixtureAttribute);
+
+            if (isTestFixture && !categories.Any())
+            {
+                return true;
+            }
+
+            if (includedCategories != default(List<string>) && categories.Any(c => includedCategories.Any(i => i.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
+            {
+                return true;
+            }
+
+            if (excludedCategories != default(List<string>) && categories.Any(c => excludedCategories.Any(e => e.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
+            {
+                return false;
+            }
+
+            if (isTestFixture)
+            {
+                return true;
+            }
+
+            if (includedCategories != default(List<string>) && includedCategories.Any())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool HasValidConcurrency(MemberInfo member, ConcurrencyType concurrencyType, ConcurrencyType defaultConcurreny = ConcurrencyType.Parallel)
+        {
+            var concurrency = member.GetCustomAttribute<ConcurrencyAttribute>();
+
+            return concurrency == default(ConcurrencyAttribute)
+                ? concurrencyType == defaultConcurreny
+                : concurrency.ConcurrencyType == concurrencyType;
+        }
+
         #endregion
 
         #region Method Calls
@@ -131,12 +204,18 @@ namespace Edison.Engine.Repositories
         public IEnumerable<MethodInfo> GetMethods<T>(Type type,
             IList<string> includedCategories = default(List<string>),
             IList<string> excludedCategories = default(List<string>),
-            IList<string> tests = default(List<string>))
+            IList<string> tests = default(List<string>),
+            string suite = null) where T : Attribute
         {
             return type
                 .GetMethods()
-                .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories))
+                .Where(t => HasValidAttributes<T>(t, includedCategories, excludedCategories, suite))
                 .Where(t => tests == default(IList<string>) || !tests.Any() || tests.Contains(GetFullNamespace(t)));
+        }
+        
+        public IEnumerable<string> GetSuites(Type type)
+        {
+            return type.GetCustomAttributes<SuiteAttribute>().Select(x => x.Name);
         }
 
         #endregion

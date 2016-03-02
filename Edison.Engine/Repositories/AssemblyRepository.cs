@@ -12,7 +12,6 @@ using System.Linq;
 using System.Reflection;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using Edison.Engine.Utilities.Helpers;
 using Edison.Framework;
 
 namespace Edison.Engine.Repositories
@@ -49,43 +48,108 @@ namespace Edison.Engine.Repositories
         {
             return Assembly.GetEntryAssembly();
         }
-
-        public IEnumerable<MethodInfo> GetAllTests(Assembly assembly)
+        
+        public IOrderedEnumerable<Type> GetTestFixtures(
+            Assembly assembly,
+            IList<string> includedCategories,
+            IList<string> excludedCategories,
+            IList<string> fixtures,
+            IList<string> tests,
+            string suite)
         {
-            return GetTests(assembly, null, null, null, null);
-        }
-
-        public IOrderedEnumerable<Type> GetTestFixtures(Assembly assembly, IList<string> includedCategories, IList<string> excludedCategories, IList<string> fixtures, IList<string> tests)
-        {
-            return GetTypes<TestFixtureAttribute>(assembly, includedCategories, excludedCategories)
+            return GetTypes<TestFixtureAttribute>(assembly, includedCategories, excludedCategories, suite)
                 .Where(t => fixtures == default(IList<string>) || !fixtures.Any() || fixtures.Contains(t.FullName))
                 .Where(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests).Any())
                 .OrderBy(t => t.FullName);
         }
 
-        public IEnumerable<MethodInfo> GetTests(Assembly assembly, IList<string> includedCategories, IList<string> excludedCategories, IList<string> fixtures, IList<string> tests)
+        public Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>> GetTests(
+            Assembly assembly,
+            IList<string> includedCategories,
+            IList<string> excludedCategories,
+            IList<string> fixtures,
+            IList<string> tests,
+            string suite)
         {
-            var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests);
-            var _tests = new List<MethodInfo>(_fixtures.Count() * 30);
-
-            foreach (var fixture in _fixtures)
-            {
-                _tests.AddRange(ReflectionRepository.GetMethods<TestAttribute>(fixture, includedCategories, excludedCategories, tests));
-            }
-
-            return _tests;
+            var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests, suite);
+            
+            var _tests = _fixtures
+                .Select(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests))
+                .Aggregate((a, b) => b.Concat(a));
+            
+            return new Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>>(_tests, _fixtures);
         }
 
-        public IEnumerable<Type> GetTypes<T>(Assembly assembly, IList<string> includedCategories = null, IList<string> excludedCategories = null)
+        public IOrderedEnumerable<string> GetSuites(
+            Assembly assembly,
+            IEnumerable<Type> fixtures = default(IEnumerable<Type>))
+        {
+            if (fixtures == default(IEnumerable<Type>))
+            {
+                fixtures = GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null);
+            }
+
+            return fixtures
+                .Select(x => ReflectionRepository.GetSuites(x))
+                .Aggregate((a, b) => b.Concat(a))
+                .Distinct()
+                .OrderBy(x => x);
+        }
+
+        public IOrderedEnumerable<string> GetCategories(
+            Assembly assembly,
+            IEnumerable<MethodInfo> tests = default(IEnumerable<MethodInfo>),
+            IEnumerable<Type> fixtures = default(IEnumerable<Type>))
+        {
+            var items = default(Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>>);
+            if (tests == default(IEnumerable<MethodInfo>))
+            {
+                items = GetTests(assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null);
+                tests = items.Item1;
+            }
+
+            if (fixtures == default(IEnumerable<Type>))
+            {
+                fixtures = items == default(Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>>)
+                    ? GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null)
+                    : items.Item2;
+            }
+
+            var fixtureCategories = fixtures
+                .Select(x => ReflectionRepository.GetCategories(x))
+                .Aggregate((a, b) => b.Concat(a))
+                .Distinct();
+
+            var testCategories = tests
+                .Select(x => ReflectionRepository.GetCategories(x))
+                .Aggregate((a, b) => b.Concat(a))
+                .Distinct();
+
+            return fixtureCategories
+                .Union(testCategories)
+                .OrderBy(x => x);
+        }
+
+        public IEnumerable<Type> GetTypes<T>(
+            Assembly assembly,
+            IList<string> includedCategories,
+            IList<string> excludedCategories,
+            string suite) where T : Attribute
         {
             return assembly
                 .GetTypes()
-                .Where(t => ReflectionHelper.HasValidAttributes<T>(t.GetCustomAttributes(), includedCategories, excludedCategories));
+                .Where(t => ReflectionRepository.HasValidAttributes<T>(t, includedCategories, excludedCategories, suite));
         }
 
-        public int GetTestCount(Assembly assembly, IList<string> includedCategories, IList<string> excludedCategories, IList<string> fixtures, IList<string> tests)
+        public int GetTestCount(
+            Assembly assembly,
+            IList<string> includedCategories,
+            IList<string> excludedCategories,
+            IList<string> fixtures,
+            IList<string> tests,
+            string suite)
         {
-            var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests);
+            var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests, suite);
             var _count = 0;
             var _fixtureCount = 0;
             var _testCount = 0;

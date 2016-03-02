@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Attributes\Author.cs" />
     <Compile Include="Attributes\Case.cs" />
+    <Compile Include="Attributes\Suite.cs" />
     <Compile Include="Attributes\Category.cs" />
     <Compile Include="Attributes\ExpectedException.cs" />
     <Compile Include="Attributes\Concurrency.cs" />

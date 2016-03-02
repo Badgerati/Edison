@@ -9,15 +9,12 @@ License: MIT (see LICENSE for details)
 using Edison.Framework;
 using Edison.Framework.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Edison.Tests
 {
     [TestFixture]
+    [Suite("OtherSuite")]
     //[Category("eek")]
     //[Repeat(2)]
     public class TestClass : BaseTestClass

@@ -20,29 +20,44 @@ namespace Edison.Engine.Repositories.Interfaces
         Assembly LoadFile(string path);
         Assembly GetEntryAssembly();
 
-        IEnumerable<Type> GetTypes<T>(Assembly assembly,
-            IList<string> includedCategories = default(IList<string>),
-            IList<string> excludedCategories = default(IList<string>));
+        IEnumerable<Type> GetTypes<T>(
+            Assembly assembly,
+            IList<string> includedCategories,
+            IList<string> excludedCategories,
+            string suite) where T : Attribute;
 
-        IOrderedEnumerable<Type> GetTestFixtures(Assembly assembly,
+        IOrderedEnumerable<Type> GetTestFixtures(
+            Assembly assembly,
             IList<string> includedCategories,
             IList<string> excludedCategories,
             IList<string> fixtures,
-            IList<string> tests);
-
-        IEnumerable<MethodInfo> GetAllTests(Assembly assembly);
-
-        IEnumerable<MethodInfo> GetTests(Assembly assembly,
+            IList<string> tests,
+            string suite);
+        
+        Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>> GetTests(
+            Assembly assembly,
             IList<string> includedCategories,
             IList<string> excludedCategories,
             IList<string> fixtures,
-            IList<string> tests);
+            IList<string> tests,
+            string suite);
 
-        int GetTestCount(Assembly assembly,
+        IOrderedEnumerable<string> GetSuites(
+            Assembly assembly,
+            IEnumerable<Type> fixtures = default(IEnumerable<Type>));
+
+        IOrderedEnumerable<string> GetCategories(
+            Assembly assembly,
+            IEnumerable<MethodInfo> tests = default(IEnumerable<MethodInfo>),
+            IEnumerable<Type> fixtures = default(IEnumerable<Type>));
+
+        int GetTestCount(
+            Assembly assembly,
             IList<string> includedCategories,
             IList<string> excludedCategories,
             IList<string> fixtures,
-            IList<string> tests);
+            IList<string> tests,
+            string suite);
 
     }
 }

@@ -76,7 +76,6 @@
     <Compile Include="Threading\TestFixtureThread.cs" />
     <Compile Include="Threading\TestThread.cs" />
     <Compile Include="Utilities\Extensions\StringExtension.cs" />
-    <Compile Include="Utilities\Helpers\ReflectionHelper.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\Structures\TestResultDictionary.cs" />
   </ItemGroup>
