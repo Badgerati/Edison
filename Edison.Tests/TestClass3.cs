@@ -27,5 +27,15 @@ namespace Edison.Tests
             Console.WriteLine("WOO4!!!");
         }
 
+        [Test]
+        [Repeat(2)]
+        public void TestMethod2()
+        {
+            Console.WriteLine("WOO7!!!");
+            Console.WriteLine(TestStatisClass.StringValue);
+            AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
+            Console.WriteLine("WOO4!!!");
+        }
+
     }
 }

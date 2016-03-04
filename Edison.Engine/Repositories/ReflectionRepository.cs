@@ -14,6 +14,7 @@ using Edison.Framework;
 using Edison.Injector;
 using System;
 using Edison.Framework.Enums;
+using Edison.Engine.Utilities.Helpers;
 
 namespace Edison.Engine.Repositories
 {
@@ -100,37 +101,52 @@ namespace Edison.Engine.Repositories
             return suiteAttr != default(SuiteAttribute) && suiteAttr.Name.Equals(suite, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories)
+        public bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, bool testFixtureDefault = true)
         {
-            if (includedCategories == default(List<string>) && excludedCategories == default(List<string>))
+            // if no categories are passed, just return true
+            if (EnumerableHelper.IsNullOrEmpty(includedCategories) && EnumerableHelper.IsNullOrEmpty(excludedCategories))
             {
                 return true;
             }
-
+            
             var categories = member.GetCustomAttributes<CategoryAttribute>();
             var isTestFixture = member.GetCustomAttribute<TestFixtureAttribute>() != default(TestFixtureAttribute);
 
+            // if this is a TestFixture and it has no categories, return true - could still have valud Tests
             if (isTestFixture && !categories.Any())
             {
                 return true;
             }
 
-            if (includedCategories != default(List<string>) && categories.Any(c => includedCategories.Any(i => i.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
+            // if this has one of the included categories, return true
+            if (!EnumerableHelper.IsNullOrEmpty(includedCategories) && categories.Any(c => includedCategories.Any(i => i.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
             {
                 return true;
             }
 
-            if (excludedCategories != default(List<string>) && categories.Any(c => excludedCategories.Any(e => e.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
+            // if this has one of the excluded categories, return false
+            if (!EnumerableHelper.IsNullOrEmpty(excludedCategories) && categories.Any(c => excludedCategories.Any(e => e.Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))))
             {
                 return false;
             }
 
+            // if we get here and this is a TestFixture, return true - could still have valud Tests
             if (isTestFixture)
             {
-                return true;
+                return testFixtureDefault;
             }
 
-            if (includedCategories != default(List<string>) && includedCategories.Any())
+            // this is a test with no categories, if the TestFixture has no categories we need to return false,
+            // if it has a valid included category we should return true
+            if (!categories.Any())
+            {
+                var fixture = member.DeclaringType;
+                var fixtureCategories = fixture.GetCustomAttributes<CategoryAttribute>();
+                return fixtureCategories.Any() && HasValidCategories(fixture, includedCategories, excludedCategories, false);
+            }
+
+            // this is a test, and included categories were passed, return false
+            if (!EnumerableHelper.IsNullOrEmpty(includedCategories))
             {
                 return false;
             }

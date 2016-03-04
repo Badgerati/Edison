@@ -17,6 +17,7 @@ using Edison.Framework.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.Threading.Tasks;
+using Edison.Engine.Utilities.Helpers;
 
 namespace Edison.Engine.Threading
 {
@@ -46,7 +47,7 @@ namespace Edison.Engine.Threading
         private int NumberOfTestThreads = default(int);
         private ConcurrencyType ConcurrencyType = ConcurrencyType.Parallel;
 
-        private IList<TestThread> Threads = default(IList<TestThread>);
+        private IList<TestThread> ParallelThreads = default(IList<TestThread>);
         private IList<Task> Tasks = default(IList<Task>);
         private TestThread SingularThread = default(TestThread);
         private Task SingularTask = default(Task);
@@ -74,9 +75,9 @@ namespace Edison.Engine.Threading
         {
             Interrupted = true;
             
-            if (Threads != default(IList<TestThread>))
+            if (ParallelThreads != default(IList<TestThread>))
             {
-                foreach (var thread in Threads)
+                foreach (var thread in ParallelThreads)
                 {
                     thread.Interrupt();
                 }
@@ -210,67 +211,64 @@ namespace Edison.Engine.Threading
 
         private void RunTests(Type testFixture, int testFixtureRepeat, TestCaseAttribute testFixtureCase, object activator)
         {
-            var tests = ReflectionRepository.GetMethods<TestAttribute>(testFixture, Context.IncludedCategories, Context.ExcludedCategories, Context.Tests);
+            var tests = ReflectionRepository.GetMethods<TestAttribute>(testFixture, Context.IncludedCategories, Context.ExcludedCategories, Context.Tests).ToList();
 
             if (!tests.Any())
             {
                 return;
             }
 
-            var singularTests = default(IOrderedEnumerable<MethodInfo>);
+            #region Parallel
+
             if (NumberOfTestThreads > 1 && tests.Count() != 1)
             {
-                singularTests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name);
-                tests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Parallel, ConcurrencyType)).OrderBy(t => t.Name);
+                tests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Parallel, ConcurrencyType)).OrderBy(t => t.Name).ToList();
             }
 
-            var _tests = tests.Count();
-            if (_tests < NumberOfTestThreads)
+            var testsCount = tests.Count();
+            if (testsCount < NumberOfTestThreads)
             {
-                NumberOfTestThreads = _tests;
+                NumberOfTestThreads = testsCount;
             }
 
-            Threads = new List<TestThread>(NumberOfTestThreads);
-            var segment = _tests == 0 ? 0 : (double)_tests / (double)NumberOfTestThreads;
+            ParallelThreads = new List<TestThread>(NumberOfTestThreads);
+            var segment = testsCount == 0 ? 0 : (double)testsCount / (double)NumberOfTestThreads;
 
-            // setup all the threads that are to be run in parallel
-            var i = 1;
-            for (i = 1; i <= NumberOfTestThreads; i++)
+            var threadCount = 1;
+            for (threadCount = 1; threadCount <= NumberOfTestThreads; threadCount++)
             {
-                var testsSegment = i == NumberOfTestThreads
-                    ? tests.Skip((int)((i - 1) * segment))
-                    : tests.Skip((int)((i - 1) * segment)).Take((int)(segment));
+                var testsSegment = threadCount == NumberOfTestThreads
+                    ? tests.Skip((int)((threadCount - 1) * segment))
+                    : tests.Skip((int)((threadCount - 1) * segment)).Take((int)(segment));
 
-                var thread = new TestThread(i, ResultQueue, testsSegment, testFixture, testFixtureRepeat, testFixtureCase, activator,
+                var thread = new TestThread(threadCount, ResultQueue, testsSegment, testFixture, testFixtureRepeat, testFixtureCase, activator,
                     GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Parallel);
-                Threads.Add(thread);
+                ParallelThreads.Add(thread);
             }
 
-            // setup - if needed - the singular thread
-            SingularThread = singularTests != default(IOrderedEnumerable<MethodInfo>)
-                ? new TestThread(i + 1, ResultQueue, singularTests, testFixture, testFixtureRepeat, testFixtureCase, activator,
-                    GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Serial)
-                : default(TestThread);
-
-            RunThreads();
-        }
-
-        private void RunThreads()
-        {
-            Tasks = new List<Task>(Threads.Count);
-            foreach (var thread in Threads)
+            Tasks = new List<Task>(ParallelThreads.Count);
+            foreach (var thread in ParallelThreads)
             {
                 Tasks.Add(Task.Factory.StartNew(() => thread.RunTests()));
             }
 
             Task.WaitAll(Tasks.ToArray());
 
-            // once finished, we need to run the possible singular tests
-            if (SingularThread != default(TestThread))
+            #endregion
+
+            #region Singular
+
+            var singularTests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name).ToList();
+
+            if (!EnumerableHelper.IsNullOrEmpty(singularTests))
             {
+                SingularThread = new TestThread(threadCount + 1, ResultQueue, singularTests, testFixture, testFixtureRepeat, testFixtureCase, activator,
+                    GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Serial);
                 SingularTask = Task.Factory.StartNew(() => SingularThread.RunTests());
                 Task.WaitAll(SingularTask);
             }
+
+            #endregion
         }
 
         #endregion

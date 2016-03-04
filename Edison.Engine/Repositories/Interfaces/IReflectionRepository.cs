@@ -55,7 +55,7 @@ namespace Edison.Engine.Repositories.Interfaces
 
         bool HasValidAttributes<T>(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, string suite) where T : Attribute;
 
-        bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories);
+        bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, bool testFixtureDefault = true);
 
         bool HasValidConcurrency(MemberInfo member, ConcurrencyType concurrencyType, ConcurrencyType defaultConcurreny = ConcurrencyType.Parallel);
 
