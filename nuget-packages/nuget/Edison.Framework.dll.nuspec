@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Edison.Framework</id>
-    <version>1.0.0.6</version>
+    <version>$version$</version>
     <authors>Badgerati</authors>
     <owners>Badgerati</owners>
     <licenseUrl>https://github.com/Badgerati/Edison/blob/master/LICENSE.txt</licenseUrl>

@@ -4,7 +4,7 @@
   <metadata>
     <id>edison</id>
     <title>Edison</title>
-    <version>1.0.0.6</version>
+    <version>$version$</version>
     <authors>Badgerati</authors>
     <owners>Badgerati</owners>
     <summary>Edison is an open source unit/integration test framework for .NET</summary>
