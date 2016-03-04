@@ -48,7 +48,7 @@ namespace Edison.Engine.Threading
         private ConcurrencyType ConcurrencyType = ConcurrencyType.Parallel;
 
         private IList<TestThread> ParallelThreads = default(IList<TestThread>);
-        private IList<Task> Tasks = default(IList<Task>);
+        private Task ParallelTask = default(Task);
         private TestThread SingularThread = default(TestThread);
         private Task SingularTask = default(Task);
 
@@ -82,7 +82,7 @@ namespace Edison.Engine.Threading
                     thread.Interrupt();
                 }
 
-                Task.WaitAll(Tasks.ToArray());
+                Task.WaitAll(ParallelTask);
             }
 
             if (SingularThread != default(TestThread))
@@ -232,27 +232,22 @@ namespace Edison.Engine.Threading
             }
 
             ParallelThreads = new List<TestThread>(NumberOfTestThreads);
-            var segment = testsCount == 0 ? 0 : (double)testsCount / (double)NumberOfTestThreads;
+            var segment = testsCount == 0 ? 0 : (int)Math.Round((double)testsCount / (double)NumberOfTestThreads, MidpointRounding.ToEven);
 
             var threadCount = 1;
             for (threadCount = 1; threadCount <= NumberOfTestThreads; threadCount++)
             {
                 var testsSegment = threadCount == NumberOfTestThreads
-                    ? tests.Skip((int)((threadCount - 1) * segment))
-                    : tests.Skip((int)((threadCount - 1) * segment)).Take((int)(segment));
+                    ? tests.Skip((threadCount - 1) * segment)
+                    : tests.Skip((threadCount - 1) * segment).Take(segment);
 
                 var thread = new TestThread(threadCount, ResultQueue, testsSegment, testFixture, testFixtureRepeat, testFixtureCase, activator,
                     GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Parallel);
                 ParallelThreads.Add(thread);
             }
-
-            Tasks = new List<Task>(ParallelThreads.Count);
-            foreach (var thread in ParallelThreads)
-            {
-                Tasks.Add(Task.Factory.StartNew(() => thread.RunTests()));
-            }
-
-            Task.WaitAll(Tasks.ToArray());
+            
+            ParallelTask = Task.Run(() => Parallel.ForEach(ParallelThreads, thread => thread.RunTests()));
+            Task.WaitAll(ParallelTask);
 
             #endregion
 

@@ -75,7 +75,7 @@ namespace Edison.Engine.Contexts
         private TestResultDictionary ResultQueue;
 
         private IList<TestFixtureThread> ParallelThreads = default(IList<TestFixtureThread>);
-        private IList<Task> Tasks = default(IList<Task>);
+        private Task ParallelTask = default(Task);
         private TestFixtureThread SingularThread = default(TestFixtureThread);
         private Task SingularTask = default(Task);
 
@@ -222,7 +222,7 @@ namespace Edison.Engine.Contexts
                     thread.Interrupt();
                 }
 
-                Task.WaitAll(Tasks.ToArray());
+                Task.WaitAll(ParallelTask);
             }
 
             if (SingularThread != default(TestFixtureThread))
@@ -349,7 +349,7 @@ namespace Edison.Engine.Contexts
             }
 
             ParallelThreads = new List<TestFixtureThread>(NumberOfFixtureThreads);
-            var segment = fixturesCount == 0 ? 0 : (double)fixturesCount / (double)NumberOfFixtureThreads;
+            var segment = fixturesCount == 0 ? 0 : (int)Math.Round((double)fixturesCount / (double)NumberOfFixtureThreads, MidpointRounding.ToEven);
 
             // setup all the threads that are to be run in parallel
             var threadCount = 1;
@@ -364,13 +364,8 @@ namespace Edison.Engine.Contexts
             }
 
             // run the parallel threads
-            Tasks = new List<Task>(ParallelThreads.Count);
-            foreach (var thread in ParallelThreads)
-            {
-                Tasks.Add(Task.Factory.StartNew(() => thread.RunTestFixtures()));
-            }
-
-            Task.WaitAll(Tasks.ToArray());
+            ParallelTask = Task.Run(() => Parallel.ForEach(ParallelThreads, thread => thread.RunTestFixtures()));
+            Task.WaitAll(ParallelTask);
 
             #endregion
 
