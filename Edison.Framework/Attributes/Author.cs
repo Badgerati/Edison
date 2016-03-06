@@ -13,10 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public class AuthorAttribute : Attribute
     {
-        public string Name = string.Empty;
+        public readonly string Name;
 
         public AuthorAttribute(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Author cannot be null or empty.");
+            }
+
             Name = name;
         }
     }

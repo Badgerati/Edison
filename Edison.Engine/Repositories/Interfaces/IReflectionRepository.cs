@@ -51,7 +51,7 @@ namespace Edison.Engine.Repositories.Interfaces
 
         IEnumerable<string> GetCategories(MemberInfo member);
 
-        int GetRepeatValue(MemberInfo member);
+        Tuple<int, bool> GetRepeatValue(MemberInfo member);
 
         bool HasValidAttributes<T>(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, string suite) where T : Attribute;
 

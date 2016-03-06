@@ -131,6 +131,11 @@ namespace Edison.GUI
         private void expandToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TestTree.ExpandAll();
+
+            if (TestTree.Nodes.Count > 0)
+            {
+                TestTree.Nodes[0].EnsureVisible();
+            }
         }
 
         private void collapseToolStripMenuItem_Click(object sender, EventArgs e)

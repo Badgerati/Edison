@@ -13,10 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class VersionAttribute : Attribute
     {
-        public string Value = string.Empty;
+        public readonly string Value;
 
         public VersionAttribute(string version)
         {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                throw new ArgumentException("Version cannot be null or empty.");
+            }
+
             Value = version;
         }
     }

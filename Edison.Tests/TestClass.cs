@@ -78,7 +78,7 @@ namespace Edison.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(NullReferenceException), "Object", MatchType.EndsWith, true)]
+        [ExpectedException(typeof(NullReferenceException), ExpectedMessage = "Object", MatchType = MatchType.EndsWith, InverseMatch = true)]
         public void TestMethod3()
         {
             Console.WriteLine("WOO3!!!");

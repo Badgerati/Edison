@@ -14,8 +14,10 @@ using Edison.Injector;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Edison.Engine.Threading
 {
@@ -100,14 +102,24 @@ namespace Edison.Engine.Threading
             var repeat = ReflectionRepository.GetRepeatValue(test);
             var cases = ReflectionRepository.GetTestCases(test);
 
-            for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
+            if (repeat.Item2)
             {
-                if (Interrupted)
+                // parallel repeats
+                var tasks = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, repeat.Item1 - 1), value => RunTestCases(test, cases, value, setup, teardown)));
+                Task.WaitAll(tasks);
+            }
+            else
+            {
+                // sequential repeats
+                for (var r = 0; r < (repeat.Item1 == -1 ? 1 : repeat.Item1); r++)
                 {
-                    return;
-                }
+                    if (Interrupted)
+                    {
+                        return;
+                    }
 
-                RunTestCases(test, cases, (repeat == -1 ? -1 : r), setup, teardown);
+                    RunTestCases(test, cases, (repeat.Item1 == -1 ? -1 : r), setup, teardown);
+                }
             }
         }
 

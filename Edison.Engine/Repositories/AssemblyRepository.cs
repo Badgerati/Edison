@@ -49,7 +49,7 @@ namespace Edison.Engine.Repositories
             return Assembly.GetEntryAssembly();
         }
         
-        public IOrderedEnumerable<Type> GetTestFixtures(
+        public IEnumerable<Type> GetTestFixtures(
             Assembly assembly,
             IList<string> includedCategories,
             IList<string> excludedCategories,
@@ -60,7 +60,8 @@ namespace Edison.Engine.Repositories
             return GetTypes<TestFixtureAttribute>(assembly, includedCategories, excludedCategories, suite)
                 .Where(t => fixtures == default(IList<string>) || !fixtures.Any() || fixtures.Contains(t.FullName))
                 .Where(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests).Any())
-                .OrderBy(t => t.FullName);
+                .OrderBy(t => t.FullName)
+                .ToList();
         }
 
         public Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>> GetTests(
@@ -77,10 +78,10 @@ namespace Edison.Engine.Repositories
                 .Select(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests))
                 .Aggregate((a, b) => b.Concat(a));
             
-            return new Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>>(_tests, _fixtures);
+            return Tuple.Create(_tests, _fixtures);
         }
 
-        public IOrderedEnumerable<string> GetSuites(
+        public IEnumerable<string> GetSuites(
             Assembly assembly,
             IEnumerable<Type> fixtures = default(IEnumerable<Type>))
         {
@@ -93,10 +94,11 @@ namespace Edison.Engine.Repositories
                 .Select(x => ReflectionRepository.GetSuites(x))
                 .Aggregate((a, b) => b.Concat(a))
                 .Distinct()
-                .OrderBy(x => x);
+                .OrderBy(x => x)
+                .ToList();
         }
 
-        public IOrderedEnumerable<string> GetCategories(
+        public IEnumerable<string> GetCategories(
             Assembly assembly,
             IEnumerable<MethodInfo> tests = default(IEnumerable<MethodInfo>),
             IEnumerable<Type> fixtures = default(IEnumerable<Type>))
@@ -127,7 +129,8 @@ namespace Edison.Engine.Repositories
 
             return fixtureCategories
                 .Union(testCategories)
-                .OrderBy(x => x);
+                .OrderBy(x => x)
+                .ToList();
         }
 
         public IEnumerable<Type> GetTypes<T>(

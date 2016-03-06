@@ -118,7 +118,7 @@ namespace Edison.Engine.Threading
             var repeat = ReflectionRepository.GetRepeatValue(testFixture);
             var cases = ReflectionRepository.GetTestCases(testFixture);
             
-            for (var r = 0; r < (repeat == -1 ? 1 : repeat); r++)
+            for (var r = 0; r < (repeat.Item1 == -1 ? 1 : repeat.Item1); r++)
             {
                 if (Interrupted)
                 {
@@ -126,7 +126,7 @@ namespace Edison.Engine.Threading
                 }
 
                 //cases
-                RunTestFixtureCases(testFixture, cases, (repeat == -1 ? -1 : r), fixtureSetup, fixtureTeardown);
+                RunTestFixtureCases(testFixture, cases, (repeat.Item1 == -1 ? -1 : r), fixtureSetup, fixtureTeardown);
             }
         }
 
