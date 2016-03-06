@@ -13,11 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class IgnoreAttribute : Attribute
     {
-        public string Reason = string.Empty;
-
-        public IgnoreAttribute(string reason = "")
+        private string _reason = string.Empty;
+        public string Reason
         {
-            Reason = reason;
+            get { return _reason; }
+            set { _reason = value; }
+        }
+
+        public IgnoreAttribute()
+        {
         }
     }
 }

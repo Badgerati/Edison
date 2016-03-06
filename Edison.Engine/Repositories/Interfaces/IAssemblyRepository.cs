@@ -26,7 +26,7 @@ namespace Edison.Engine.Repositories.Interfaces
             IList<string> excludedCategories,
             string suite) where T : Attribute;
 
-        IOrderedEnumerable<Type> GetTestFixtures(
+        IEnumerable<Type> GetTestFixtures(
             Assembly assembly,
             IList<string> includedCategories,
             IList<string> excludedCategories,
@@ -42,11 +42,11 @@ namespace Edison.Engine.Repositories.Interfaces
             IList<string> tests,
             string suite);
 
-        IOrderedEnumerable<string> GetSuites(
+        IEnumerable<string> GetSuites(
             Assembly assembly,
             IEnumerable<Type> fixtures = default(IEnumerable<Type>));
 
-        IOrderedEnumerable<string> GetCategories(
+        IEnumerable<string> GetCategories(
             Assembly assembly,
             IEnumerable<MethodInfo> tests = default(IEnumerable<MethodInfo>),
             IEnumerable<Type> fixtures = default(IEnumerable<Type>));

@@ -13,10 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public class CategoryAttribute : Attribute
     {
-        public string Name = string.Empty;
+        public readonly string Name;
 
         public CategoryAttribute(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Category cannot be null or empty.");
+            }
+
             Name = name;
         }
     }

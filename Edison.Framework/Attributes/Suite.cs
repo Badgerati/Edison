@@ -13,10 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class SuiteAttribute : Attribute
     {
-        public string Name = string.Empty;
+        public readonly string Name;
 
         public SuiteAttribute(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Suite name cannot be null or empty.");
+            }
+
             Name = name;
         }
     }

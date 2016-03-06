@@ -10,14 +10,11 @@ using System;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public class TestCaseAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class ParallelRepeatAttribute : RepeatAttribute
     {
-        public readonly object[] Parameters;
-
-        public TestCaseAttribute(params object[] parameters)
+        public ParallelRepeatAttribute(int value) : base(value, true)
         {
-            Parameters = parameters;
         }
     }
 }

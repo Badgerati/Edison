@@ -30,12 +30,12 @@ namespace Edison.Engine.Repositories
 
         #region MemberInfo Calls
 
-        public int GetRepeatValue(MemberInfo member)
+        public Tuple<int, bool> GetRepeatValue(MemberInfo member)
         {
             var attr = member.GetCustomAttribute<RepeatAttribute>();
             return attr == default(RepeatAttribute)
-                ? -1
-                : attr.Value;
+                ? Tuple.Create(-1, false)
+                : Tuple.Create(attr.Value, attr.Parallel);
         }
 
         public IEnumerable<string> GetAuthors(MemberInfo member)

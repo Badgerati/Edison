@@ -13,10 +13,15 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class DescriptionAttribute : Attribute
     {
-        public string Value = string.Empty;
+        public readonly string Value;
 
         public DescriptionAttribute(string description)
         {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                throw new ArgumentException("Description cannot be null or empty.");
+            }
+
             Value = description;
         }
     }

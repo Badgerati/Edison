@@ -69,7 +69,7 @@ namespace Edison.GUI
                     break;
             }
 
-            return new Tuple<List<string>, List<string>>(tests, fixtures);
+            return Tuple.Create(tests, fixtures);
         }
 
         public static string GetFullPath(this TreeNode node, string fileName, char separator)

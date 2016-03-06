@@ -14,9 +14,9 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ConcurrencyAttribute : Attribute
     {
-        public ConcurrencyType ConcurrencyType = ConcurrencyType.Parallel;
+        public readonly ConcurrencyType ConcurrencyType;
 
-        public ConcurrencyAttribute(ConcurrencyType concurrentType = ConcurrencyType.Parallel)
+        public ConcurrencyAttribute(ConcurrencyType concurrentType)
         {
             ConcurrencyType = concurrentType;
         }

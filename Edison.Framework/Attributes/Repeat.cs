@@ -13,9 +13,10 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class RepeatAttribute : Attribute
     {
-        public int Value = 1;
+        public readonly int Value;
+        public readonly bool Parallel;
 
-        public RepeatAttribute(int value = 1)
+        public RepeatAttribute(int value)
         {
             if (value <= 0)
             {
@@ -23,6 +24,18 @@ namespace Edison.Framework
             }
 
             Value = value;
+            Parallel = false;
+        }
+
+        protected RepeatAttribute(int value, bool parallel)
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentException("Repeat value must be greater than 0.");
+            }
+
+            Value = value;
+            Parallel = parallel;
         }
     }
 }
