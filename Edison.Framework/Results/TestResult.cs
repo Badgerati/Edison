@@ -127,16 +127,16 @@ namespace Edison.Framework
             var name = new StringBuilder();
             name.Append(NameSpace + "(" + fixtureParameters + ")");
 
-            if (TestFixtureRepeatIndex != -1)
+            if (TestFixtureRepeatIndex > 1)
             {
-                name.Append("_" + (TestFixtureRepeatIndex + 1));
+                name.Append("_" + TestFixtureRepeatIndex);
             }
 
             name.Append("." + TestName + "(" + testParameters + ")");
 
-            if (TestRepeatIndex != -1)
+            if (TestRepeatIndex > 1)
             {
-                name.Append("_" + (TestRepeatIndex + 1));
+                name.Append("_" + TestRepeatIndex);
             }
 
             return name.ToString();

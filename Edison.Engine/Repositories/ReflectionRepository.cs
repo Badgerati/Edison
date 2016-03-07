@@ -25,17 +25,15 @@ namespace Edison.Engine.Repositories
         #region Constants
 
         private readonly IEnumerable<TestCaseAttribute> EmptyTestCase = new List<TestCaseAttribute>() { new TestCaseAttribute() };
+        private readonly RepeatAttribute SingleRepeat = new RepeatAttribute(1);
 
         #endregion
 
         #region MemberInfo Calls
 
-        public Tuple<int, bool> GetRepeatValue(MemberInfo member)
+        public RepeatAttribute GetRepeatValue(MemberInfo member)
         {
-            var attr = member.GetCustomAttribute<RepeatAttribute>();
-            return attr == default(RepeatAttribute)
-                ? Tuple.Create(-1, false)
-                : Tuple.Create(attr.Value, attr.Parallel);
+            return member.GetCustomAttribute<RepeatAttribute>() ?? SingleRepeat;
         }
 
         public IEnumerable<string> GetAuthors(MemberInfo member)

@@ -102,23 +102,23 @@ namespace Edison.Engine.Threading
             var repeat = ReflectionRepository.GetRepeatValue(test);
             var cases = ReflectionRepository.GetTestCases(test);
 
-            if (repeat.Item2)
+            if (repeat.Parallel)
             {
                 // parallel repeats
-                var tasks = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, repeat.Item1), value => RunTestCases(test, cases, value, setup, teardown)));
+                var tasks = Task.Run(() => Parallel.ForEach(Enumerable.Range(1, repeat.Value), value => RunTestCases(test, cases, value, setup, teardown)));
                 Task.WaitAll(tasks);
             }
             else
             {
                 // sequential repeats
-                for (var r = 0; r < (repeat.Item1 == -1 ? 1 : repeat.Item1); r++)
+                for (var r = 1; r <= repeat.Value; r++)
                 {
                     if (Interrupted)
                     {
                         return;
                     }
 
-                    RunTestCases(test, cases, (repeat.Item1 == -1 ? -1 : r), setup, teardown);
+                    RunTestCases(test, cases, r, setup, teardown);
                 }
             }
         }
