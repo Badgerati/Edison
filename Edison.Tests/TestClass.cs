@@ -16,7 +16,7 @@ namespace Edison.Tests
     [TestFixture]
     [Suite("OtherSuite")]
     //[Category("eek")]
-    //[Repeat(2)]
+    [Repeat(2)]
     public class TestClass : BaseTestClass
     {
 
