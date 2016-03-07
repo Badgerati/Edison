@@ -60,7 +60,6 @@ namespace Edison.Engine.Repositories
         public IEnumerable<TestCaseAttribute> GetTestCases(MemberInfo member)
         {
             var cases = member.GetCustomAttributes<TestCaseAttribute>();
-
             return cases.Any()
                 ? cases
                 : EmptyTestCase;

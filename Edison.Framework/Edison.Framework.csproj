@@ -44,7 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\Author.cs" />
-    <Compile Include="Attributes\Case.cs" />
+    <Compile Include="Attributes\ParallelTestCase.cs" />
+    <Compile Include="Attributes\TestCase.cs" />
     <Compile Include="Attributes\ParallelRepeat.cs" />
     <Compile Include="Attributes\Suite.cs" />
     <Compile Include="Attributes\Category.cs" />

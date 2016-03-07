@@ -16,15 +16,8 @@ namespace Edison.Framework
         public readonly int Value;
         public readonly bool Parallel;
 
-        public RepeatAttribute(int value)
+        public RepeatAttribute(int value) : this(value, false)
         {
-            if (value <= 0)
-            {
-                throw new ArgumentException("Repeat value must be greater than 0.");
-            }
-
-            Value = value;
-            Parallel = false;
         }
 
         protected RepeatAttribute(int value, bool parallel)
