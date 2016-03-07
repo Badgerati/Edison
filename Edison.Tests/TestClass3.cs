@@ -41,13 +41,32 @@ namespace Edison.Tests
 
         [Test]
         [ParallelRepeat(2)]
-        public void TestMethod3()
+        public void TestParallelRepeats()
         {
             Thread.Sleep(1000);
             Console.WriteLine("WOO7!!!");
             Console.WriteLine(TestStatisClass.StringValue);
             AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
             Console.WriteLine("WOO4!!!");
+        }
+
+        [Test]
+        [ParallelTestCase(1)]
+        [ParallelTestCase(2)]
+        public void TestParallelCases(int value)
+        {
+            Thread.Sleep(1000);
+            AssertFactory.Instance.IsNotZero(value);
+        }
+
+        [Test]
+        [ParallelRepeat(2)]
+        [ParallelTestCase(1)]
+        [ParallelTestCase(2)]
+        public void TestParallelCasesWithParallelRepeat(int value)
+        {
+            Thread.Sleep(1000);
+            AssertFactory.Instance.IsNotZero(value);
         }
 
     }

@@ -10,14 +10,11 @@ using System;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public class TestCaseAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class ParallelTestCaseAttribute : TestCaseAttribute
     {
-        public readonly object[] Parameters;
-
-        public TestCaseAttribute(params object[] parameters)
+        public ParallelTestCaseAttribute(params object[] parameters) : base(true, parameters)
         {
-            Parameters = parameters;
         }
     }
 }

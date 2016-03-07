@@ -105,7 +105,7 @@ namespace Edison.Engine.Threading
             if (repeat.Item2)
             {
                 // parallel repeats
-                var tasks = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, repeat.Item1 - 1), value => RunTestCases(test, cases, value, setup, teardown)));
+                var tasks = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, repeat.Item1), value => RunTestCases(test, cases, value, setup, teardown)));
                 Task.WaitAll(tasks);
             }
             else
@@ -125,6 +125,32 @@ namespace Edison.Engine.Threading
 
         private void RunTestCases(MethodInfo test, IEnumerable<TestCaseAttribute> cases, int testRepeat, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
+            var sequentialCases = cases.Where(x => !x.Parallel).ToList();
+            foreach (var testcase in sequentialCases)
+            {
+                if (Interrupted)
+                {
+                    return;
+                }
+
+                RunTestCase(test, testcase, testRepeat, setup, teardown);
+            }
+
+            if (sequentialCases.Count == cases.Count())
+            {
+                return;
+            }
+
+            var parallelCases = cases.Where(x => x.Parallel).ToList();
+            if (parallelCases.Any())
+            {
+                var tasks = Task.Run(() => Parallel.ForEach(parallelCases, testcase => RunTestCase(test, testcase, testRepeat, setup, teardown)));
+                Task.WaitAll(tasks);
+            }
+        }
+
+        private void RunTestCase(MethodInfo test, TestCaseAttribute testCase, int testRepeat, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
+        {
             var timeTaken = new Stopwatch();
             var testResult = default(TestResult);
 
@@ -132,89 +158,78 @@ namespace Edison.Engine.Threading
             var teardownDone = false;
             var testDone = false;
 
-            foreach (var _case in cases)
+            try
             {
-                if (Interrupted)
+                testResult = new TestResult(
+                    TestResultState.Success,
+                    test,
+                    TestFixtureCase.Parameters,
+                    testCase.Parameters,
+                    TestFixtureRepeatIndex,
+                    testRepeat,
+                    string.Empty,
+                    string.Empty,
+                    TimeSpan.Zero,
+                    string.Empty,
+                    default(IEnumerable<string>));
+                
+                timeTaken.Restart();
+
+                if (GlobalSetupException != default(Exception))
                 {
-                    return;
+                    testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                 }
-
-                try
+                else if (ActivatorException != default(Exception))
                 {
-                    testResult = new TestResult(
-                        TestResultState.Success,
-                        test,
-                        TestFixtureCase.Parameters,
-                        _case.Parameters,
-                        TestFixtureRepeatIndex,
-                        testRepeat,
-                        string.Empty,
-                        string.Empty,
-                        TimeSpan.Zero,
-                        string.Empty,
-                        default(IEnumerable<string>));
-
-                    setupDone = false;
-                    teardownDone = false;
-                    testDone = false;
-                    timeTaken.Restart();
-
-                    if (GlobalSetupException != default(Exception))
-                    {
-                        testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
-                    }
-                    else if (ActivatorException != default(Exception))
-                    {
-                        testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, timeTaken.Elapsed);
-                    }
-                    else if (FixtureSetupException != default(Exception))
-                    {
-                        testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
-                    }
-                    else
-                    {
-                        //setup
-                        ReflectionRepository.Invoke(setup, Activator);
-                        setupDone = true;
-
-                        //test
-                        ReflectionRepository.Invoke(test, Activator, _case.Parameters);
-                        testDone = true;
-
-                        testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
-
-                        //teardown
-                        ReflectionRepository.Invoke(teardown, Activator, testResult);
-                        teardownDone = true;
-                    }
-
-                    timeTaken.Stop();
+                    testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, timeTaken.Elapsed);
                 }
-                catch (Exception ex)
+                else if (FixtureSetupException != default(Exception))
                 {
-                    testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                    testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                }
+                else
+                {
+                    //setup
+                    ReflectionRepository.Invoke(setup, Activator);
+                    setupDone = true;
+
+                    //test
+                    ReflectionRepository.Invoke(test, Activator, testCase.Parameters);
+                    testDone = true;
+
+                    testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
 
                     //teardown
-                    if (testResult.State != TestResultState.TeardownError && testResult.State != TestResultState.TeardownFailure)
-                    {
-                        try
-                        {
-                            ReflectionRepository.Invoke(teardown, Activator, testResult);
-                        }
-                        catch (Exception ex2)
-                        {
-                            testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
-                        }
-                    }
+                    ReflectionRepository.Invoke(teardown, Activator, testResult);
+                    teardownDone = true;
+                }
 
-                    if (timeTaken.IsRunning)
+                timeTaken.Stop();
+            }
+            catch (Exception ex)
+            {
+                testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+
+                //teardown
+                if (testResult.State != TestResultState.TeardownError && testResult.State != TestResultState.TeardownFailure)
+                {
+                    try
                     {
-                        timeTaken.Stop();
+                        ReflectionRepository.Invoke(teardown, Activator, testResult);
+                    }
+                    catch (Exception ex2)
+                    {
+                        testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
                     }
                 }
 
-                ResultQueue.AddOrUpdate(testResult);
+                if (timeTaken.IsRunning)
+                {
+                    timeTaken.Stop();
+                }
             }
+
+            ResultQueue.AddOrUpdate(testResult);
         }
 
         private TestResult PopulateTestResultOnException(MethodInfo testMethod, TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan time)
