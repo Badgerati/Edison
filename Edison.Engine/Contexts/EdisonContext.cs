@@ -22,6 +22,8 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.Threading.Tasks;
 using Edison.Engine.Utilities.Helpers;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace Edison.Engine.Contexts
 {
@@ -45,11 +47,17 @@ namespace Edison.Engine.Contexts
             get { return DIContainer.Instance.Get<IReflectionRepository>(); }
         }
 
+        private IFileRepository FileRepository
+        {
+            get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
         #endregion
 
         #region Properties
 
         public bool IsRunning { get; private set; }
+        public string CurrentAssembly { get; private set; }
 
         public List<string> AssemblyPaths { get; private set; }
         public List<string> IncludedCategories { get; private set; }
@@ -70,6 +78,8 @@ namespace Edison.Engine.Contexts
         public bool RerunFailedTests { get; set; }
         public int RerunThreshold { get; set; }
         public string Suite { get; set; }
+        public string Solution { get; set; }
+        public string SolutionConfiguration { get; set; }
 
         private Stopwatch Timer = default(Stopwatch);
         private TestResultDictionary ResultQueue;
@@ -130,6 +140,7 @@ namespace Edison.Engine.Contexts
                 Logger.Instance.DisableConsole();
             }
 
+            //set output logging type
             Logger.Instance.ConsoleOutputType = ConsoleOutputType;
 
             //start timer
@@ -139,15 +150,45 @@ namespace Edison.Engine.Contexts
             //create queue
             ResultQueue = new TestResultDictionary(this);
 
+            //bind test result events
             if (OnTestResult != default(TestResultEventHandler))
             {
                 ResultQueue.OnTestResult += OnTestResult;
             }
 
+            //bind assembly event resolver
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
-            foreach (var assemblyPath in AssemblyPaths)
+            //grab assemblies from solution file
+            if (!string.IsNullOrWhiteSpace(Solution))
             {
+                var contents = FileRepository.ReadAllText(Solution, Encoding.UTF8);
+
+                var regex = new Regex("Project\\(\\\"{.*?}\\\"\\) = \\\".*?\\\", \\\"(?<path>(.*?\\\\)*)(?<project>.*?).csproj\\\", \\\"{.*?}\\\"");
+                var groups = regex.Matches(contents)
+                    .Cast<Match>()
+                    .Select(x => x.Groups)
+                    .ToList();
+
+                var solutionDir = PathRepository.GetDirectoryName(Solution);
+
+                foreach (var group in groups)
+                {
+                    var path = PathRepository.Combine(solutionDir, group["path"].Value, "bin", SolutionConfiguration, group["project"].Value + ".dll");
+                    if (!FileRepository.Exists(path))
+                    {
+                        continue;
+                    }
+
+                    AssemblyPaths.Add(path);
+                }
+            }
+
+            //loop through all assemblies, running their tests
+            var assemblies = AssemblyPaths.Distinct();
+            foreach (var assemblyPath in assemblies)
+            {
+                CurrentAssembly = PathRepository.GetFileName(assemblyPath);
                 var assembly = AssemblyRepository.LoadFile(assemblyPath);
 
                 //global setup
@@ -334,6 +375,10 @@ namespace Edison.Engine.Contexts
         {
             // get all possible test fixtures
             var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests, Suite).ToList();
+            if (!testFixtures.Any())
+            {
+                return;
+            }
 
             #region Parallel
             // if we're running in parallel, remove any singular test fixtures
@@ -343,19 +388,20 @@ namespace Edison.Engine.Contexts
             }
 
             var fixturesCount = testFixtures.Count();
+            var fixturesThreadCount = NumberOfFixtureThreads;
             if (fixturesCount < NumberOfFixtureThreads)
             {
-                NumberOfFixtureThreads = fixturesCount;
+                fixturesThreadCount = fixturesCount;
             }
 
-            ParallelThreads = new List<TestFixtureThread>(NumberOfFixtureThreads);
-            var segment = fixturesCount == 0 ? 0 : (int)Math.Round((double)fixturesCount / (double)NumberOfFixtureThreads, MidpointRounding.ToEven);
+            ParallelThreads = new List<TestFixtureThread>(fixturesThreadCount);
+            var segment = fixturesCount == 0 ? 0 : (int)Math.Round((double)fixturesCount / (double)fixturesThreadCount, MidpointRounding.ToEven);
 
             // setup all the threads that are to be run in parallel
             var threadCount = 1;
-            for (threadCount = 1; threadCount <= NumberOfFixtureThreads; threadCount++)
+            for (threadCount = 1; threadCount <= fixturesThreadCount; threadCount++)
             {
-                var testFixturesSegment = threadCount == NumberOfFixtureThreads
+                var testFixturesSegment = threadCount == fixturesThreadCount
                     ? testFixtures.Skip((int)((threadCount - 1) * segment))
                     : testFixtures.Skip((int)((threadCount - 1) * segment)).Take((int)(segment));
 

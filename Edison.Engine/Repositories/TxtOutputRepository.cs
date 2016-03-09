@@ -48,7 +48,7 @@ namespace Edison.Engine.Repositories
         public string ToString(TestResult result, bool withTrail)
         {
             return result.State != TestResultState.Success
-                ? string.Format("Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {7}{0}{0}Error Message: {5}{0}{0}StackTrace:{0}{6}{1}",
+                ? string.Format("Assembly: {8}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {7}{0}{0}Error Message: {5}{0}{0}StackTrace:{0}{6}{1}",
                     Environment.NewLine,
                     withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
                     result.FullName,
@@ -56,14 +56,16 @@ namespace Edison.Engine.Repositories
                     result.TimeTaken,
                     result.ErrorMessage.Replace("Error Message: ", string.Empty),
                     result.StackTrace,
-                    result.CreateDateTimeString)
-                : string.Format("Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{1}",
+                    result.CreateDateTimeString,
+                    result.Assembly)
+                : string.Format("Assembly: {6}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{1}",
                     Environment.NewLine,
                     withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
                     result.FullName,
                     result.State,
                     result.TimeTaken,
-                    result.CreateDateTimeString);
+                    result.CreateDateTimeString,
+                    result.Assembly);
         }
 
     }

@@ -15,6 +15,7 @@ using Edison.Engine.Core.Enums;
 using Edison.Injector;
 using Moq;
 using Edison.Engine;
+using System.Text;
 
 namespace Edison.Console.Test
 {
@@ -191,7 +192,7 @@ namespace Edison.Console.Test
             fileMock.Setup(x => x.Exists(file)).Returns(true);
             fileMock.Setup(x => x.Exists(dll1)).Returns(true);
             fileMock.Setup(x => x.Exists(dll2)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll1, dll2 });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { dll1, dll2 });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
@@ -211,7 +212,7 @@ namespace Edison.Console.Test
 
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(file)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { dll });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
             
             var context = new EdisonContext();
@@ -238,7 +239,7 @@ namespace Edison.Console.Test
 
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(file)).Returns(false);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { dll });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { dll });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
             
             var context = new EdisonContext();
@@ -290,7 +291,7 @@ namespace Edison.Console.Test
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(dll)).Returns(true);
             fileMock.Setup(x => x.Exists(file)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { fixture1, fixture2 });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { fixture1, fixture2 });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
             
             var context = new EdisonContext();
@@ -312,7 +313,7 @@ namespace Edison.Console.Test
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(file)).Returns(false);
             fileMock.Setup(x => x.Exists(dll)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { fixture });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { fixture });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
             
             var context = new EdisonContext();
@@ -364,7 +365,7 @@ namespace Edison.Console.Test
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(dll)).Returns(true);
             fileMock.Setup(x => x.Exists(file)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { test1, test2 });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { test1, test2 });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
@@ -386,7 +387,7 @@ namespace Edison.Console.Test
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(dll)).Returns(true);
             fileMock.Setup(x => x.Exists(file)).Returns(true);
-            fileMock.Setup(x => x.ReadAllLines(file)).Returns(new string[] { test });
+            fileMock.Setup(x => x.ReadAllLines(file, Encoding.UTF8)).Returns(new string[] { test });
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = new EdisonContext();
@@ -589,6 +590,131 @@ namespace Edison.Console.Test
             var result = ParameterParser.Parse(context, new string[] { "--a", dll });
             Assert.IsTrue(result);
             Assert.IsNull(context.Suite);
+        }
+
+        #endregion
+
+        #region Solution Tests
+
+        [Test]
+        public void ValidSlnForSolutionTest()
+        {
+            var sln = "dummy/path/to.sln";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(sln)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--sln", sln });
+            Assert.IsTrue(result);
+            Assert.AreEqual(sln, context.Solution);
+            Assert.AreEqual(0, context.AssemblyPaths.Count);
+        }
+        
+        [Test]
+        public void InvalidSlnForSolutionTest()
+        {
+            var sln = "dummy/path/to.txt";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(sln)).Returns(false);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            try
+            {
+                var result = ParameterParser.Parse(context, new string[] { "--sln", sln });
+            }
+            catch (ParseException ex)
+            {
+                StringAssert.Contains("Solution is not a valid sln file", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        [Test]
+        public void ValidSolutionAndAssemblyTest()
+        {
+            var sln = "dummy/path/to.sln";
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(sln)).Returns(true);
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--sln", sln });
+            Assert.IsTrue(result);
+            Assert.AreEqual(sln, context.Solution);
+            Assert.AreEqual(1, context.AssemblyPaths.Count);
+            Assert.AreEqual(dll, context.AssemblyPaths[0]);
+        }
+
+        [Test]
+        public void InvalidSolutionAndAssemblyTest()
+        {
+            var fileMock = new Mock<IFileRepository>();
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            try
+            {
+                var result = ParameterParser.Parse(context, new string[] { "--f", "random" });
+            }
+            catch (ParseException ex)
+            {
+                StringAssert.Contains("No assembly or solution paths supplied", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Solution Configuration Tests
+
+        [Test]
+        public void ValidSolutionConfigTest()
+        {
+            var sln = "dummy/path/to.sln";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(sln)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+            var config = "SomeConfig";
+
+            var result = ParameterParser.Parse(context, new string[] { "--sln", sln, "--sconfig", config });
+            Assert.IsTrue(result);
+            Assert.AreEqual(config, context.SolutionConfiguration);
+        }
+
+        [Test]
+        public void DefaultSolutionConfigTest()
+        {
+            var sln = "dummy/path/to.sln";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(sln)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = new EdisonContext();
+
+            var result = ParameterParser.Parse(context, new string[] { "--sln", sln });
+            Assert.IsTrue(result);
+            Assert.AreEqual("Debug", context.SolutionConfiguration);
         }
 
         #endregion

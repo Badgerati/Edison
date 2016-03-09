@@ -52,8 +52,9 @@ namespace Edison.Engine.Repositories
             var message = string.Format("\"errormessage\":\"{0}\"", JsonFormat(result.ErrorMessage.Replace("Error Message: ", string.Empty)));
             var stackTrace = string.Format("\"stacktrace\":\"{0}\"", JsonFormat(result.StackTrace));
             var createDate = string.Format("\"createdate\":\"{0}\"", JsonFormat(result.CreateDateTimeString));
+            var assembly = string.Format("\"assembly\":\"{0}\"", JsonFormat(result.Assembly));
 
-            return string.Format("{{{2}, {3}, {4}, {5}, {6}, {7}}}{1}{0}",
+            return string.Format("{{{2}, {3}, {4}, {5}, {6}, {7}, {8}}}{1}{0}",
                 withTrail ? Environment.NewLine : string.Empty,
                 withTrail ? "," : string.Empty,
                 test,
@@ -61,7 +62,8 @@ namespace Edison.Engine.Repositories
                 timeTaken,
                 message,
                 stackTrace,
-                createDate);
+                createDate, 
+                assembly);
         }
 
         private string RemoveNewLines(string value)

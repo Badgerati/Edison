@@ -6,6 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
+using Edison.Engine.Contexts;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Engine.Utilities.Structures;
 using Edison.Framework;
@@ -43,6 +44,7 @@ namespace Edison.Engine.Threading
         
         private int ThreadId = default(int);
         private bool Interrupted { get; set; }
+        private EdisonContext Context = default(EdisonContext);
         private TestResultDictionary ResultQueue = default(TestResultDictionary);
         private Exception GlobalSetupException = default(Exception);
         private Exception FixtureSetupException = default(Exception);
@@ -54,9 +56,10 @@ namespace Edison.Engine.Threading
 
         public TestThread(int threadId, TestResultDictionary resultQueue, IEnumerable<MethodInfo> tests, Type testFixture,
             int testFixtureRepeatIndex, TestCaseAttribute testFixtureCase, object activator, Exception globalSetupEx,
-            Exception fixtureSetupEx, Exception activatorEx, ConcurrencyType concurrenyType)
+            Exception fixtureSetupEx, Exception activatorEx, EdisonContext context, ConcurrencyType concurrenyType)
         {
             ThreadId = threadId;
+            Context = context;
             ResultQueue = resultQueue;
             TestFixture = testFixture;
             TestFixtureRepeatIndex = testFixtureRepeatIndex;
@@ -162,6 +165,7 @@ namespace Edison.Engine.Threading
             {
                 testResult = new TestResult(
                     TestResultState.Success,
+                    Context.CurrentAssembly,
                     test,
                     TestFixtureCase.Parameters,
                     testCase.Parameters,

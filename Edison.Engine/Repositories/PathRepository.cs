@@ -36,5 +36,10 @@ namespace Edison.Engine.Repositories
             return Path.GetFullPath(path);
         }
 
+        public string Combine(params string[] paths)
+        {
+            return Path.Combine(paths);
+        }
+
     }
 }

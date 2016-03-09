@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Edison.Console
 {
@@ -65,7 +66,7 @@ namespace Edison.Console
             var options = new ConsoleOptions();
             if (args == default(string[]) || args.Length == 0)
             {
-                options.GetUsage();
+                Logger.Instance.WriteMessage(options.GetUsage());
                 return false;
             }
             
@@ -89,7 +90,7 @@ namespace Edison.Console
 
             Context = context;
 
-            AssemblyAction(options.Assemblies);
+            AssemblyAction(options.Assemblies, options.Solution);
             FixtureThreadsAction(options.FixtureThreads);
             TestThreadsAction(options.TestThreads);
             IncludedAction(options.Includes);
@@ -108,6 +109,8 @@ namespace Edison.Console
             RerunFailedTestsAction(options.RerunFailedTests);
             RerunThresholdAction(options.RerunThreshold);
             SuiteAction(options.Suite);
+            SolutionAction(options.Solution);
+            SolutionConfigurationAction(options.SolutionConfiguration);
 
             return true;
         }
@@ -116,11 +119,16 @@ namespace Edison.Console
 
         #region Actions
 
-        private static void AssemblyAction(IList<string> values)
+        private static void AssemblyAction(IList<string> values, string solution)
         {
             if (values == default(IList<string>) || !values.Any())
             {
-                throw new ParseException("No assembly paths supplied");
+                if (string.IsNullOrWhiteSpace(solution))
+                {
+                    throw new ParseException("No assembly or solution paths supplied");
+                }
+
+                return;
             }
 
             const string extension = ".dll";
@@ -137,7 +145,7 @@ namespace Edison.Console
                     throw new ParseException(string.Format("File for list of asemblies not found: '{0}'", _file));
                 }
 
-                var possibleAssemblies = FileRepository.ReadAllLines(_file);
+                var possibleAssemblies = FileRepository.ReadAllLines(_file, Encoding.UTF8);
 
                 foreach (var assembly in possibleAssemblies)
                 {
@@ -249,7 +257,7 @@ namespace Edison.Console
                     throw new ParseException(string.Format("File for list of fixtures not found: '{0}'", _file));
                 }
 
-                fixtures.AddRange(FileRepository.ReadAllLines(_file));
+                fixtures.AddRange(FileRepository.ReadAllLines(_file, Encoding.UTF8));
             }
 
             Context.Fixtures.AddRange(fixtures.Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -279,7 +287,7 @@ namespace Edison.Console
                     throw new ParseException(string.Format("File for list of tests not found: '{0}'", _file));
                 }
 
-                tests.AddRange(FileRepository.ReadAllLines(_file));
+                tests.AddRange(FileRepository.ReadAllLines(_file, Encoding.UTF8));
             }
 
             Context.Tests.AddRange(tests.Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -287,14 +295,19 @@ namespace Edison.Console
 
         private static void OutputFileAction(string value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = "ResultFile";
+            }
+
             Context.OutputFile = value;
         }
 
         private static void OutputDirectoryAction(string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return;
+                value = Environment.CurrentDirectory;
             }
 
             if (!DirectoryRepository.Exists(value))
@@ -386,6 +399,34 @@ namespace Edison.Console
         private static void SuiteAction(string value)
         {
             Context.Suite = value;
+        }
+
+        private static void SolutionAction(string solution)
+        {
+            if (string.IsNullOrWhiteSpace(solution))
+            {
+                return;
+            }
+            
+            const string extension = ".sln";
+            solution = solution.Trim();
+
+            if (PathRepository.GetExtension(solution) != extension)
+            {
+                throw new ParseException(string.Format("Solution is not a valid sln file: '{0}'", solution));
+            }
+
+            if (!FileRepository.Exists(solution))
+            {
+                throw new ParseException(string.Format("Solution not found: '{0}'", solution));
+            }
+            
+            Context.Solution = solution;
+        }
+
+        private static void SolutionConfigurationAction(string config)
+        {
+            Context.SolutionConfiguration = config;
         }
 
         #endregion

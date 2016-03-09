@@ -35,7 +35,7 @@ namespace Edison.Engine.Repositories
 
         public string OpenTag
         {
-            get { return "\"Test\", \"State\", \"TimeTaken\", \"ErrorMessage\", \"StackTrace\", \"CreateDate\""; }
+            get { return "\"Test\", \"State\", \"TimeTaken\", \"ErrorMessage\", \"StackTrace\", \"CreateDate\", \"Assembly\""; }
         }
 
         public string CloseTag
@@ -46,14 +46,15 @@ namespace Edison.Engine.Repositories
 
         public string ToString(TestResult result, bool withTrail)
         {
-            return string.Format("\"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\"{0}",
+            return string.Format("\"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\"{0}",
                 withTrail ? Environment.NewLine : string.Empty,
                 RemoveNewLines(result.FullName),
                 result.State,
                 result.TimeTaken,
                 RemoveNewLines(result.ErrorMessage.Replace("Error Message: ", string.Empty)),
                 RemoveNewLines(result.StackTrace),
-                RemoveNewLines(result.CreateDateTimeString));
+                result.CreateDateTimeString,
+                result.Assembly);
         }
 
 

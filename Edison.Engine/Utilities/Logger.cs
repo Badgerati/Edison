@@ -13,6 +13,7 @@ using System;
 using System.IO;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
+using System.Text;
 
 namespace Edison.Engine
 {
@@ -240,12 +241,12 @@ namespace Edison.Engine
 
         public void WriteToFile(string filePath, string value)
         {
-            FileRepository.AppendAllText(filePath, value);
+            FileRepository.AppendAllText(filePath, value, Encoding.UTF8);
         }
 
         public void WriteResultToFile(string filePath, bool lastResult, TestResult result, IOutputRepository output)
         {
-            FileRepository.AppendAllText(filePath, output.ToString(result, !lastResult));
+            FileRepository.AppendAllText(filePath, output.ToString(result, !lastResult), Encoding.UTF8);
         }
 
         public void WriteTestResult(TestResult result)
