@@ -19,6 +19,7 @@ namespace Edison.Engine.Repositories.Interfaces
         string ReadAllText(string path, Encoding encoding);
         FileStream Create(string path);
         void AppendAllText(string path, string contents, Encoding encoding);
+        void WriteAllLines(string path, string[] lines, Encoding encoding);
 
     }
 }

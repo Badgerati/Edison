@@ -22,12 +22,12 @@ namespace Edison.Engine.Repositories
             return File.Exists(path);
         }
 
-        public string[] ReadAllLines(string path, Encoding encoding = null)
+        public string[] ReadAllLines(string path, Encoding encoding)
         {
             return File.ReadAllLines(path, encoding == default(Encoding) ? Encoding.UTF8 : encoding);
         }
 
-        public string ReadAllText(string path, Encoding encoding = null)
+        public string ReadAllText(string path, Encoding encoding)
         {
             return File.ReadAllText(path, encoding == default(Encoding) ? Encoding.UTF8 : encoding);
         }
@@ -37,9 +37,14 @@ namespace Edison.Engine.Repositories
             return File.Create(path);
         }
 
-        public void AppendAllText(string path, string contents, Encoding encoding = null)
+        public void AppendAllText(string path, string contents, Encoding encoding)
         {
             File.AppendAllText(path, contents, encoding == default(Encoding) ? Encoding.UTF8 : encoding);
+        }
+
+        public void WriteAllLines(string path, string[] lines, Encoding encoding)
+        {
+            File.WriteAllLines(path, lines, encoding);
         }
 
     }

@@ -60,6 +60,7 @@
     <Compile Include="OutputLogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecentlyOpened.cs" />
     <Compile Include="TreeNodeExtension.cs" />
     <Compile Include="TreeNodeType.cs" />
     <EmbeddedResource Include="Form1.resx">

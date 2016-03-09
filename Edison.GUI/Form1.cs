@@ -45,8 +45,13 @@ namespace Edison.GUI
             get { return DIContainer.Instance.Get<IReflectionRepository>(); }
         }
 
+        private IFileRepository FileRepository
+        {
+            get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
         #endregion
-        
+
         #region Properties
 
         public const string MainTitle = "Edison";
@@ -72,13 +77,15 @@ namespace Edison.GUI
         public EdisonForm()
         {
             InitializeComponent();
-            
+            RefreshRecentlyOpened();
+
             FormClosing += EdisonForm_FormClosing;
             TestTree.NodeMouseDoubleClick += TestTree_NodeMouseDoubleClick;
             TestTree.KeyDown += TestTree_KeyDown;
             FailedTestListBox.MeasureItem += FailedTestListBox_MeasureItem;
             FailedTestListBox.DrawItem += FailedTestListBox_DrawItem;
             SuiteCheckList.ItemCheck += SuiteCheckList_ItemCheck;
+            RecentlyOpenedMenuItem.DropDownItemClicked += RecentlyOpenedMenuItem_DropDownItemClicked;
 
             FixtureThreadNumericBox.Value = 1;
             TestThreadNumericBox.Value = 1;
@@ -166,12 +173,7 @@ namespace Edison.GUI
             var result = dialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                FilePath = dialog.FileName;
-                FileName = PathRepository.GetFileName(FilePath);
-                Text = MainTitle + " - " + FileName;
-
-                Assembly = AssemblyRepository.LoadFile(FilePath);
-                PopulateForm();
+                OpenFile(dialog.FileName);
             }
             else if (result != DialogResult.Cancel)
             {
@@ -330,10 +332,48 @@ namespace Edison.GUI
                 SuiteCheckList.SetItemCheckState(selectedItems[0], CheckState.Unchecked);
             }
         }
+        
+        private void RecentlyOpenedMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            var name = e.ClickedItem.Text;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return;
+            }
+
+            if (name.Equals("Clear Entries", StringComparison.InvariantCultureIgnoreCase))
+            {
+                RecentlyOpened.Clear();
+                RefreshRecentlyOpened();
+            }
+            else if (FileRepository.Exists(name))
+            {
+                OpenFile(name);
+            }
+        }
 
         #endregion
 
         #region Helpers
+
+        private void OpenFile(string path)
+        {
+            if (!FileRepository.Exists(path))
+            {
+                MessageBox.Show(string.Format("File doesn't exist: '{0}'", path), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            RecentlyOpened.Add(path);
+            RefreshRecentlyOpened();
+
+            FilePath = path;
+            FileName = PathRepository.GetFileName(FilePath);
+            Text = MainTitle + " - " + FileName;
+            Assembly = AssemblyRepository.LoadFile(FilePath);
+            PopulateForm();
+        }
 
         private void RunTests(List<string> tests, List<string> fixtures)
         {
@@ -541,11 +581,6 @@ namespace Edison.GUI
 
         private void PopulateTests(IEnumerable<MethodInfo> tests)
         {
-            if (!tests.Any())
-            {
-                return;
-            }
-
             var rootNode = new TreeNode(FileName);
 
             foreach (var test in tests)
@@ -582,6 +617,11 @@ namespace Edison.GUI
             {
                 EdisonContext.Interrupt();
             }
+        }
+
+        private void RefreshRecentlyOpened()
+        {
+            RecentlyOpened.Populate(RecentlyOpenedMenuItem);
         }
 
         #endregion

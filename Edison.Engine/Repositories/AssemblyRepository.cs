@@ -73,12 +73,22 @@ namespace Edison.Engine.Repositories
             string suite)
         {
             var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests, suite);
-            
+            if (!_fixtures.Any())
+            {
+                return Tuple.Create(Enumerable.Empty<MethodInfo>(), _fixtures);
+            }
+
             var _tests = _fixtures
                 .Select(x => ReflectionRepository.GetMethods<TestAttribute>(x, includedCategories, excludedCategories, tests))
-                .Aggregate((a, b) => b.Concat(a));
-            
-            return Tuple.Create(_tests, _fixtures);
+                .ToList();
+
+            if (!_tests.Any())
+            {
+                Tuple.Create(Enumerable.Empty<MethodInfo>(), _fixtures);
+            }
+
+            var _aggrTests = _tests.Aggregate((a, b) => b.Concat(a));
+            return Tuple.Create(_aggrTests, _fixtures);
         }
 
         public IEnumerable<string> GetSuites(
@@ -88,6 +98,11 @@ namespace Edison.Engine.Repositories
             if (fixtures == default(IEnumerable<Type>))
             {
                 fixtures = GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null);
+            }
+
+            if (!fixtures.Any())
+            {
+                return Enumerable.Empty<string>();
             }
 
             return fixtures
@@ -115,6 +130,11 @@ namespace Edison.Engine.Repositories
                 fixtures = items == default(Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>>)
                     ? GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null)
                     : items.Item2;
+            }
+
+            if (!fixtures.Any())
+            {
+                return Enumerable.Empty<string>();
             }
 
             var fixtureCategories = fixtures
@@ -153,6 +173,12 @@ namespace Edison.Engine.Repositories
             string suite)
         {
             var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests, suite);
+            
+            if (!_fixtures.Any())
+            {
+                return 0;
+            }
+
             var _count = 0;
             var _fixtureCount = 0;
             var _testCount = 0;
