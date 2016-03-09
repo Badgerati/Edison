@@ -133,17 +133,18 @@ namespace Edison.Engine.Utilities.Structures
         {
             var response = false;
             var _result = default(TestResult);
+            var key = result.Assembly + "." + result.FullName;
 
-            if (Results.TryGetValue(result.FullName, out _result))
+            if (Results.TryGetValue(key, out _result))
             {
                 if (_result != default(TestResult) && _result.State != TestResultState.Success)
                 {
-                    response = Results.TryUpdate(result.FullName, result, _result);
+                    response = Results.TryUpdate(key, result, _result);
                 }
             }
             else
             {
-                response = Results.TryAdd(result.FullName, result);
+                response = Results.TryAdd(key, result);
             }
 
             if (Logger.Instance.ConsoleOutputType != OutputType.None)

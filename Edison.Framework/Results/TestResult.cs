@@ -31,6 +31,7 @@ namespace Edison.Framework
         public int TestFixtureRepeatIndex { get; set; }
         public string Version { get; set; }
         public IEnumerable<string> Authors { get; set; }
+        public string Assembly { get; set; }
 
         public string CreateDateTimeString
         {
@@ -55,6 +56,7 @@ namespace Edison.Framework
 
         public TestResult(
             TestResultState state,
+            string assembly,
             MethodInfo test,
             object[] fixtureParameters,
             object[] testParameters,
@@ -67,6 +69,7 @@ namespace Edison.Framework
             IEnumerable<string> authors)
         {
             State = state;
+            Assembly = assembly;
             TestRepeatIndex = testRepeatIndex;
             TestFixtureRepeatIndex = testFixtureRepeatIndex;
             NameSpace = test.DeclaringType.FullName;

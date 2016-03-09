@@ -15,6 +15,7 @@ namespace Edison.Engine.Repositories.Interfaces
         string GetFileName(string path);
         string GetFullPath(string path);
         string GetExtension(string path);
+        string Combine(params string[] paths);
 
     }
 }

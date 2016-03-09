@@ -242,7 +242,7 @@ namespace Edison.Engine.Threading
                     : tests.Skip((threadCount - 1) * segment).Take(segment);
 
                 var thread = new TestThread(threadCount, ResultQueue, testsSegment, testFixture, testFixtureRepeat, testFixtureCase, activator,
-                    GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Parallel);
+                    GlobalSetupException, FixtureSetupException, ActivatorException, Context, ConcurrencyType.Parallel);
                 ParallelThreads.Add(thread);
             }
             
@@ -258,7 +258,7 @@ namespace Edison.Engine.Threading
             if (!EnumerableHelper.IsNullOrEmpty(singularTests))
             {
                 SingularThread = new TestThread(threadCount + 1, ResultQueue, singularTests, testFixture, testFixtureRepeat, testFixtureCase, activator,
-                    GlobalSetupException, FixtureSetupException, ActivatorException, ConcurrencyType.Serial);
+                    GlobalSetupException, FixtureSetupException, ActivatorException, Context, ConcurrencyType.Serial);
                 SingularTask = Task.Factory.StartNew(() => SingularThread.RunTests());
                 Task.WaitAll(SingularTask);
             }

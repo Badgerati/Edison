@@ -53,8 +53,9 @@ namespace Edison.Engine.Repositories
             var message = string.Format("<ErrorMessage>{0}</ErrorMessage>", ToHtmlString(result.ErrorMessage.Replace("Error Message: ", string.Empty)));
             var stackTrace = string.Format("<StackTrace>{0}</StackTrace>", ToHtmlString(result.StackTrace));
             var createDate = string.Format("<CreateDate>{0}</CreateDate>", ToHtmlString(result.CreateDateTimeString));
+            var assembly = string.Format("<Assembly>{0}</Assembly>", ToHtmlString(result.Assembly));
 
-            return string.Format("<TestResult>{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}</TestResult>{1}",
+            return string.Format("<TestResult>{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}</TestResult>{1}",
                 Environment.NewLine,
                 withTrail ? Environment.NewLine : string.Empty,
                 test,
@@ -62,7 +63,8 @@ namespace Edison.Engine.Repositories
                 timeTaken,
                 message,
                 stackTrace,
-                createDate);
+                createDate, 
+                assembly);
         }
 
 

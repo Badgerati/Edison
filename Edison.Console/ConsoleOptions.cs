@@ -50,7 +50,7 @@ namespace Edison.Console
         [Option("od", Required = false, HelpText = "Path to a directory where the output file produced should be stored.")]
         public string OutputDirectory { get; set; }
         
-        [Option("of", Required = false, HelpText = "Name of the output file created.")]
+        [Option("of", Required = false, DefaultValue = "ResultFile", HelpText = "Name of the output file created.")]
         public string OutputFile { get; set; }
 
         [Option("ot", Required = false, DefaultValue = OutputType.Json, HelpText = "Output file output type format.")]
@@ -73,6 +73,12 @@ namespace Edison.Console
 
         [Option("s", Required = false, HelpText = "Name of the test Suite from which to run tests/fixtures.")]
         public string Suite { get; set; }
+
+        [Option("sln", Required = false, HelpText = "Path to a solution file to extract assemblies for testing.")]
+        public string Solution { get; set; }
+
+        [Option("sconfig", Required = false, DefaultValue = "Debug", HelpText = "Solution's build configuration for locating assemblies.")]
+        public string SolutionConfiguration { get; set; }
 
 
 
