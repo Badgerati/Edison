@@ -33,7 +33,7 @@ namespace Edison.Console
         public bool DisableTestOutput { get; set; }
 
         [OptionList("e", Required = false, Separator = ',', HelpText = "List of categories that should be excluded.")]
-        public IList<string> Excludes { get; set; }
+        public IList<string> ExcludedCategories { get; set; }
 
         [OptionList("f", Required = false, Separator = ',', HelpText = "List of TestFixtures that should be run.")]
         public IList<string> Fixtures { get; set; }
@@ -42,7 +42,7 @@ namespace Edison.Console
         public int FixtureThreads { get; set; }
 
         [OptionList("i", Required = false, Separator = ',', HelpText = "List of categories that should be included.")]
-        public IList<string> Includes { get; set; }
+        public IList<string> IncludedCategories { get; set; }
 
         [Option("tid", Required = false, HelpText = "Test run ID that can be used to identify this run, used with the test run URL.")]
         public string TestRunId { get; set; }

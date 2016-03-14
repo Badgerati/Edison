@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Console.Test", "Edis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Injector", "Edison.Injector\Edison.Injector.csproj", "{8683F1F4-D9F5-42E6-82C0-92F7D95C1001}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Engine.Test", "Edison.Engine.Test\Edison.Engine.Test.csproj", "{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{8683F1F4-D9F5-42E6-82C0-92F7D95C1001}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8683F1F4-D9F5-42E6-82C0-92F7D95C1001}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8683F1F4-D9F5-42E6-82C0-92F7D95C1001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

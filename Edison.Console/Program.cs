@@ -5,9 +5,10 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
- 
+
 using Edison.Engine;
 using Edison.Engine.Contexts;
+using Edison.Engine.Core.Exceptions;
 using Edison.Injector;
 using System;
 
@@ -19,8 +20,7 @@ namespace Edison.Console
         public static void Main(string[] args)
         {
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-
-            var context = new EdisonContext();
+            var context = EdisonContext.Create();
 
             try
             {
@@ -39,10 +39,13 @@ namespace Edison.Console
             {
                 context.Run();
             }
+            catch (ValidationException vex)
+            {
+                Logger.Instance.WriteError(vex.Message);
+            }
             catch (Exception ex)
             {
                 Logger.Instance.WriteException(ex);
-                return;
             }
         }
 

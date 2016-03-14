@@ -54,36 +54,208 @@ namespace Edison.Engine.Contexts
 
         #endregion
 
-        #region Properties
+        #region Public Properties
 
-        public bool IsRunning { get; private set; }
-        public string CurrentAssembly { get; private set; }
+        /// <summary>
+        /// Gets or sets the assembly paths.
+        /// </summary>
+        /// <value>
+        /// The assembly paths.
+        /// </value>
+        public List<string> Assemblies { get; set; }
 
-        public List<string> AssemblyPaths { get; private set; }
-        public List<string> IncludedCategories { get; private set; }
-        public List<string> ExcludedCategories { get; private set; }
-        public List<string> Fixtures { get; private set; }
-        public List<string> Tests { get; private set; }
+        [Obsolete("This will be deprecated in future releases, use the Assemblies property instead.")]
+        public List<string> AssemblyPaths
+        {
+            get { return Assemblies; }
+            set { Assemblies = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the included categories.
+        /// </summary>
+        /// <value>
+        /// The included categories.
+        /// </value>
+        public List<string> IncludedCategories { get; set; }
+
+        /// <summary>
+        /// Gets or sets the excluded categories.
+        /// </summary>
+        /// <value>
+        /// The excluded categories.
+        /// </value>
+        public List<string> ExcludedCategories { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fixtures.
+        /// </summary>
+        /// <value>
+        /// The fixtures.
+        /// </value>
+        public List<string> Fixtures { get; set; }
+
+        /// <summary>
+        /// Gets the tests.
+        /// </summary>
+        /// <value>
+        /// The tests.
+        /// </value>
+        public List<string> Tests { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of fixture threads.
+        /// </summary>
+        /// <value>
+        /// The number of fixture threads.
+        /// </value>
         public int NumberOfFixtureThreads { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of test threads.
+        /// </summary>
+        /// <value>
+        /// The number of test threads.
+        /// </value>
         public int NumberOfTestThreads { get; set; }
+
+        /// <summary>
+        /// Gets or sets the output file name.
+        /// </summary>
+        /// <value>
+        /// The output file.
+        /// </value>
         public string OutputFile { get; set; }
-        public string OutputFolder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the output directory path.
+        /// </summary>
+        /// <value>
+        /// The output folder.
+        /// </value>
+        public string OutputDirectory { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the output.
+        /// </summary>
+        /// <value>
+        /// The type of the output.
+        /// </value>
         public OutputType OutputType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the console output.
+        /// </summary>
+        /// <value>
+        /// The type of the console output.
+        /// </value>
         public OutputType ConsoleOutputType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether file output should be disabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if file output is disabled; otherwise, <c>false</c>.
+        /// </value>
         public bool DisableFileOutput { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether console output should be disabled.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if console output is disabled; otherwise, <c>false</c>.
+        /// </value>
         public bool DisableConsoleOutput { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether test output should be disabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if test output is disabled; otherwise, <c>false</c>.
+        /// </value>
         public bool DisableTestOutput { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test result URL.
+        /// </summary>
+        /// <value>
+        /// The test result URL.
+        /// </value>
         public string TestResultURL { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test run identifier.
+        /// </summary>
+        /// <value>
+        /// The test run identifier.
+        /// </value>
         public string TestRunId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the context should re-run failed tests.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if re-run failed tests; otherwise, <c>false</c>.
+        /// </value>
         public bool RerunFailedTests { get; set; }
+
+        /// <summary>
+        /// Gets or sets the re-run threshold value.
+        /// </summary>
+        /// <value>
+        /// The rerun threshold.
+        /// </value>
         public int RerunThreshold { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test suite.
+        /// </summary>
+        /// <value>
+        /// The suite.
+        /// </value>
         public string Suite { get; set; }
+
+        /// <summary>
+        /// Gets or sets the solution.
+        /// </summary>
+        /// <value>
+        /// The solution.
+        /// </value>
         public string Solution { get; set; }
+
+        /// <summary>
+        /// Gets or sets the solution configuration.
+        /// </summary>
+        /// <value>
+        /// The solution configuration.
+        /// </value>
         public string SolutionConfiguration { get; set; }
 
-        private Stopwatch Timer = default(Stopwatch);
-        private TestResultDictionary ResultQueue;
+        #endregion
 
+        #region Public Readonly Properties
+        
+        /// <summary>
+        /// Gets a value indicating whether this instance is running.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// Gets the current assembly that is currently having its tests executed.
+        /// </summary>
+        /// <value>
+        /// The current assembly.
+        /// </value>
+        public string CurrentAssembly { get; private set; }
+
+        #endregion
+
+        #region Private Fields
+        
+        private TestResultDictionary ResultQueue;
         private IList<TestFixtureThread> ParallelThreads = default(IList<TestFixtureThread>);
         private Task ParallelTask = default(Task);
         private TestFixtureThread SingularThread = default(TestFixtureThread);
@@ -99,10 +271,12 @@ namespace Edison.Engine.Contexts
 
         #region Constructor
 
-        public EdisonContext()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EdisonContext"/> class.
+        /// </summary>
+        private EdisonContext()
         {
-            IsRunning = false;
-            AssemblyPaths = new List<string>(1);
+            Assemblies = new List<string>(1);
             IncludedCategories = new List<string>();
             ExcludedCategories = new List<string>();
             Fixtures = new List<string>();
@@ -111,41 +285,52 @@ namespace Edison.Engine.Contexts
             NumberOfTestThreads = 1;
             ConsoleOutputType = OutputType.Txt;
             OutputType = OutputType.Json;
-            OutputFolder = Environment.CurrentDirectory;
+            OutputDirectory = Environment.CurrentDirectory;
             OutputFile = "ResultFile";
-            DisableFileOutput = false;
-            DisableConsoleOutput = false;
-            DisableTestOutput = false;
             TestResultURL = string.Empty;
             IsRunning = true;
-            RerunFailedTests = false;
             RerunThreshold = 100;
+        }
+
+        /// <summary>
+        /// Creates an instance of an EdisonContext.
+        /// </summary>
+        /// <returns></returns>
+        public static EdisonContext Create()
+        {
+            return new EdisonContext();
         }
 
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Validates this instance.
+        /// </summary>
+        public void Validate()
+        {
+            ContextValidator.Validate(this);
+        }
+
+        /// <summary>
+        /// Runs this instance after passing validation, executing tests in the passed assemblies/solution.
+        /// </summary>
+        /// <returns></returns>
         public TestResultDictionary Run()
         {
-            //set logging output
-            if (DisableConsoleOutput)
-            {
-                Logger.Instance.Disable();
-                Logger.Instance.DisableConsole();
-            }
+            //run validation first
+            Validate();
 
-            if (DisableTestOutput)
-            {
-                Logger.Instance.DisableConsole();
-            }
+            //start timer
+            var timer = new Stopwatch();
+            timer.Start();
+
+            //set logging output
+            SetupLogging();
 
             //set output logging type
             Logger.Instance.ConsoleOutputType = ConsoleOutputType;
-
-            //start timer
-            Timer = new Stopwatch();
-            Timer.Start();
 
             //create queue
             ResultQueue = new TestResultDictionary(this);
@@ -155,64 +340,12 @@ namespace Edison.Engine.Contexts
             {
                 ResultQueue.OnTestResult += OnTestResult;
             }
-
-            //bind assembly event resolver
-            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-
-            //grab assemblies from solution file
-            if (!string.IsNullOrWhiteSpace(Solution))
-            {
-                var contents = FileRepository.ReadAllText(Solution, Encoding.UTF8);
-
-                var regex = new Regex("Project\\(\\\"{.*?}\\\"\\) = \\\".*?\\\", \\\"(?<path>(.*?\\\\)*)(?<project>.*?).csproj\\\", \\\"{.*?}\\\"");
-                var groups = regex.Matches(contents)
-                    .Cast<Match>()
-                    .Select(x => x.Groups)
-                    .ToList();
-
-                var solutionDir = PathRepository.GetDirectoryName(Solution);
-
-                foreach (var group in groups)
-                {
-                    var path = PathRepository.Combine(solutionDir, group["path"].Value, "bin", SolutionConfiguration, group["project"].Value + ".dll");
-                    if (!FileRepository.Exists(path))
-                    {
-                        continue;
-                    }
-
-                    AssemblyPaths.Add(path);
-                }
-            }
-
+            
             //loop through all assemblies, running their tests
-            var assemblies = AssemblyPaths.Distinct();
-            foreach (var assemblyPath in assemblies)
-            {
-                CurrentAssembly = PathRepository.GetFileName(assemblyPath);
-                var assembly = AssemblyRepository.LoadFile(assemblyPath);
-
-                //global setup
-                var globalSetupFixture = AssemblyRepository.GetTypes<SetupFixtureAttribute>(assembly, default(IList<string>), default(IList<string>), null).SingleOrDefault();
-                var globalActivator = default(object);
-                var globalSetupEx = default(Exception);
-
-                if (globalSetupFixture != default(Type))
-                {
-                    globalActivator = Activator.CreateInstance(globalSetupFixture, null);
-                    globalSetupEx = RunGlobalSetup(globalSetupFixture, globalActivator);
-                }
-
-                //test fixtures an threads
-                RunThreads(assembly, globalSetupEx);
-
-                //global teardown
-                if (globalSetupFixture != default(Type))
-                {
-                    RunGlobalTeardown(globalSetupFixture, globalActivator);
-                }
-            }
-
-            Timer.Stop();
+            RunAssemblies();
+            
+            //stop the timer
+            timer.Stop();
 
             //if we have single/none line logging, post the failed test messages
             if (Logger.Instance.IsSingleOrNoLined && ResultQueue.FailedTestResults.Any())
@@ -221,39 +354,21 @@ namespace Edison.Engine.Contexts
             }
             
             //create result file and write
-            if (!DisableFileOutput)
-            {
-                Logger.Instance.WriteDoubleLine(Environment.NewLine);
-
-                if (Logger.Instance.IsSingleOrNoLined)
-                {
-                    Logger.Instance.WriteMessage(Environment.NewLine);
-                }
-
-                Logger.Instance.WriteMessage("Creating output file...");
-                var file = Logger.Instance.CreateFile(OutputFolder, OutputFile, OutputType);
-
-                if (!string.IsNullOrEmpty(file))
-                {
-                    WriteResultsToFile(file);
-                    Logger.Instance.WriteMessage("Output file created:\n" + file);
-                }
-            }            
-            else
-            {
-                Logger.Instance.WriteMessage("Output file creation disabled");
-            }
+            WriteResultsToFile();
 
             //write results and timer
             Logger.Instance.WriteDoubleLine(Environment.NewLine);
             Logger.Instance.WriteMessage(ResultQueue.ToTotalString());
-            Logger.Instance.WriteMessage(string.Format("Total time: {0}", Timer.Elapsed));
+            Logger.Instance.WriteMessage(string.Format("Total time: {0}", timer.Elapsed));
             Logger.Instance.WriteDoubleLine(postcede: Environment.NewLine);
 
             IsRunning = false;
             return ResultQueue;
         }
 
+        /// <summary>
+        /// Interrupts this instance.
+        /// </summary>
         public void Interrupt()
         {
             if (ParallelThreads != default(IList<TestFixtureThread>))
@@ -284,6 +399,56 @@ namespace Edison.Engine.Contexts
             var name = new AssemblyName(args.Name).Name;
             var path = PathRepository.GetDirectoryName(args.RequestingAssembly.Location);
             return AssemblyRepository.LoadFrom(path + "\\" + name + ".dll");
+        }
+
+        private void RunAssemblies()
+        {
+            //bind assembly event resolver
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+
+            //loop through all assemblies, running their tests
+            var assemblies = Assemblies.Distinct();
+            foreach (var assemblyPath in assemblies)
+            {
+                CurrentAssembly = PathRepository.GetFileName(assemblyPath);
+                var assembly = AssemblyRepository.LoadFile(assemblyPath);
+
+                //global setup
+                var globalSetupFixture = AssemblyRepository.GetTypes<SetupFixtureAttribute>(assembly, default(IList<string>), default(IList<string>), null).SingleOrDefault();
+                var globalActivator = default(object);
+                var globalSetupEx = default(Exception);
+
+                if (globalSetupFixture != default(Type))
+                {
+                    globalActivator = Activator.CreateInstance(globalSetupFixture, null);
+                    globalSetupEx = RunGlobalSetup(globalSetupFixture, globalActivator);
+                }
+
+                //test fixtures an threads
+                RunThreads(assembly, globalSetupEx);
+
+                //global teardown
+                if (globalSetupFixture != default(Type))
+                {
+                    RunGlobalTeardown(globalSetupFixture, globalActivator);
+                }
+            }
+        }
+
+        private void SetupLogging()
+        {
+            if (DisableConsoleOutput)
+            {
+                Logger.Instance.Disable();
+                Logger.Instance.DisableConsole();
+            }
+
+            if (DisableTestOutput)
+            {
+                Logger.Instance.DisableConsole();
+            }
+
+            Logger.Instance.ConsoleOutputType = ConsoleOutputType;
         }
 
         private Exception RunGlobalSetup(Type fixture, object activator)
@@ -324,25 +489,46 @@ namespace Edison.Engine.Contexts
             }
         }
                 
-        private void WriteResultsToFile(string file)
+        private void WriteResultsToFile()
         {
-            var results = ResultQueue.TestResults.ToList();
-            var output = OutputRepositoryFactory.Get(OutputType);
-            
-            if (!string.IsNullOrEmpty(output.OpenTag))
+            if (DisableFileOutput)
             {
-                Logger.Instance.WriteToFile(file, output.OpenTag + Environment.NewLine);
+                Logger.Instance.WriteMessage("Output file creation disabled");
+                return;
             }
 
-            for (var i = 0; i < results.Count; i++)
+            Logger.Instance.WriteDoubleLine(Environment.NewLine);
+
+            if (Logger.Instance.IsSingleOrNoLined)
             {
-                Logger.Instance.WriteResultToFile(file, i == (results.Count - 1), results[i], output);
+                Logger.Instance.WriteMessage(Environment.NewLine);
             }
 
-            if (!string.IsNullOrEmpty(output.CloseTag))
+            Logger.Instance.WriteMessage("Creating output file...");
+            var file = Logger.Instance.CreateFile(OutputDirectory, OutputFile, OutputType);
+
+            if (!string.IsNullOrWhiteSpace(file))
             {
-                Logger.Instance.WriteToFile(file, Environment.NewLine + output.CloseTag);
-            }
+                var results = ResultQueue.TestResults.ToList();
+                var output = OutputRepositoryFactory.Get(OutputType);
+
+                if (!string.IsNullOrWhiteSpace(output.OpenTag))
+                {
+                    Logger.Instance.WriteToFile(file, output.OpenTag + Environment.NewLine);
+                }
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    Logger.Instance.WriteResultToFile(file, i == (results.Count - 1), results[i], output);
+                }
+
+                if (!string.IsNullOrWhiteSpace(output.CloseTag))
+                {
+                    Logger.Instance.WriteToFile(file, Environment.NewLine + output.CloseTag);
+                }
+
+                Logger.Instance.WriteMessage("Output file created:\n" + file);
+            }            
         }
 
         private void WriteFailedResultsToConsole()

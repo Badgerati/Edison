@@ -154,7 +154,7 @@ namespace Edison.Engine
 
         public void WriteError(string error)
         {
-            OutStream.WriteLine(string.Format("{1}[ERROR]: {0}{1}", error, Environment.NewLine));
+            ErrorStream.WriteLine(string.Format("{1}[ERROR]: {0}{1}", error, Environment.NewLine));
         }
 
         public void WriteMessage(string message, bool singleLine = false)
