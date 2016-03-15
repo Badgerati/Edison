@@ -175,12 +175,14 @@ namespace Edison.Engine.Test.Contexts
         public void ValidSlnForSolutionTest()
         {
             var sln = "dummy/path/to.sln";
-            var dll = @"dummy\path\Edison.Framework\bin\Debug\Edison.Framework.dll";
+            var dllWin = @"dummy\path\Edison.Framework\bin\Debug\Edison.Framework.dll";
+            var dllMon = dllWin.Replace('\\', '/');
 
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(sln)).Returns(true);
             fileMock.Setup(x => x.ReadAllText(sln, Encoding.UTF8)).Returns("Project(\"{ FAE04EC0 - 301F - 11D3 - BF4B - 00C04F79EFBC}\") = \"Edison.Framework\", \"Edison.Framework\\Edison.Framework.csproj\", \"{ D7081147 - 8C02 - 4400 - 9B30 - 59D0AEC9591B}\"");
-            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            fileMock.Setup(x => x.Exists(dllWin)).Returns(true);
+            fileMock.Setup(x => x.Exists(dllMon)).Returns(true);
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
             var context = EdisonContext.Create();
@@ -188,7 +190,15 @@ namespace Edison.Engine.Test.Contexts
 
             ContextValidator.Validate(context, new AssemblyValidator());
             Assert.AreEqual(1, context.Assemblies.Count);
-            Assert.Contains(dll, context.Assemblies);
+
+            if (context.Assemblies.Contains(dllWin))
+            {
+                Assert.Contains(dllWin, context.Assemblies);
+            }
+            else
+            {
+                Assert.Contains(dllMon, context.Assemblies);
+            }
         }
 
         [Test]
@@ -211,13 +221,15 @@ namespace Edison.Engine.Test.Contexts
         public void ValidSolutionAndAssemblyTest()
         {
             var sln = "dummy/path/to.sln";
-            var dll1 = @"dummy\path\Edison.Framework\bin\Debug\Edison.Framework.dll";
+            var dll1Win = @"dummy\path\Edison.Framework\bin\Debug\Edison.Framework.dll";
+            var dll1Mon = dll1Win.Replace('\\', '/');
             var dll2 = "dummy/path/to.dll";
 
             var fileMock = new Mock<IFileRepository>();
             fileMock.Setup(x => x.Exists(sln)).Returns(true);
             fileMock.Setup(x => x.ReadAllText(sln, Encoding.UTF8)).Returns("Project(\"{ FAE04EC0 - 301F - 11D3 - BF4B - 00C04F79EFBC}\") = \"Edison.Framework\", \"Edison.Framework\\Edison.Framework.csproj\", \"{ D7081147 - 8C02 - 4400 - 9B30 - 59D0AEC9591B}\"");
-            fileMock.Setup(x => x.Exists(dll1)).Returns(true);
+            fileMock.Setup(x => x.Exists(dll1Win)).Returns(true);
+            fileMock.Setup(x => x.Exists(dll1Mon)).Returns(true);
             fileMock.Setup(x => x.Exists(dll2)).Returns(true);
             DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
 
@@ -227,8 +239,16 @@ namespace Edison.Engine.Test.Contexts
 
             ContextValidator.Validate(context, new AssemblyValidator());
             Assert.AreEqual(2, context.Assemblies.Count);
-            Assert.Contains(dll1, context.Assemblies);
             Assert.Contains(dll2, context.Assemblies);
+
+            if (context.Assemblies.Contains(dll1Win))
+            {
+                Assert.Contains(dll1Win, context.Assemblies);
+            }
+            else
+            {
+                Assert.Contains(dll1Mon, context.Assemblies);
+            }
         }
 
         #endregion

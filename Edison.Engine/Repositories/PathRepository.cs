@@ -39,7 +39,7 @@ namespace Edison.Engine.Repositories
 
         public string Combine(params string[] paths)
         {
-            return Path.Combine(paths.Select(x => x.Trim('\\', '/')).ToArray()).Replace('/', '\\');
+            return Path.Combine(paths.Select(x => x.Trim('\\', '/')).ToArray());
         }
 
     }
