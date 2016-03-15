@@ -22,6 +22,7 @@ using Edison.Framework;
 using Edison.Framework.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
+using Edison.Engine.Core.Exceptions;
 
 namespace Edison.GUI
 {
@@ -68,7 +69,6 @@ namespace Edison.GUI
 
         private EdisonContext EdisonContext = default(EdisonContext);
         private Thread MainThread = default(Thread);
-        private Thread UpdateThread = default(Thread);
 
         #endregion
 
@@ -294,29 +294,8 @@ namespace Edison.GUI
         private void EdisonContext_OnTestResult(TestResult result)
         {
             CurrentNumberOfTestsRun++;
-
-            if (result.State == TestResultState.Success)
-            {
-                return;
-            }
-
-            if (FailedTestListBox.IsDisposed)
-            {
-                return;
-            }
-
-            try
-            {
-                if (FailedTestListBox.InvokeRequired)
-                {
-                    FailedTestListBox.BeginInvoke((MethodInvoker)delegate { FailedTestListBox.Items.Add(result); });
-                }
-                else
-                {
-                    FailedTestListBox.Items.Add(result);
-                }
-            }
-            catch (ObjectDisposedException) { }
+            AddFailedTestResult(result);
+            UpdateProgress();
         }
 
         private void SuiteCheckList_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -377,9 +356,7 @@ namespace Edison.GUI
 
         private void RunTests(List<string> tests, List<string> fixtures)
         {
-            if (Assembly == default(Assembly)
-                || (MainThread != default(Thread) && MainThread.ThreadState == ThreadState.Running)
-                || (UpdateThread != default(Thread) && UpdateThread.ThreadState == ThreadState.Running))
+            if (Assembly == default(Assembly) || (MainThread != default(Thread) && MainThread.ThreadState == ThreadState.Running))
             {
                 return;
             }
@@ -405,36 +382,39 @@ namespace Edison.GUI
 
             MainThread = new Thread(() => Run(EdisonContext));
             MainThread.Start();
-
-            UpdateThread = new Thread(() => UpdateProgress(EdisonContext));
-            UpdateThread.Start();
-
+            
             OutputRichText.Focus();
             RunTestsButton.Text = "Stop";
         }
 
         private void Run(EdisonContext context)
         {
-            context.Run();
-            SetRunTestButton("Run");            
-        }
-
-        private void UpdateProgress(EdisonContext context)
-        {
-            while (context.IsRunning)
+            try
             {
-                Thread.Sleep(100);
-
-                if (CurrentNumberOfTestsRun == 0 || TotalNumberOfTestsRunning == 0)
-                {
-                    continue;
-                }
-                
-                var progress = (int)(((double)CurrentNumberOfTestsRun / (double)TotalNumberOfTestsRunning) * 100.0);
-                SetProgress(Math.Max(0, Math.Min(97, progress)));
+                context.Run();
+            }
+            catch (ValidationException vex)
+            {
+                MessageBox.Show(vex.Message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("{0}{2}{2}{1}", ex.Message, ex.StackTrace, Environment.NewLine), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            SetRunTestButton("Run");
             SetProgress(100);
+        }
+
+        private void UpdateProgress()
+        {
+            if (CurrentNumberOfTestsRun == 0 || TotalNumberOfTestsRunning == 0)
+            {
+                return;
+            }
+                
+            var progress = (int)(((double)CurrentNumberOfTestsRun / (double)TotalNumberOfTestsRunning) * 100.0);
+            SetProgress(Math.Max(0, Math.Min(97, progress)));
         }
 
         private void SetProgress(int progress)
@@ -453,6 +433,32 @@ namespace Edison.GUI
                 else
                 {
                     TestProgressBar.Value = progress;
+                }
+            }
+            catch (ObjectDisposedException) { }
+        }
+
+        private void AddFailedTestResult(TestResult result)
+        {
+            if (result.State == TestResultState.Success)
+            {
+                return;
+            }
+
+            if (FailedTestListBox.IsDisposed)
+            {
+                return;
+            }
+
+            try
+            {
+                if (FailedTestListBox.InvokeRequired)
+                {
+                    FailedTestListBox.BeginInvoke((MethodInvoker)delegate { FailedTestListBox.Items.Add(result); });
+                }
+                else
+                {
+                    FailedTestListBox.Items.Add(result);
                 }
             }
             catch (ObjectDisposedException) { }
@@ -481,8 +487,8 @@ namespace Edison.GUI
 
         private void SetupContext(List<string> tests, List<string> fixtures)
         {
-            EdisonContext = new EdisonContext();
-            EdisonContext.AssemblyPaths.Add(FilePath);
+            EdisonContext = EdisonContext.Create();
+            EdisonContext.Assemblies.Add(FilePath);
             EdisonContext.NumberOfFixtureThreads = (int)FixtureThreadNumericBox.Value;
             EdisonContext.NumberOfTestThreads = (int)TestThreadNumericBox.Value;
             EdisonContext.DisableConsoleOutput = DisableConsoleCheckBox.Checked;
@@ -603,11 +609,6 @@ namespace Edison.GUI
 
         private void AbortThreads()
         {
-            if (UpdateThread != default(Thread))
-            {
-                UpdateThread.Abort();
-            }
-
             if (MainThread != default(Thread))
             {
                 MainThread.Abort();

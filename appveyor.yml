@@ -21,3 +21,4 @@ test:
   assemblies:
     - ./Edison.Console.Test/bin/Release/Edison.Console.Test.dll
     - ./Edison.Framework.Test/bin/Release/Edison.Framework.Test.dll
+    - ./Edison.Engine.Test/bin/Release/Edison.Engine.Test.dll

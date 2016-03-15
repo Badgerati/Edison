@@ -19,5 +19,12 @@ namespace Edison.Engine.Utilities.Helpers
             return enumerable == default(IEnumerable<T>) || !enumerable.Any();
         }
 
+        public static IEnumerable<T> SafeGuard<T>(IEnumerable<T> enumerable)
+        {
+            return enumerable == default(IEnumerable<T>)
+                ? Enumerable.Empty<T>()
+                : enumerable;
+        }
+
     }
 }

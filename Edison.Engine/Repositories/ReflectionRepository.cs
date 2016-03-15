@@ -31,11 +31,21 @@ namespace Edison.Engine.Repositories
 
         #region MemberInfo Calls
 
+        /// <summary>
+        /// Gets the repeat value.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public RepeatAttribute GetRepeatValue(MemberInfo member)
         {
             return member.GetCustomAttribute<RepeatAttribute>() ?? SingleRepeat;
         }
 
+        /// <summary>
+        /// Gets the authors.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public IEnumerable<string> GetAuthors(MemberInfo member)
         {
             var authorAttributes = member.GetCustomAttributes<AuthorAttribute>();
@@ -45,16 +55,31 @@ namespace Edison.Engine.Repositories
                 : authorAttributes.Select(a => a.Name);
         }
 
+        /// <summary>
+        /// Gets the full namespace.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public string GetFullNamespace(MemberInfo member)
         {
             return member.DeclaringType.FullName + "." + member.Name;
         }
 
+        /// <summary>
+        /// Gets the namespace.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public string GetNamespace(MemberInfo member)
         {
             return member.DeclaringType.FullName;
         }
 
+        /// <summary>
+        /// Gets the test cases.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public IEnumerable<TestCaseAttribute> GetTestCases(MemberInfo member)
         {
             var cases = member.GetCustomAttributes<TestCaseAttribute>();
@@ -63,6 +88,11 @@ namespace Edison.Engine.Repositories
                 : EmptyTestCase;
         }
 
+        /// <summary>
+        /// Gets the version.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public string GetVersion(MemberInfo member)
         {
             var versionAttribute = member.GetCustomAttributes().OfType<VersionAttribute>();
@@ -72,11 +102,25 @@ namespace Edison.Engine.Repositories
                 : versionAttribute.First().Value;
         }
 
+        /// <summary>
+        /// Gets the categories.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
         public IEnumerable<string> GetCategories(MemberInfo member)
         {
             return member.GetCustomAttributes<CategoryAttribute>().Select(x => x.Name);
         }
 
+        /// <summary>
+        /// Determines whether the specified member has valid attributes.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="member">The member.</param>
+        /// <param name="includedCategories">The included categories.</param>
+        /// <param name="excludedCategories">The excluded categories.</param>
+        /// <param name="suite">The suite.</param>
+        /// <returns></returns>
         public bool HasValidAttributes<T>(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, string suite) where T : Attribute
         {
             var attributes = member.GetCustomAttributes();
@@ -87,6 +131,12 @@ namespace Edison.Engine.Repositories
                 && HasValidSuite(member, suite);
         }
 
+        /// <summary>
+        /// Determines whether the specified member has a valid suite.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <param name="suite">The suite.</param>
+        /// <returns></returns>
         public bool HasValidSuite(MemberInfo member, string suite)
         {
             if (string.IsNullOrWhiteSpace(suite))
@@ -98,6 +148,14 @@ namespace Edison.Engine.Repositories
             return suiteAttr != default(SuiteAttribute) && suiteAttr.Name.Equals(suite, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        /// <summary>
+        /// Determines whether the specified member has valid categories.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <param name="includedCategories">The included categories.</param>
+        /// <param name="excludedCategories">The excluded categories.</param>
+        /// <param name="testFixtureDefault">if set to <c>true</c> [test fixture default].</param>
+        /// <returns></returns>
         public bool HasValidCategories(MemberInfo member, IList<string> includedCategories, IList<string> excludedCategories, bool testFixtureDefault = true)
         {
             // if no categories are passed, just return true
@@ -151,6 +209,13 @@ namespace Edison.Engine.Repositories
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the specified member has a valid concurrency.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <param name="concurrencyType">Type of the concurrency.</param>
+        /// <param name="defaultConcurreny">The default concurreny.</param>
+        /// <returns></returns>
         public bool HasValidConcurrency(MemberInfo member, ConcurrencyType concurrencyType, ConcurrencyType defaultConcurreny = ConcurrencyType.Parallel)
         {
             var concurrency = member.GetCustomAttribute<ConcurrencyAttribute>();
@@ -164,6 +229,11 @@ namespace Edison.Engine.Repositories
 
         #region Method Calls
 
+        /// <summary>
+        /// Gets the expected exception.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns></returns>
         public ExpectedExceptionAttribute GetExpectedException(MethodInfo method)
         {
             var exceptionAttribute = method.GetCustomAttributes().OfType<ExpectedExceptionAttribute>();
@@ -173,17 +243,33 @@ namespace Edison.Engine.Repositories
                 : exceptionAttribute.First();
         }
 
+        /// <summary>
+        /// Determines whether the specified method has parameters.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns></returns>
         public bool HasParameters(MethodInfo method)
         {
             var parameters = GetParameters(method);
             return parameters != default(ParameterInfo[]) && parameters.Any();
         }
 
+        /// <summary>
+        /// Gets the parameters.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns></returns>
         public ParameterInfo[] GetParameters(MethodInfo method)
         {
             return method.GetParameters();
         }
 
+        /// <summary>
+        /// Invokes the specified method.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <param name="activator">The activator.</param>
+        /// <param name="parameters">The parameters.</param>
         public void Invoke(MethodInfo method, object activator, params object[] parameters)
         {
             if (method != default(MethodInfo))
@@ -199,6 +285,12 @@ namespace Edison.Engine.Repositories
             }
         }
 
+        /// <summary>
+        /// Invokes the specified methods.
+        /// </summary>
+        /// <param name="methods">The methods.</param>
+        /// <param name="activator">The activator.</param>
+        /// <param name="parameters">The parameters.</param>
         public void Invoke(IEnumerable<MethodInfo> methods, object activator, params object[] parameters)
         {
             if (methods != default(IEnumerable<MethodInfo>))
@@ -214,6 +306,16 @@ namespace Edison.Engine.Repositories
 
         #region Class Calls
 
+        /// <summary>
+        /// Gets the methods.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="includedCategories">The included categories.</param>
+        /// <param name="excludedCategories">The excluded categories.</param>
+        /// <param name="tests">The tests.</param>
+        /// <param name="suite">The suite.</param>
+        /// <returns></returns>
         public IEnumerable<MethodInfo> GetMethods<T>(Type type,
             IList<string> includedCategories = default(List<string>),
             IList<string> excludedCategories = default(List<string>),
@@ -225,7 +327,12 @@ namespace Edison.Engine.Repositories
                 .Where(t => HasValidAttributes<T>(t, includedCategories, excludedCategories, suite))
                 .Where(t => tests == default(IList<string>) || !tests.Any() || tests.Contains(GetFullNamespace(t)));
         }
-        
+
+        /// <summary>
+        /// Gets the suites.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
         public IEnumerable<string> GetSuites(Type type)
         {
             return type.GetCustomAttributes<SuiteAttribute>().Select(x => x.Name);

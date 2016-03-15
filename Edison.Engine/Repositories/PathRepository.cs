@@ -9,6 +9,7 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.IO;
+using System.Linq;
 
 namespace Edison.Engine.Repositories
 {
@@ -38,7 +39,7 @@ namespace Edison.Engine.Repositories
 
         public string Combine(params string[] paths)
         {
-            return Path.Combine(paths);
+            return Path.Combine(paths.Select(x => x.Trim('\\', '/')).ToArray()).Replace('/', '\\');
         }
 
     }
