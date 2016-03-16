@@ -11,7 +11,7 @@ using System;
 
 namespace Edison.Framework
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public class ConcurrencyAttribute : Attribute
     {
         public readonly ConcurrencyType ConcurrencyType;

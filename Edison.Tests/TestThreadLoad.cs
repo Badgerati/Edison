@@ -7,11 +7,13 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
+using Edison.Framework.Enums;
 using System;
 
 namespace Edison.Tests
 {
     [TestFixture]
+    [Concurrency(ConcurrencyType.Serial)]
     public class TestThreadLoad
     {
 

@@ -40,6 +40,7 @@ namespace Edison.Tests
         }
 
         [Test]
+        [Concurrency(ConcurrencyType.Serial)]
         public void TestMethod4()
         {
             Thread.Sleep(1000);

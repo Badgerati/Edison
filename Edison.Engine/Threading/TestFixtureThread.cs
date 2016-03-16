@@ -212,6 +212,7 @@ namespace Edison.Engine.Threading
         private void RunTests(Type testFixture, int testFixtureRepeat, TestCaseAttribute testFixtureCase, object activator)
         {
             var tests = ReflectionRepository.GetMethods<TestAttribute>(testFixture, Context.IncludedCategories, Context.ExcludedCategories, Context.Tests).ToList();
+            var singularTests = default(List<MethodInfo>);
 
             if (!tests.Any())
             {
@@ -222,6 +223,7 @@ namespace Edison.Engine.Threading
 
             if (NumberOfTestThreads > 1 && tests.Count() != 1)
             {
+                singularTests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name).ToList();
                 tests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Parallel, ConcurrencyType)).OrderBy(t => t.Name).ToList();
             }
 
@@ -252,10 +254,8 @@ namespace Edison.Engine.Threading
             #endregion
 
             #region Singular
-
-            var singularTests = tests.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial, ConcurrencyType)).OrderBy(t => t.Name).ToList();
-
-            if (!EnumerableHelper.IsNullOrEmpty(singularTests))
+            
+            if (NumberOfTestThreads > 1 && !EnumerableHelper.IsNullOrEmpty(singularTests))
             {
                 SingularThread = new TestThread(threadCount + 1, ResultQueue, singularTests, testFixture, testFixtureRepeat, testFixtureCase, activator,
                     GlobalSetupException, FixtureSetupException, ActivatorException, Context, ConcurrencyType.Serial);

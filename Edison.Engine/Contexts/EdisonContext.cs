@@ -561,6 +561,8 @@ namespace Edison.Engine.Contexts
         {
             // get all possible test fixtures
             var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests, Suite).ToList();
+            var singularTestFixtures = default(List<Type>);
+
             if (!testFixtures.Any())
             {
                 return;
@@ -570,6 +572,7 @@ namespace Edison.Engine.Contexts
             // if we're running in parallel, remove any singular test fixtures
             if (NumberOfFixtureThreads > 1 && testFixtures.Count() != 1)
             {
+                singularTestFixtures = testFixtures.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial)).OrderBy(t => t.FullName).ToList();
                 testFixtures = testFixtures.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Parallel)).OrderBy(t => t.FullName).ToList();
             }
 
@@ -604,12 +607,9 @@ namespace Edison.Engine.Contexts
             #region Singular
 
             // setup - if needed - the singular thread
-            var singularTestFixtures = testFixtures.Where(t => ReflectionRepository.HasValidConcurrency(t, ConcurrencyType.Serial)).OrderBy(t => t.FullName).ToList();
-
-            // run the singular thread
-            if (!EnumerableHelper.IsNullOrEmpty(singularTestFixtures))
+            if (NumberOfFixtureThreads > 1 && !EnumerableHelper.IsNullOrEmpty(singularTestFixtures))
             {
-                SingularThread = new TestFixtureThread(threadCount + 1, this, ResultQueue, singularTestFixtures, globalSetupEx, ConcurrencyType.Serial, NumberOfTestThreads);
+                SingularThread = new TestFixtureThread(threadCount, this, ResultQueue, singularTestFixtures, globalSetupEx, ConcurrencyType.Serial, NumberOfTestThreads);
                 SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
                 Task.WaitAll(SingularTask);
             }
@@ -632,7 +632,7 @@ namespace Edison.Engine.Contexts
                 {
                     var failedTests = ResultQueue.FailedTestResults.Select(x => x.BasicName).ToList();
                     var rerunTestFixtures = AssemblyRepository.GetTestFixtures(assembly, default(IList<string>), default(IList<string>), default(IList<string>), failedTests, null).ToList();
-                    SingularThread = new TestFixtureThread(threadCount + 2, this, ResultQueue, rerunTestFixtures, default(Exception), ConcurrencyType.Serial, 1);
+                    SingularThread = new TestFixtureThread(threadCount + 1, this, ResultQueue, rerunTestFixtures, default(Exception), ConcurrencyType.Serial, 1);
                     SingularTask = Task.Factory.StartNew(() => SingularThread.RunTestFixtures());
                     Task.WaitAll(SingularTask);
                 }
