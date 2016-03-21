@@ -1,0 +1,11 @@
+engines:
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+
+ratings:
+  paths:
+    - "**.cs"
+
+exclude_paths: []
