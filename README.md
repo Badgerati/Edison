@@ -3,10 +3,10 @@ Edison
 
 [![Build Status](https://travis-ci.org/Badgerati/Edison.svg?branch=master)](https://travis-ci.org/Badgerati/Edison)
 [![Build status](https://ci.appveyor.com/api/projects/status/i4fa3crkr6mrnjgt?svg=true)](https://ci.appveyor.com/project/Badgerati/edison)
+[![Code Climate](https://codeclimate.com/github/Badgerati/Edison/badges/gpa.svg)](https://codeclimate.com/github/Badgerati/Edison)
 
 Edison is designed to be a more performant unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.
-
 
 Features
 ========
@@ -18,7 +18,6 @@ Features
 * Console application from which to run your tests.
 * GUI for a more visual look on running tests.
 * Ability to re-run tests that have failed, for ones that may pass if run seconds later.
-
 
 Installing Edison
 =================
@@ -35,7 +34,6 @@ Also with [NuGet](https://www.nuget.org/packages/Edison.Framework "NuGet") as we
 Install-Package Edison.Framework
 ```
 
-
 Usage
 =====
 
@@ -48,26 +46,26 @@ Using Edison is very similar to other test frameworks. You have a [Test] Attribu
 [TestFixture]
 public class TestClass
 {
-	[Setup]
-	public void Setup()
-	{
-		//stuff
-	}
+    [Setup]
+    public void Setup()
+    {
+        //stuff
+    }
 
-	[Teardown]
-	public void Teardown(TestResult result)
-	{
-		//stuff
-	}
+    [Teardown]
+    public void Teardown(TestResult result)
+    {
+        //stuff
+    }
 
-	[Test]
-	[Category("Name")]
-	[TestCase(1)]
-	[TestCase(2)]
-	public void Test(int value)
-	{
-		AssertFactory.Instance.AreEqual(2, value, "Argh no it's an error!!!1");
-	}
+    [Test]
+    [Category("Name")]
+    [TestCase(1)]
+    [TestCase(2)]
+    public void Test(int value)
+    {
+        AssertFactory.Instance.AreEqual(2, value, "Argh no it's an error!!!1");
+    }
 }
 ```
 
@@ -81,7 +79,6 @@ In the example above we have:
 
 Furthermore, there's the Asserts class. In Edison the main `Assert` class implements the `IAssert` interface. To use the `Assert` class you can either create an instance of it for each Test, or you can use the `AssertFactory` class.
 The `AssertFactory` class contains a lazy Instance property which returns the `IAssert` class being used for the test assembly. This means you can create your own `CustomAssert` class that inherits `IAssert` and do `AssertFactory.Instance = new CustomAssert()` and any calls to `AssertFactory.Instance` will return your `CustomAssert`. This makes it far simpler to have your own assert logic in your test framework. If you don't set the `AssertFactory.Instance` then this is default to be the inbuilt `Assert` logic.
-
 
 Console and Engine
 ------------------
@@ -128,7 +125,6 @@ To see more parameters use:
 .\Edison.Console.exe --help
 ```
 
-
 Building the Solution
 ---------------------
 
@@ -137,18 +133,15 @@ You are now also able to download the core binaries and executables from the [Ed
 Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console or Edison.GUI set as default).
 This will generate the Edison.Console/GUI executables and the Edison.Framework library for usage in your test framework.
 
-
 To Do
 =====
 
 * Website with service for automatically running tests
 
-
 Bugs and Feature Requests
 =========================
 
 For any bugs you may find or features you wish to request, please create an [issue](https://github.com/Badgerati/Edison/issues "Issues") in GitHub.
-
 
 License
 =======
