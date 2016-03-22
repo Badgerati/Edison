@@ -20,6 +20,8 @@ Edison is an open source unit/integration test framework for .NET.
  * Console application from which to run your tests.
  * GUI for a more visual look on running tests.
  * Ability to re-run tests that have failed.
+ * Run test cases and repeats in parallel.
+ * Supply a solution file for extracting test assemblies.
     </description>
     <projectUrl>http://badgerati.github.io/Edison/</projectUrl>
     <projectSourceUrl>https://github.com/Badgerati/Edison</projectSourceUrl>

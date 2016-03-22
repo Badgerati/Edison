@@ -18,6 +18,8 @@ Features
 * Console application from which to run your tests.
 * GUI for a more visual look on running tests.
 * Ability to re-run tests that have failed, for ones that may pass if run seconds later.
+* Run test cases and repeats in parallel.
+* Supply a solution file for extracting test assemblies.
 
 Installing Edison
 =================
