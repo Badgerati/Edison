@@ -63,7 +63,7 @@ namespace Edison.Engine.Utilities.Structures
 
         public int TotalFailedCount
         {
-            get { return Results.Count(x => x.Value.State != TestResultState.Success); }
+            get { return Results.Count(x => x.Value.State != TestResultState.Success && x.Value.State != TestResultState.Ignored); }
         }
 
         public int PassedCount
