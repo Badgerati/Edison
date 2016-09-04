@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Edison.Console
 {
@@ -48,9 +50,9 @@ namespace Edison.Console
         }
 
         #endregion
-        
+
         #region Parser
-        
+
         public static bool Parse(EdisonContext context, string[] args)
         {
             if (context == default(EdisonContext))
@@ -58,25 +60,48 @@ namespace Edison.Console
                 throw new Exception("No EdisonContext supplied for parsing parameters");
             }
 
+            // Check to see if any arguments were passed, or that an Edisonfile exists
             var options = new ConsoleOptions();
-            if (args == default(string[]) || args.Length == 0)
+            var anyArgs = (args != default(string[]) && args.Length > 0);
+            if (!anyArgs && !File.Exists(ConsoleOptions.EDISONFILE))
             {
                 Logger.Instance.WriteMessage(options.GetUsage());
                 return false;
             }
-            
+
+            // Attempt to parse then into a the options
             if (!Parser.Default.ParseArguments(args, options))
             {
                 Logger.Instance.WriteMessage(options.GetUsage());
                 return false;
             }
 
+            // If there were no arguments passed, or the option's Edisonfile is set, serialize the options
+            if (!anyArgs || !string.IsNullOrWhiteSpace(options.Edisonfile))
+            {
+                var file = string.IsNullOrWhiteSpace(options.Edisonfile) ? ConsoleOptions.EDISONFILE : options.Edisonfile;
+                if (!File.Exists(file))
+                {
+                    Logger.Instance.WriteError(string.Format("Edisonfile does not exist: {0}", file));
+                    return false;
+                }
+
+                var yaml = new Deserializer(namingConvention: new UnderscoredNamingConvention());
+
+                using (var reader = new StreamReader(file))
+                {
+                    options.InjectYaml(yaml.Deserialize<Dictionary<object, object>>(reader));
+                }
+            }
+
+            // Show the help usage text if required
             if (options.ShowHelp)
             {
                 Logger.Instance.WriteMessage(options.GetUsage());
                 return false;
             }
 
+            // Show the version of Edison if required
             if (options.ShowVersion)
             {
                 Logger.Instance.WriteMessage(options.GetVersion());
@@ -104,7 +129,7 @@ namespace Edison.Console
             context.NumberOfFixtureThreads = options.FixtureThreads;
             context.NumberOfTestThreads = options.TestThreads;
             context.TestResultURL = options.TestResultUrl;
-            
+
             return true;
         }
 

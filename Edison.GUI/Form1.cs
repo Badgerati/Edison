@@ -245,7 +245,7 @@ namespace Edison.GUI
             else
             {
                 var tests = node.GetFullPaths(FileName, Separator);
-                
+
                 foreach (var test in tests.Item1)
                 {
                     CheckedTests.Remove(test);
@@ -311,7 +311,7 @@ namespace Edison.GUI
                 SuiteCheckList.SetItemCheckState(selectedItems[0], CheckState.Unchecked);
             }
         }
-        
+
         private void RecentlyOpenedMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             var name = e.ClickedItem.Text;
@@ -382,7 +382,7 @@ namespace Edison.GUI
 
             MainThread = new Thread(() => Run(EdisonContext));
             MainThread.Start();
-            
+
             OutputRichText.Focus();
             RunTestsButton.Text = "Stop";
         }
@@ -412,7 +412,7 @@ namespace Edison.GUI
             {
                 return;
             }
-                
+
             var progress = (int)(((double)CurrentNumberOfTestsRun / (double)TotalNumberOfTestsRunning) * 100.0);
             SetProgress(Math.Max(0, Math.Min(97, progress)));
         }
@@ -547,7 +547,7 @@ namespace Edison.GUI
             IncludedCategoriesCheckList.Items.Clear();
             ExcludedCategoriesCheckList.Items.Clear();
             SuiteCheckList.Items.Clear();
-            
+
             var tests = AssemblyRepository.GetTests(Assembly, default(IList<string>), default(IList<string>), default(IList<string>), default(IList<string>), null);
             PopulateTests(tests.Item1);
 

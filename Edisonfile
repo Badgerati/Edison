@@ -1,0 +1,6 @@
+assemblies:
+  - "./Edison.Tests/bin/Debug/Edison.Tests.dll"
+
+disable_test_output: true
+console_output_type: dot
+fixture_threads: 1

@@ -1,15 +1,14 @@
-Edison
-======
+# Edison
 
 [![Build Status](https://travis-ci.org/Badgerati/Edison.svg?branch=master)](https://travis-ci.org/Badgerati/Edison)
 [![Build status](https://ci.appveyor.com/api/projects/status/i4fa3crkr6mrnjgt?svg=true)](https://ci.appveyor.com/project/Badgerati/edison)
 [![Code Climate](https://codeclimate.com/github/Badgerati/Edison/badges/gpa.svg)](https://codeclimate.com/github/Badgerati/Edison)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Badgerati/Edison/master/LICENSE.txt)
 
 Edison is designed to be a more performant unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.
 
-Features
-========
+# Features
 
 * Framework with Attributes and Assert class for writing unit/integration tests.
 * Can run tests in parallel.
@@ -20,9 +19,9 @@ Features
 * Ability to re-run tests that have failed, for ones that may pass if run seconds later.
 * Run test cases and repeats in parallel.
 * Supply a solution file for extracting test assemblies.
+* Ability to store versioned console parameters in an Edisonfile
 
-Installing Edison
-=================
+# Installing Edison
 
 You can now install Edison using [Chocolatey](https://chocolatey.org/packages/edison/1.0.0.6 "Chocolatey") using the following:
 
@@ -36,11 +35,8 @@ Also with [NuGet](https://www.nuget.org/packages/Edison.Framework "NuGet") as we
 Install-Package Edison.Framework
 ```
 
-Usage
-=====
-
-Framework
----------
+# Usage
+## Framework
 
 Using Edison is very similar to other test frameworks. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:
 
@@ -82,8 +78,7 @@ In the example above we have:
 Furthermore, there's the Asserts class. In Edison the main `Assert` class implements the `IAssert` interface. To use the `Assert` class you can either create an instance of it for each Test, or you can use the `AssertFactory` class.
 The `AssertFactory` class contains a lazy Instance property which returns the `IAssert` class being used for the test assembly. This means you can create your own `CustomAssert` class that inherits `IAssert` and do `AssertFactory.Instance = new CustomAssert()` and any calls to `AssertFactory.Instance` will return your `CustomAssert`. This makes it far simpler to have your own assert logic in your test framework. If you don't set the `AssertFactory.Instance` then this is default to be the inbuilt `Assert` logic.
 
-Console and Engine
-------------------
+## Console and Engine
 
 Edison has the inbuilt functionality to run tests in parallel threads. By default tests are run in a single thread however, by suppling the `--t <value>` parameter from the command-line the tests will be run in that many threads. If you supply a number of threads that exceeds the number of TestFixtures, then the number of threads will become the number of TestFixtures.
 
@@ -127,25 +122,33 @@ To see more parameters use:
 .\Edison.Console.exe --help
 ```
 
-Building the Solution
----------------------
+## Edisonfile
 
-You are now also able to download the core binaries and executables from the [Edison releases](https://github.com/Badgerati/Edison/releases "Edison Releases") tab in GitHub.
+The `Edisonfile` allows you to save, and version control, the arguments that you can supply to the console application. The file is of YAML format and should be saved at the root of your repository.
+The following is an example of the format:
 
-Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console or Edison.GUI set as default).
-This will generate the Edison.Console/GUI executables and the Edison.Framework library for usage in your test framework.
+```yaml
+assemblies:
+  - "./path/to/test.dll"
+  - "./path/to/other/test.dll"
 
-To Do
-=====
+disable_test_output: true
+console_output_type: dot
+fixture_threads: 2
+```
 
-* Website with service for automatically running tests
+To run the application, just run `Edison.Console.exe` at the root, with no arguments supplied. The application will locate the Edisonfile and populate the parameters accordingly.
 
-Bugs and Feature Requests
-=========================
+For example, the above will be just like running:
+
+```bash
+Edison.Console.exe --a ./path/to/test.dll, ./path/to/other/test.dll --dto --cot dot --ft 2
+```
+
+# Bugs and Feature Requests
 
 For any bugs you may find or features you wish to request, please create an [issue](https://github.com/Badgerati/Edison/issues "Issues") in GitHub.
 
-License
-=======
+# License
 
 Edison is completely open sourced and free under the MIT License.
