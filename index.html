@@ -31,6 +31,7 @@
     <a href="https://travis-ci.org/Badgerati/Edison"><img src="https://travis-ci.org/Badgerati/Edison.svg?branch=master" alt="Build Status" /></a>
     <a href="https://ci.appveyor.com/project/Badgerati/edison"><img src="https://ci.appveyor.com/api/projects/status/i4fa3crkr6mrnjgt?svg=true" alt="Build status" /></a>
     <a href="https://codeclimate.com/github/Badgerati/Edison"><img src="https://codeclimate.com/github/Badgerati/Edison/badges/gpa.svg" alt="Code climate" /></a>
+    <a href="https://raw.githubusercontent.com/Badgerati/Edison/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT" /></a>
 </p>
 
 <p>Edison is designed to be a more performant unit/integration testing framework for .NET projects.
@@ -42,28 +43,30 @@ Many features, such as Attributes, are similar to other test frameworks for a mo
 <ul>
 <li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
 <li>Can run tests in parallel.</li>
-<li>Output can be in XML, JSON, CSV or just plain text</li>
+<li>Output can be in XML, JSON, CSV or just plain text.</li>
 <li>Ability to send test results, in real-time, to a URL for later analysis.</li>
 <li>Console application from which to run your tests.</li>
 <li>GUI for a more visual look on running tests.</li>
 <li>Ability to re-run tests that have failed, for ones that may pass if run seconds later.</li>
 <li>Run test cases and repeats in parallel.</li>
 <li>Supply a solution file for extracting test assemblies.</li>
+<li>Ability to store versioned console parameters in an Edisonfile.</li>
 </ul>
 
 <h1>
 <a id="installing-edison" class="anchor" href="#installing-edison" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installing Edison</h1>
 
-<p>You can now install Edison using <a href="https://chocolatey.org/packages/edison/1.0.0.6">Chocolatey</a> using the following:</p>
+<p>You can now install Edison using <a href="https://chocolatey.org/packages/edison">Chocolatey</a> using the following:</p>
 
 <div class="highlight highlight-source-bash"><pre>
 choco install edison
 </pre></div>
 
-<p>Also with <a href="https://www.nuget.org/packages/Edison.Framework">NuGet</a> as well:</p>
+<p>Also, you can now get the <a href="https://www.nuget.org/packages/Edison.Framework">framework</a> and <a href="https://www.nuget.org/packages/Edison.Console">console</a> on NuGet as well:</p>
 
 <div class="highlight highlight-source-bash"><pre>
 Install-Package Edison.Framework
+Install-Package Edison.Console
 </pre></div>
 
 <h1>
@@ -72,7 +75,7 @@ Install-Package Edison.Framework
 <h2>
 <a id="framework" class="anchor" href="#framework" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Framework</h2>
 
-<p>Using Edison is very similar to other test frameworks. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:</p>
+<p>Using Edison is very similar to other test frameworks. You have a <code>[Test]</code> Attribute with varying other Attributes to create your tests. An example would be:</p>
 
 <div class="highlight highlight-source-cs"><pre>[TestFixture]
 <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TestClass</span>
@@ -153,23 +156,33 @@ SetupFixture -&gt; Teardown
 <div class="highlight highlight-source-shell"><pre>.<span class="pl-cce">\E</span>dison.Console.exe --help</pre></div>
 
 <h1>
-<a id="building-the-solution" class="anchor" href="#building-the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building the Solution</h1>
+<a id="edisonfile" class="anchor" href="#edisonfile" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edisonfile</h1>
 
-<p>You are now also able to download the core binaries and executables from the <a href="https://github.com/Badgerati/Edison/releases">Edison releases</a> tab in GitHub.</p>
 
-<p>Until I get around to making an installer for Edison, you can open up the Edison.sln file in Visual Studio and build the projects (with Edison.Console or Edison.GUI set as default). This will generate the Edison.Console/GUI executables and the Edison.Framework library for usage in your test framework.</p>
 
-<h1>
-<a id="to-do" class="anchor" href="#to-do" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>To Do</h1>
+<p>The <code>Edisonfile</code> allows you to save, and version control, the arguments that you can supply to the console application. The file is of YAML format and should be saved at the root of your repository.<p>
+<p>The following is an example of the format:</p>
 
-<ul>
-<li>Website with service for automatically running tests</li>
-</ul>
+<div class="highlight highlight-source-yaml"><pre>
+assemblies:
+  - "./path/to/test.dll"
+  - "./path/to/other/test.dll"
 
-<h1>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
+disable_test_output: true
+console_output_type: dot
+fixture_threads: 2
+</pre></div>
 
-<p>Edison is completely open sourced and free under the MIT License.</p>
+<p>To run the application, just run <code>Edison.Console.exe</code> at the root, with no arguments supplied. The application will locate the Edisonfile and populate the parameters accordingly.</p>
+
+<p>For example, the above will be just like running:</p>
+
+<div class="highlight highlight-source-shell"><pre>
+Edison.Console.exe --a ./path/to/test.dll, ./path/to/other/test.dll --dto --cot dot --ft 2
+</pre></div>
+
+
+
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/Badgerati/Edison">Edison</a> is maintained by <a href="https://github.com/Badgerati">Badgerati</a>.</span>
