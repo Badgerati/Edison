@@ -15,20 +15,21 @@ Edison is an open source unit/integration test framework for .NET.
 
  * Framework with Attributes and Assert class for writing unit/integration tests.
  * Can run tests in parallel.
- * Output can be in XML, JSON, CSV or just plain text
+ * Output can be in XML, JSON, CSV or just plain text.
  * Ability to send test results, in real-time, to a URL for later analysis.
  * Console application from which to run your tests.
  * GUI for a more visual look on running tests.
  * Ability to re-run tests that have failed.
  * Run test cases and repeats in parallel.
  * Supply a solution file for extracting test assemblies.
+ * Ability to store versioned console parameters in an Edisonfile.
     </description>
     <projectUrl>http://badgerati.github.io/Edison/</projectUrl>
     <projectSourceUrl>https://github.com/Badgerati/Edison</projectSourceUrl>
     <packageSourceUrl>https://github.com/Badgerati/Edison/tree/master/nuget-packages</packageSourceUrl>
     <docsUrl>https://github.com/Badgerati/Edison/wiki</docsUrl>
     <bugTrackerUrl>https://github.com/Badgerati/Edison/issues</bugTrackerUrl>
-    <tags>edison unit integration regression system test framework .net testing multithreaded parallel</tags>
+    <tags>edison unit integration regression system test framework dotnet testing multi threaded parallel version scm</tags>
     <copyright>Copyright 2015</copyright>
     <licenseUrl>https://github.com/Badgerati/Edison/blob/master/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

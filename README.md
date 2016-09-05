@@ -12,18 +12,18 @@ Many features, such as Attributes, are similar to other test frameworks for a mo
 
 * Framework with Attributes and Assert class for writing unit/integration tests.
 * Can run tests in parallel.
-* Output can be in XML, JSON, CSV or just plain text
+* Output can be in XML, JSON, CSV or just plain text.
 * Ability to send test results, in real-time, to a URL for later analysis.
 * Console application from which to run your tests.
 * GUI for a more visual look on running tests.
 * Ability to re-run tests that have failed, for ones that may pass if run seconds later.
 * Run test cases and repeats in parallel.
 * Supply a solution file for extracting test assemblies.
-* Ability to store versioned console parameters in an Edisonfile
+* Ability to store versioned console parameters in an Edisonfile.
 
 # Installing Edison
 
-You can now install Edison using [Chocolatey](https://chocolatey.org/packages/edison/1.0.0.6 "Chocolatey") using the following:
+You can now install Edison using [Chocolatey](https://chocolatey.org/packages/edison "Chocolatey") using the following:
 
 ```bash
 choco install edison
@@ -38,7 +38,7 @@ Install-Package Edison.Framework
 # Usage
 ## Framework
 
-Using Edison is very similar to other test frameworks. You have a [Test] Attribute with varying other Attributes to create your tests. An example would be:
+Using Edison is very similar to other test frameworks. You have a `[Test]` Attribute with varying other Attributes to create your tests. An example would be:
 
 ```C#
 [TestFixture]
