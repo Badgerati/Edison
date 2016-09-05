@@ -29,10 +29,11 @@ You can now install Edison using [Chocolatey](https://chocolatey.org/packages/ed
 choco install edison
 ```
 
-Also with [NuGet](https://www.nuget.org/packages/Edison.Framework "NuGet") as well:
+Also, you can now get the [framework](https://www.nuget.org/packages/Edison.Framework "framework") and [console](https://www.nuget.org/packages/Edison.Console "console") on NuGet as well:
 
 ```bash
 Install-Package Edison.Framework
+Install-Package Edison.Console
 ```
 
 # Usage
