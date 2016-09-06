@@ -12,12 +12,12 @@ using Edison.Framework;
 using Edison.Framework.Enums;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
-    public class TxtOutputRepository : IOutputRepository
+    public class MarkdownOutputRepository : IOutputRepository
     {
 
-        private static Lazy<TxtOutputRepository> _lazy = new Lazy<TxtOutputRepository>(() => new TxtOutputRepository());
+        private static Lazy<MarkdownOutputRepository> _lazy = new Lazy<MarkdownOutputRepository>(() => new MarkdownOutputRepository());
         public static IOutputRepository Instance
         {
             get { return _lazy.Value; }
@@ -26,12 +26,12 @@ namespace Edison.Engine.Repositories
 
         public OutputType OutputType
         {
-            get { return OutputType.Txt; }
+            get { return OutputType.Markdown; }
         }
 
         public string ContentType
         {
-            get { return "application/x-www-form-urlencoded"; }
+            get { return "text/markdown"; }
         }
 
         public string OpenTag
@@ -44,28 +44,33 @@ namespace Edison.Engine.Repositories
             get { return string.Empty; }
         }
 
+        public string Extension
+        {
+            get { return "md"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
             return result.State != TestResultState.Success
-                ? string.Format("Assembly: {8}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {7}{0}{0}Error Message: {5}{0}{0}StackTrace:{0}{6}{1}",
+                ? string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}{0}{6}{0}{0}StackTrace:{0}{7}{0}```{0}{0}",
                     Environment.NewLine,
-                    withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
                     result.FullName,
-                    result.State,
-                    result.TimeTaken,
-                    result.ErrorMessage.Replace("Error Message: ", string.Empty),
-                    result.StackTrace,
-                    result.CreateDateTimeString,
-                    result.Assembly)
-                : string.Format("Assembly: {6}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{1}",
-                    Environment.NewLine,
-                    withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
-                    result.FullName,
+                    result.Assembly,
                     result.State,
                     result.TimeTaken,
                     result.CreateDateTimeString,
-                    result.Assembly);
+                    result.ErrorMessage,
+                    result.StackTrace)
+                : string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}```{0}{0}",
+                    Environment.NewLine,
+                    result.FullName,
+                    result.Assembly,
+                    result.State,
+                    result.TimeTaken,
+                    result.CreateDateTimeString,
+                    result.ErrorMessage,
+                    result.StackTrace);
         }
 
     }

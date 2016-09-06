@@ -28,7 +28,7 @@ namespace Edison.Console
         public const string YamlAssemblies = "assemblies";
         public const string YamlConsoleOutputType = "console_output_type";
         public const string YamlDisableConsoleOutput = "disable_console_output";
-        public const string YamlDisableFileOutput = "disable_file_ouptut";
+        public const string YamlDisableFileOutput = "disable_file_output";
         public const string YamlDisableTestOutput = "disable_test_output";
         public const string YamlExclude = "exclude";
         public const string YamlFixtures = "fixtures";

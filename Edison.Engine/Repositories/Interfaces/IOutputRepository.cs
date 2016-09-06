@@ -18,6 +18,7 @@ namespace Edison.Engine.Repositories.Interfaces
         string ContentType { get; }
         string OpenTag { get; }
         string CloseTag { get; }
+        string Extension { get; }
 
         string ToString(TestResult result, bool withTrail);
 

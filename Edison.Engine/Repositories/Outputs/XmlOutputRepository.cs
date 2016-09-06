@@ -12,7 +12,7 @@ using Edison.Framework;
 using System;
 using System.Web;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public class XmlOutputRepository : IOutputRepository
     {
@@ -44,6 +44,11 @@ namespace Edison.Engine.Repositories
             get { return "</TestResults>"; }
         }
 
+        public string Extension
+        {
+            get { return "xml"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
@@ -63,7 +68,7 @@ namespace Edison.Engine.Repositories
                 timeTaken,
                 message,
                 stackTrace,
-                createDate, 
+                createDate,
                 assembly);
         }
 

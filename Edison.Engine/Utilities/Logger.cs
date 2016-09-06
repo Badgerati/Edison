@@ -14,6 +14,7 @@ using System.IO;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.Text;
+using Edison.Engine.Repositories.Outputs;
 
 namespace Edison.Engine
 {
@@ -36,7 +37,7 @@ namespace Edison.Engine
                 }
             }
         }
-        
+
         private IFileRepository FileRepository
         {
             get { return DIContainer.Instance.Get<IFileRepository>(); }
@@ -56,7 +57,7 @@ namespace Edison.Engine
         {
             get { return DIContainer.Instance.Get<IAssemblyRepository>(); }
         }
-        
+
         #endregion
 
         #region Properties
@@ -66,7 +67,7 @@ namespace Edison.Engine
         {
             get { return _lazy.Value; }
         }
-        
+
         public TextWriter OutStream { get; set; }
         public TextWriter ErrorStream { get; set; }
 
@@ -89,7 +90,7 @@ namespace Edison.Engine
                 }
             }
         }
-        
+
         public bool IsSingleOrNoLined
         {
             get { return ConsoleOutputType == OutputType.None || ConsoleOutputType == OutputType.Dot; }
@@ -140,7 +141,7 @@ namespace Edison.Engine
             Console.SetOut(output);
             Console.SetError(error);
         }
-                
+
         public void WriteVersion()
         {
             SetOutput(Console.Out, Console.Error);
@@ -232,7 +233,7 @@ namespace Edison.Engine
                 outputFolder.EndsWith("/") || outputFolder.EndsWith("\\") ? string.Empty : "\\",
                 fileName,
                 date,
-                type.ToString().ToLower());
+                OutputRepositoryFactory.Get(type).Extension);
 
             var stream = FileRepository.Create(outputFolder);
             stream.Dispose();
@@ -255,7 +256,7 @@ namespace Edison.Engine
             {
                 return;
             }
-            
+
             WriteMessage(OutputRepository.ToString(result, false), IsSingleOrNoLined);
         }
 

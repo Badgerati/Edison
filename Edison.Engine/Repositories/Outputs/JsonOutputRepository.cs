@@ -11,7 +11,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public class JsonOutputRepository : IOutputRepository
     {
@@ -43,6 +43,11 @@ namespace Edison.Engine.Repositories
             get { return "]}"; }
         }
 
+        public string Extension
+        {
+            get { return "json"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
@@ -62,7 +67,7 @@ namespace Edison.Engine.Repositories
                 timeTaken,
                 message,
                 stackTrace,
-                createDate, 
+                createDate,
                 assembly);
         }
 

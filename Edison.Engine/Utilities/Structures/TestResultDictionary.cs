@@ -20,6 +20,7 @@ using Edison.Framework.Enums;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
+using Edison.Engine.Repositories.Outputs;
 
 namespace Edison.Engine.Utilities.Structures
 {

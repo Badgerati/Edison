@@ -11,7 +11,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public class CsvOutputRepository : IOutputRepository
     {
@@ -41,6 +41,11 @@ namespace Edison.Engine.Repositories
         public string CloseTag
         {
             get { return string.Empty; }
+        }
+
+        public string Extension
+        {
+            get { return "csv"; }
         }
 
 
