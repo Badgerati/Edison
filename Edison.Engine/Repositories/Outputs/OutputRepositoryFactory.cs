@@ -9,11 +9,11 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public static class OutputRepositoryFactory
     {
-        
+
         public static IOutputRepository Get(OutputType type)
         {
             switch (type)
@@ -35,6 +35,12 @@ namespace Edison.Engine.Repositories
 
                 case OutputType.None:
                     return NoneOutputRepository.Instance;
+
+                case OutputType.Markdown:
+                    return MarkdownOutputRepository.Instance;
+
+                case OutputType.Html:
+                    return HtmlOutputRepository.Instance;
             }
 
             return JsonOutputRepository.Instance;

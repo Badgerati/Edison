@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Edison.Engine.Utilities.Helpers;
 using System.Text.RegularExpressions;
 using System.Text;
+using Edison.Engine.Repositories.Outputs;
 
 namespace Edison.Engine.Contexts
 {
@@ -234,7 +235,7 @@ namespace Edison.Engine.Contexts
         #endregion
 
         #region Public Readonly Properties
-        
+
         /// <summary>
         /// Gets a value indicating whether this instance is running.
         /// </summary>
@@ -254,7 +255,7 @@ namespace Edison.Engine.Contexts
         #endregion
 
         #region Private Fields
-        
+
         private TestResultDictionary ResultQueue;
         private IList<TestFixtureThread> ParallelThreads = default(IList<TestFixtureThread>);
         private Task ParallelTask = default(Task);
@@ -340,10 +341,10 @@ namespace Edison.Engine.Contexts
             {
                 ResultQueue.OnTestResult += OnTestResult;
             }
-            
+
             //loop through all assemblies, running their tests
             RunAssemblies();
-            
+
             //stop the timer
             timer.Stop();
 
@@ -352,7 +353,7 @@ namespace Edison.Engine.Contexts
             {
                 WriteFailedResultsToConsole();
             }
-            
+
             //create result file and write
             WriteResultsToFile();
 
@@ -389,7 +390,7 @@ namespace Edison.Engine.Contexts
 
             Logger.Instance.WriteMessage(string.Format("{1}{1}{0}", "EDISON STOPPED", Environment.NewLine));
         }
-        
+
         #endregion
 
         #region Private Methods
@@ -488,7 +489,7 @@ namespace Edison.Engine.Contexts
                 Logger.Instance.WriteInnerException(ex, true);
             }
         }
-                
+
         private void WriteResultsToFile()
         {
             if (DisableFileOutput)
@@ -527,8 +528,8 @@ namespace Edison.Engine.Contexts
                     Logger.Instance.WriteToFile(file, Environment.NewLine + output.CloseTag);
                 }
 
-                Logger.Instance.WriteMessage("Output file created:\n" + file);
-            }            
+                Logger.Instance.WriteMessage(string.Format("Output file created: {0}{1}", file, Environment.NewLine));
+            }
         }
 
         private void WriteFailedResultsToConsole()

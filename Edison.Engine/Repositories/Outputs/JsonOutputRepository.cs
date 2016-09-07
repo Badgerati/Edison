@@ -11,7 +11,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public class JsonOutputRepository : IOutputRepository
     {
@@ -43,27 +43,23 @@ namespace Edison.Engine.Repositories
             get { return "]}"; }
         }
 
+        public string Extension
+        {
+            get { return "json"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
-            var test = string.Format("\"test\":\"{0}\"", JsonFormat(result.FullName));
-            var state = string.Format("\"state\":\"{0}\"", result.State);
-            var timeTaken = string.Format("\"timetaken\":\"{0}\"", result.TimeTaken);
-            var message = string.Format("\"errormessage\":\"{0}\"", JsonFormat(result.ErrorMessage.Replace("Error Message: ", string.Empty)));
-            var stackTrace = string.Format("\"stacktrace\":\"{0}\"", JsonFormat(result.StackTrace));
-            var createDate = string.Format("\"createdate\":\"{0}\"", JsonFormat(result.CreateDateTimeString));
-            var assembly = string.Format("\"assembly\":\"{0}\"", JsonFormat(result.Assembly));
-
-            return string.Format("{{{2}, {3}, {4}, {5}, {6}, {7}, {8}}}{1}{0}",
-                withTrail ? Environment.NewLine : string.Empty,
-                withTrail ? "," : string.Empty,
-                test,
-                state,
-                timeTaken,
-                message,
-                stackTrace,
-                createDate, 
-                assembly);
+            return string.Format("{{\"test\":\"{1}\", \"state\":\"{2}\", \"timetaken\":\"{3}\", \"errormessage\":\"{4}\", \"stacktrace\":\"{5}\", \"createdate\":\"{6}\", \"assembly\":\"{7}\"}}{0}",
+                withTrail ? ("," + Environment.NewLine) : string.Empty,
+                JsonFormat(result.FullName),
+                result.State,
+                result.TimeTaken,
+                JsonFormat(result.ErrorMessage),
+                JsonFormat(result.StackTrace),
+                JsonFormat(result.CreateDateTimeString),
+                JsonFormat(result.Assembly));
         }
 
         private string RemoveNewLines(string value)

@@ -9,15 +9,14 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
-using Edison.Framework.Enums;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
-    public class DotOutputRepository : IOutputRepository
+    public class NoneOutputRepository : IOutputRepository
     {
 
-        private static Lazy<DotOutputRepository> _lazy = new Lazy<DotOutputRepository>(() => new DotOutputRepository());
+        private static Lazy<NoneOutputRepository> _lazy = new Lazy<NoneOutputRepository>(() => new NoneOutputRepository());
         public static IOutputRepository Instance
         {
             get { return _lazy.Value; }
@@ -26,12 +25,12 @@ namespace Edison.Engine.Repositories
 
         public OutputType OutputType
         {
-            get { return OutputType.Dot; }
+            get { return OutputType.None; }
         }
 
         public string ContentType
         {
-            get { return "application/x-www-form-urlencoded"; }
+            get { return string.Empty; }
         }
 
         public string OpenTag
@@ -44,27 +43,15 @@ namespace Edison.Engine.Repositories
             get { return string.Empty; }
         }
 
+        public string Extension
+        {
+            get { return "txt"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
-            var dot = "F";
-
-            switch (result.State)
-            {
-                case TestResultState.Success:
-                    dot = ".";
-                    break;
-
-                case TestResultState.Inconclusive:
-                    dot = "I";
-                    break;
-
-                case TestResultState.Ignored:
-                    dot = "S";
-                    break;
-            }
-
-            return dot;
+            return string.Empty;
         }
 
     }

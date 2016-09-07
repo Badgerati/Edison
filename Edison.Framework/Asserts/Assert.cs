@@ -105,7 +105,7 @@ namespace Edison.Framework
                 || (expected.Count() != actual.Count()))
             {
                 return;
-            }            
+            }
 
             var _expected = expected.ToList();
             var _actual = actual.ToList();
@@ -598,7 +598,7 @@ namespace Edison.Framework
                 actual = BuildEnumerableString((IEnumerable)actual);
             }
 
-            return string.Format("Error Message: {1}{0}Expected:\t{2}{0}But was:\t{3}",
+            return string.Format("{1}{0}Expected:\t{2}{0}But was:\t{3}",
                 Environment.NewLine,
                 string.IsNullOrEmpty(premessage) ? "Test assertion failed" : premessage,
                 Safeguard(preExpected) + Safeguard(expected, "NULL") + Safeguard(postExpected),
@@ -623,7 +623,7 @@ namespace Edison.Framework
 
             return builder.ToString().Replace(Environment.NewLine, string.Empty).Trim('\n', ',', ' ', '\r');
         }
-        
+
         #endregion
 
     }

@@ -11,7 +11,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using System;
 
-namespace Edison.Engine.Repositories
+namespace Edison.Engine.Repositories.Outputs
 {
     public class CsvOutputRepository : IOutputRepository
     {
@@ -43,6 +43,11 @@ namespace Edison.Engine.Repositories
             get { return string.Empty; }
         }
 
+        public string Extension
+        {
+            get { return "csv"; }
+        }
+
 
         public string ToString(TestResult result, bool withTrail)
         {
@@ -51,7 +56,7 @@ namespace Edison.Engine.Repositories
                 RemoveNewLines(result.FullName),
                 result.State,
                 result.TimeTaken,
-                RemoveNewLines(result.ErrorMessage.Replace("Error Message: ", string.Empty)),
+                RemoveNewLines(result.ErrorMessage),
                 RemoveNewLines(result.StackTrace),
                 result.CreateDateTimeString,
                 result.Assembly);
