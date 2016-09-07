@@ -52,25 +52,20 @@ namespace Edison.Engine.Repositories.Outputs
 
         public string ToString(TestResult result, bool withTrail)
         {
-            return result.State != TestResultState.Success
-                ? string.Format("Assembly: {8}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {7}{0}{0}Error Message: {5}{0}{0}StackTrace:{0}{6}{1}",
-                    Environment.NewLine,
-                    withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
-                    result.FullName,
-                    result.State,
-                    result.TimeTaken,
-                    result.ErrorMessage.Replace("Error Message: ", string.Empty),
-                    result.StackTrace,
-                    result.CreateDateTimeString,
-                    result.Assembly)
-                : string.Format("Assembly: {6}{0}Test: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{1}",
-                    Environment.NewLine,
-                    withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
-                    result.FullName,
-                    result.State,
-                    result.TimeTaken,
-                    result.CreateDateTimeString,
-                    result.Assembly);
+            return string.Format("Test: {2}{0}Assembly: {3}{0}State: {4}{0}Time Taken: {5}{0}Create Date: {6}{7}{1}",
+                Environment.NewLine,
+                withTrail ? Environment.NewLine + "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =" + Environment.NewLine : string.Empty,
+                result.FullName,
+                result.Assembly,
+                result.State,
+                result.TimeTaken,
+                result.CreateDateTimeString,
+                result.State == TestResultState.Success
+                    ? string.Empty
+                    : string.Format("{0}{0}Error Message: {1}{0}{0}StackTrace:{0}{2}",
+                        Environment.NewLine,
+                        result.ErrorMessage,
+                        result.StackTrace));
         }
 
     }

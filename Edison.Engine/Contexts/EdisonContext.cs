@@ -528,7 +528,7 @@ namespace Edison.Engine.Contexts
                     Logger.Instance.WriteToFile(file, Environment.NewLine + output.CloseTag);
                 }
 
-                Logger.Instance.WriteMessage("Output file created:\n" + file);
+                Logger.Instance.WriteMessage(string.Format("Output file created: {0}{1}", file, Environment.NewLine));
             }
         }
 

@@ -2,7 +2,7 @@ assemblies:
   - "./Edison.Tests/bin/Debug/Edison.Tests.dll"
 
 disable_test_output: true
-disable_file_output: true
+disable_file_output: false
 console_output_type: dot
-output_type: markdown
+output_type: html
 fixture_threads: 1

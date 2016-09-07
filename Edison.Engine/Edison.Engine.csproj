@@ -68,6 +68,7 @@
     <Compile Include="Repositories\Interfaces\IPathRepository.cs" />
     <Compile Include="Repositories\Interfaces\IWebRequestRepository.cs" />
     <Compile Include="Repositories\Interfaces\IWebResponseRepository.cs" />
+    <Compile Include="Repositories\Outputs\HtmlOutputRepository.cs" />
     <Compile Include="Repositories\Outputs\MarkdownOutputRepository.cs" />
     <Compile Include="Repositories\ReflectionRepository.cs" />
     <Compile Include="Repositories\Outputs\NoneOutputRepository.cs" />

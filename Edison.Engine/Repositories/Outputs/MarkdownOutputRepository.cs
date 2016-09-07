@@ -52,25 +52,19 @@ namespace Edison.Engine.Repositories.Outputs
 
         public string ToString(TestResult result, bool withTrail)
         {
-            return result.State != TestResultState.Success
-                ? string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}{0}{6}{0}{0}StackTrace:{0}{7}{0}```{0}{0}",
-                    Environment.NewLine,
-                    result.FullName,
-                    result.Assembly,
-                    result.State,
-                    result.TimeTaken,
-                    result.CreateDateTimeString,
-                    result.ErrorMessage,
-                    result.StackTrace)
-                : string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}```{0}{0}",
-                    Environment.NewLine,
-                    result.FullName,
-                    result.Assembly,
-                    result.State,
-                    result.TimeTaken,
-                    result.CreateDateTimeString,
-                    result.ErrorMessage,
-                    result.StackTrace);
+            return string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}{6}```{0}{0}",
+                Environment.NewLine,
+                result.FullName,
+                result.Assembly,
+                result.State,
+                result.TimeTaken,
+                result.CreateDateTimeString,
+                result.State == TestResultState.Success
+                    ? string.Empty
+                    : string.Format("{0}Error Message: {1}{0}{0}StackTrace:{0}{2}{0}",
+                        Environment.NewLine,
+                        result.ErrorMessage,
+                        result.StackTrace));
         }
 
     }

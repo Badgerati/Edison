@@ -10,6 +10,7 @@ using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Framework.Enums;
+using Edison.Engine.Utilities.Extensions;
 using System;
 
 namespace Edison.Engine.Repositories.Outputs
@@ -52,25 +53,18 @@ namespace Edison.Engine.Repositories.Outputs
 
         public string ToString(TestResult result, bool withTrail)
         {
-            return result.State != TestResultState.Success
-                ? string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}{0}{6}{0}{0}StackTrace:{0}{7}{0}```{0}{0}",
-                    Environment.NewLine,
-                    result.FullName,
-                    result.Assembly,
-                    result.State,
-                    result.TimeTaken,
-                    result.CreateDateTimeString,
-                    result.ErrorMessage,
-                    result.StackTrace)
-                : string.Format("### {1}{0}```{0}Assembly: {2}{0}State: {3}{0}Time Taken: {4}{0}Create Date: {5}{0}```{0}{0}",
-                    Environment.NewLine,
-                    result.FullName,
-                    result.Assembly,
-                    result.State,
-                    result.TimeTaken,
-                    result.CreateDateTimeString,
-                    result.ErrorMessage,
-                    result.StackTrace);
+            return string.Format("<div class='test-result'><span class='test-name'><strong>{0}</strong></span><p class='test-details'><span class='assembly'><strong>Assembly</strong>: {1}</span><br/><span class='state'><strong>State</strong>: {2}</span><br/><span class='time-taken'><strong>Time Taken</strong>: {3}</span><br/><span class='create-date'><strong>Create Date</strong>: {4}</span></p>{5}</div><hr/>",
+                result.FullName.ToHtmlString(),
+                result.Assembly.ToHtmlString(),
+                result.State,
+                result.TimeTaken,
+                result.CreateDateTimeString.ToHtmlString(),
+                result.State == TestResultState.Success
+                    ? string.Empty
+                    : string.Format("<p class='error-message'><strong>Error Message</strong>:{0}<pre>{1}</pre></p><p class='stack-trace'><strong>StackTrace</strong>:{0}<pre>{2}</pre></p>",
+                        Environment.NewLine,
+                        result.ErrorMessage.ToHtmlString(),
+                        result.StackTrace.ToHtmlString()));
         }
 
     }

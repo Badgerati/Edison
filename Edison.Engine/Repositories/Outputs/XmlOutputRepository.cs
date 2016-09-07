@@ -9,8 +9,8 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
+using Edison.Engine.Utilities.Extensions;
 using System;
-using System.Web;
 
 namespace Edison.Engine.Repositories.Outputs
 {
@@ -52,30 +52,16 @@ namespace Edison.Engine.Repositories.Outputs
 
         public string ToString(TestResult result, bool withTrail)
         {
-            var test = string.Format("<Test>{0}</Test>", ToHtmlString(result.FullName));
-            var state = string.Format("<State>{0}</State>", result.State);
-            var timeTaken = string.Format("<TimeTaken>{0}</TimeTaken>", result.TimeTaken);
-            var message = string.Format("<ErrorMessage>{0}</ErrorMessage>", ToHtmlString(result.ErrorMessage.Replace("Error Message: ", string.Empty)));
-            var stackTrace = string.Format("<StackTrace>{0}</StackTrace>", ToHtmlString(result.StackTrace));
-            var createDate = string.Format("<CreateDate>{0}</CreateDate>", ToHtmlString(result.CreateDateTimeString));
-            var assembly = string.Format("<Assembly>{0}</Assembly>", ToHtmlString(result.Assembly));
-
-            return string.Format("<TestResult>{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}</TestResult>{1}",
+            return string.Format("<TestResult>{0}<Test>{2}</Test>{0}<State>{3}</State>{0}<TimeTaken>{4}</TimeTaken>{0}<ErrorMessage>{5}</ErrorMessage>{0}<StackTrace>{6}</StackTrace>{0}<CreateDate>{7}</CreateDate>{0}<Assembly>{8}</Assembly>{0}</TestResult>{1}",
                 Environment.NewLine,
                 withTrail ? Environment.NewLine : string.Empty,
-                test,
-                state,
-                timeTaken,
-                message,
-                stackTrace,
-                createDate,
-                assembly);
-        }
-
-
-        private string ToHtmlString(string value)
-        {
-            return HttpUtility.HtmlEncode(value).Trim();
+                result.FullName.ToHtmlString(),
+                result.State,
+                result.TimeTaken,
+                result.ErrorMessage.ToHtmlString(),
+                result.StackTrace.ToHtmlString(),
+                result.CreateDateTimeString.ToHtmlString(),
+                result.Assembly.ToHtmlString());
         }
 
     }
