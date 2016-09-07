@@ -16,6 +16,7 @@ namespace Edison.Engine.Core.Enums
         Csv = 4,
         Dot = 5,
         None = 6,
-        Markdown = 7
+        Markdown = 7,
+        Html = 8
     }
 }

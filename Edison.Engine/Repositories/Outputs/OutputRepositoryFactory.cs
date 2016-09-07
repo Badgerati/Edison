@@ -38,6 +38,9 @@ namespace Edison.Engine.Repositories.Outputs
 
                 case OutputType.Markdown:
                     return MarkdownOutputRepository.Instance;
+
+                case OutputType.Html:
+                    return HtmlOutputRepository.Instance;
             }
 
             return JsonOutputRepository.Instance;
