@@ -328,7 +328,7 @@ namespace Edison.Engine.Threading
                 return false;
             }
 
-            if (string.IsNullOrEmpty(expectedException.ExpectedMessage))
+            if (string.IsNullOrWhiteSpace(expectedException.ExpectedMessage))
             {
                 return true;
             }

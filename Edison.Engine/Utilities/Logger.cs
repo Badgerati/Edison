@@ -231,7 +231,7 @@ namespace Edison.Engine
 
         public string CreateFile(string outputFolder, string fileName, OutputType type, bool withDate = false)
         {
-            if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(fileName))
             {
                 return string.Empty;
             }

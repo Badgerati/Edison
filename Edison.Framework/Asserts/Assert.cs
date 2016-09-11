@@ -25,7 +25,7 @@ namespace Edison.Framework
         public virtual IAssert Inconclusive(string message = null)
         {
             throw new AssertException(
-                string.IsNullOrEmpty(message)
+                string.IsNullOrWhiteSpace(message)
                     ? "Test marked as inconclusive"
                     : message,
                 TestResultState.Inconclusive);
@@ -34,7 +34,7 @@ namespace Edison.Framework
         public virtual IAssert Fail(string message = null)
         {
             throw new AssertException(
-                string.IsNullOrEmpty(message)
+                string.IsNullOrWhiteSpace(message)
                     ? "Test marked as failed"
                     : message,
                 TestResultState.Failure);
@@ -43,7 +43,7 @@ namespace Edison.Framework
         public virtual IAssert Pass(string message = null)
         {
             throw new AssertException(
-                string.IsNullOrEmpty(message)
+                string.IsNullOrWhiteSpace(message)
                     ? "Test marked as passed"
                     : message,
                 TestResultState.Success);
@@ -756,7 +756,7 @@ namespace Edison.Framework
 
             return string.Format("{1}{0}Expected:\t{2}{0}But was:\t{3}",
                 Environment.NewLine,
-                string.IsNullOrEmpty(premessage) ? "Test assertion failed" : premessage,
+                string.IsNullOrWhiteSpace(premessage) ? "Test assertion failed" : premessage,
                 Safeguard(preExpected) + Safeguard(expected, "NULL") + Safeguard(postExpected),
                 Safeguard(preActual) + Safeguard(actual, "NULL") + Safeguard(postActual));
         }

@@ -640,7 +640,8 @@ namespace Edison.Engine.Contexts
             // if enabled, and under threshold, re-run failed tests
             if (RerunFailedTests && ResultQueue.TotalFailedCount != 0 && ResultQueue.TotalCount != 0)
             {
-                var percentageFailed = (int)(((double)ResultQueue.TotalFailedCount / (double)ResultQueue.TotalCount) * 100d);
+                var percentageFailed = (int)ResultQueue.FailureRate;
+
                 if (percentageFailed <= RerunThreshold)
                 {
                     var failedTests = ResultQueue.FailedTestResults.Select(x => x.BasicName).ToList();

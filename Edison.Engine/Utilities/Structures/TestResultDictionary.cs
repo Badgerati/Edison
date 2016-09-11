@@ -58,6 +58,16 @@ namespace Edison.Engine.Utilities.Structures
             get { return Results.Values.Where(x => x.State == TestResultState.Success); }
         }
 
+        public double SuccessRate
+        {
+            get { return Math.Round(((double)PassedCount / (double)TotalCount) * 100.0, 1); }
+        }
+
+        public double FailureRate
+        {
+            get { return Math.Round(((double)TotalFailedCount / (double)TotalCount) * 100.0, 1); }
+        }
+
         public int TotalCount
         {
             get { return Results.Count; }
@@ -65,7 +75,9 @@ namespace Edison.Engine.Utilities.Structures
 
         public int TotalFailedCount
         {
-            get { return Results.Count(x => x.Value.State != TestResultState.Success && x.Value.State != TestResultState.Ignored); }
+            get { return Results.Count(x => x.Value.State != TestResultState.Success
+                                    && x.Value.State != TestResultState.Ignored
+                                    && x.Value.State != TestResultState.Inconclusive); }
         }
 
         public int PassedCount
@@ -194,13 +206,16 @@ namespace Edison.Engine.Utilities.Structures
 
         public string ToTotalString()
         {
-            return string.Format("Total: {0}, Passed: {1}, Failed: {2}, Errored: {3}, Inconclusive: {4}, Skipped: {5}",
+            return string.Format("Total: {1}, Passed: {2}, Failed: {3}, Errored: {4}, Inconclusive: {5}, Skipped: {6}{0}Success Rate: {7}%{0}Failure Rate: {8}%",
+                Environment.NewLine,
                 TotalCount,
                 PassedCount,
                 FailedCount,
                 ErroredCount,
                 InconclusiveCount,
-                SkippedCount);
+                SkippedCount,
+                SuccessRate,
+                FailureRate);
         }
 
         #endregion
@@ -209,7 +224,7 @@ namespace Edison.Engine.Utilities.Structures
 
         private void PostResultToUrl(TestResult result)
         {
-            if (string.IsNullOrEmpty(Context.TestResultURL))
+            if (string.IsNullOrWhiteSpace(Context.TestResultURL))
             {
                 return;
             }
@@ -228,7 +243,7 @@ namespace Edison.Engine.Utilities.Structures
                     break;
             }
 
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }

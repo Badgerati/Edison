@@ -25,7 +25,7 @@ namespace Edison.Engine.Utilities.Extensions
 
         public static string Safeguard(this string src)
         {
-            return string.IsNullOrEmpty(src)
+            return string.IsNullOrWhiteSpace(src)
                 ? string.Empty
                 : src;
         }
