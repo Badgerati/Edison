@@ -34,9 +34,9 @@ namespace Edison.Engine.Threading
         #endregion
 
         #region Properties
-        
+
         private IEnumerable<Type> TestFixtures = default(IEnumerable<Type>);
-                
+
         private int ThreadId = default(int);
         private bool Interrupted = false;
         private EdisonContext Context = default(EdisonContext);
@@ -70,11 +70,11 @@ namespace Edison.Engine.Threading
         #endregion
 
         #region Public Methods
-        
+
         public void Interrupt()
         {
             Interrupted = true;
-            
+
             if (ParallelThreads != default(IList<TestThread>))
             {
                 foreach (var thread in ParallelThreads)
@@ -107,7 +107,7 @@ namespace Edison.Engine.Threading
 
                 var setup = ReflectionRepository.GetMethods<TestFixtureSetupAttribute>(testFixture);
                 var teardown = ReflectionRepository.GetMethods<TestFixtureTeardownAttribute>(testFixture);
-                
+
                 //repeats
                 RunTestFixtureRepeats(testFixture, setup, teardown);
             }
@@ -117,7 +117,7 @@ namespace Edison.Engine.Threading
         {
             var repeat = ReflectionRepository.GetRepeatValue(testFixture);
             var cases = ReflectionRepository.GetTestCases(testFixture);
-            
+
             for (var r = 1; r <= repeat.Value; r++)
             {
                 if (Interrupted)
@@ -247,14 +247,14 @@ namespace Edison.Engine.Threading
                     GlobalSetupException, FixtureSetupException, ActivatorException, Context, ConcurrencyType.Parallel);
                 ParallelThreads.Add(thread);
             }
-            
+
             ParallelTask = Task.Run(() => Parallel.ForEach(ParallelThreads, thread => thread.RunTests()));
             Task.WaitAll(ParallelTask);
 
             #endregion
 
             #region Singular
-            
+
             if (NumberOfTestThreads > 1 && !EnumerableHelper.IsNullOrEmpty(singularTests))
             {
                 SingularThread = new TestThread(threadCount + 1, ResultQueue, singularTests, testFixture, testFixtureRepeat, testFixtureCase, activator,

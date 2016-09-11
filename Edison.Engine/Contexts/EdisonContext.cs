@@ -15,19 +15,17 @@ using Edison.Engine.Threading;
 using Edison.Engine.Core.Enums;
 using Edison.Engine.Utilities.Structures;
 using System.Diagnostics;
-using Edison.Engine.Repositories;
 using Edison.Framework.Enums;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.Threading.Tasks;
 using Edison.Engine.Utilities.Helpers;
-using System.Text.RegularExpressions;
-using System.Text;
 using Edison.Engine.Repositories.Outputs;
 
 namespace Edison.Engine.Contexts
 {
+    [Serializable]
     public class EdisonContext
     {
 
@@ -51,6 +49,16 @@ namespace Edison.Engine.Contexts
         private IFileRepository FileRepository
         {
             get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
+        private IDirectoryRepository DirectoryRepository
+        {
+            get { return DIContainer.Instance.Get<IDirectoryRepository>(); }
+        }
+
+        private IAppDomainRepository AppDomainRepository
+        {
+            get { return DIContainer.Instance.Get<IAppDomainRepository>(); }
         }
 
         #endregion
@@ -398,21 +406,25 @@ namespace Edison.Engine.Contexts
         private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name).Name;
-            var path = PathRepository.GetDirectoryName(args.RequestingAssembly.Location);
+            var path = PathRepository.GetDirectoryName(args.RequestingAssembly == null ? "." : args.RequestingAssembly.Location);
             return AssemblyRepository.LoadFrom(path + "\\" + name + ".dll");
         }
 
         private void RunAssemblies()
         {
+            //remove any duplicate assembly paths
+            var assemblies = Assemblies.Distinct();
+
             //bind assembly event resolver
-            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+            AppDomainRepository.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
             //loop through all assemblies, running their tests
-            var assemblies = Assemblies.Distinct();
             foreach (var assemblyPath in assemblies)
             {
                 CurrentAssembly = PathRepository.GetFileName(assemblyPath);
+
                 var assembly = AssemblyRepository.LoadFile(assemblyPath);
+                AppDomainRepository.SetAppConfig(PathRepository.GetFullPath(assemblyPath) + ".config");
 
                 //global setup
                 var globalSetupFixture = AssemblyRepository.GetTypes<SetupFixtureAttribute>(assembly, default(IList<string>), default(IList<string>), null).SingleOrDefault();

@@ -19,7 +19,7 @@ namespace Edison.Injector
     {
 
         #region Properties
-        
+
         private IDictionary<Type, object> KernelCache;
         private IKernel Kernel;
 

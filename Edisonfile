@@ -1,8 +1,12 @@
 assemblies:
   - "./Edison.Tests/bin/Debug/Edison.Tests.dll"
 
+#fixtures:
+#  - "Edison.Tests.TestClass2"
+
 disable_test_output: true
 disable_file_output: false
 console_output_type: dot
-output_type: html
+output_type: json
 fixture_threads: 1
+rerun: true

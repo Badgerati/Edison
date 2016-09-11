@@ -9,16 +9,12 @@ License: MIT (see LICENSE for details)
 using CommandLine;
 using Edison.Engine;
 using Edison.Engine.Contexts;
-using Edison.Engine.Core.Enums;
-using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Engine.Utilities.Helpers;
 using Edison.Injector;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -82,8 +78,7 @@ namespace Edison.Console
                 var file = string.IsNullOrWhiteSpace(options.Edisonfile) ? ConsoleOptions.EDISONFILE : options.Edisonfile;
                 if (!File.Exists(file))
                 {
-                    Logger.Instance.WriteError(string.Format("Edisonfile does not exist: {0}", file));
-                    return false;
+                    throw new ArgumentException(string.Format("Edisonfile does not exist: {0}", file));
                 }
 
                 var yaml = new Deserializer(namingConvention: new UnderscoredNamingConvention());

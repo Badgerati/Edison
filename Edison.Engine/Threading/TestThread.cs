@@ -35,13 +35,13 @@ namespace Edison.Engine.Threading
         #endregion
 
         #region Properties
-        
+
         private object Activator = default(object);
         private Type TestFixture = default(Type);
         private int TestFixtureRepeatIndex = default(int);
         private TestCaseAttribute TestFixtureCase = default(TestCaseAttribute);
         private IEnumerable<MethodInfo> Tests = default(IEnumerable<MethodInfo>);
-        
+
         private int ThreadId = default(int);
         private bool Interrupted { get; set; }
         private EdisonContext Context = default(EdisonContext);
@@ -99,7 +99,7 @@ namespace Edison.Engine.Threading
         #endregion
 
         #region Private Methods
-        
+
         private void RunTestRepeats(MethodInfo test, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
             var repeat = ReflectionRepository.GetRepeatValue(test);
@@ -176,7 +176,7 @@ namespace Edison.Engine.Threading
                     TimeSpan.Zero,
                     string.Empty,
                     default(IEnumerable<string>));
-                
+
                 timeTaken.Restart();
 
                 if (GlobalSetupException != default(Exception))
@@ -272,7 +272,7 @@ namespace Edison.Engine.Threading
             }
             else if (!test)
             {
-                if (hasInner && !isAssertFail && CheckExpectedException(testMethod, ex.InnerException))
+                if (hasInner && CheckExpectedException(testMethod, isAssertFail, ex.InnerException))
                 {
                     return PopulateTestResult(testMethod, result, TestResultState.Success, time);
                 }
@@ -313,12 +313,17 @@ namespace Edison.Engine.Threading
             return result;
         }
 
-        private bool CheckExpectedException(MethodInfo testMethod, Exception innerException)
+        private bool CheckExpectedException(MethodInfo testMethod, bool isAssertFail, Exception innerException)
         {
             var expectedException = ReflectionRepository.GetExpectedException(testMethod);
 
             if (expectedException == default(ExpectedExceptionAttribute)
                 || expectedException.ExpectedException != innerException.GetType())
+            {
+                return false;
+            }
+
+            if (isAssertFail && !expectedException.AllowAssertException)
             {
                 return false;
             }

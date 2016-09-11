@@ -55,11 +55,11 @@ namespace Edison.Tests
         [TestCase("case1")]
         [TestCase("case2")]
         [Category("eek")]
+        [ExpectedException(typeof(AssertException), AllowAssertException = true)]
         public void TestMethod1(string value)
         {
             Console.WriteLine("WOO1!!!");
             Console.WriteLine(value);
-            Thread.Sleep(1000);
             Console.WriteLine(test);
             AssertFactory.Instance.AreEqual(1, 2, "Values are not equal");
             Console.WriteLine("WOO1!!!");
@@ -67,9 +67,9 @@ namespace Edison.Tests
 
         [Test]
         [Repeat(2)]
+        [ExpectedException(typeof(AssertException), AllowAssertException = true)]
         public void TestMethod2()
         {
-            //AssertFactory.Instance.Inconclusive("Hmm");
             Console.WriteLine("WOO2!!!");
             Console.WriteLine(test);
             Console.WriteLine(TestStatisClass.StringValue);
@@ -87,7 +87,7 @@ namespace Edison.Tests
             string v = null;
             var len = v.Length;
 
-            AssertFactory.Instance.AreEqual(1, 2, "Values are not equal");
+            AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
             Console.WriteLine("WOO3!!!");
         }
 
