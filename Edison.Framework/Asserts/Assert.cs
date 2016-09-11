@@ -722,6 +722,7 @@ namespace Edison.Framework
                 try
                 {
                     assert();
+                    return this;
                 }
                 catch (AssertException ex)
                 {
