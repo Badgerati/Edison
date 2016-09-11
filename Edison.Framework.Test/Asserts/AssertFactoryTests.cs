@@ -64,12 +64,14 @@ namespace Edison.Framework.Test.Asserts
 
         private class CustomAssert : EAssert
         {
-            public override void AreEqual(IComparable expected, IComparable actual, string message = null)
+            public override IAssert AreEqual(IComparable expected, IComparable actual, string message = null)
             {
                 if (expected.Equals(actual))
                 {
                     throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
                 }
+
+                return this;
             }
         }
 

@@ -22,7 +22,7 @@ namespace Edison.Framework
 
         #region Test state
 
-        public virtual void Inconclusive(string message = null)
+        public virtual IAssert Inconclusive(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -31,7 +31,7 @@ namespace Edison.Framework
                 TestResultState.Inconclusive);
         }
 
-        public virtual void Fail(string message = null)
+        public virtual IAssert Fail(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -40,7 +40,7 @@ namespace Edison.Framework
                 TestResultState.Failure);
         }
 
-        public virtual void Pass(string message = null)
+        public virtual IAssert Pass(string message = null)
         {
             throw new AssertException(
                 string.IsNullOrEmpty(message)
@@ -53,27 +53,31 @@ namespace Edison.Framework
 
         #region Equals
 
-        public virtual void AreEqual(IComparable expected, IComparable actual, string message = null)
+        public virtual IAssert AreEqual(IComparable expected, IComparable actual, string message = null)
         {
             if (!Equals(expected, actual))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
             }
+
+            return this;
         }
 
-        public virtual void AreNotEqual(IComparable expected, IComparable actual, string message = null)
+        public virtual IAssert AreNotEqual(IComparable expected, IComparable actual, string message = null)
         {
             if (Equals(expected, actual))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
             }
+
+            return this;
         }
 
-        public virtual void AreEnumerablesEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
+        public virtual IAssert AreEnumerablesEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
         {
             if (expected == default(IEnumerable<T>) && actual == default(IEnumerable<T>))
             {
-                return;
+                return this;
             }
 
             if (expected == default(IEnumerable<T>) || actual == default(IEnumerable<T>) || expected.Count() != actual.Count())
@@ -91,9 +95,11 @@ namespace Edison.Framework
                     throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
                 }
             }
+
+            return this;
         }
 
-        public virtual void AreEnumerablesNotEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
+        public virtual IAssert AreEnumerablesNotEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, string message = null) where T : IComparable
         {
             if (expected == default(IEnumerable<T>) && actual == default(IEnumerable<T>))
             {
@@ -104,7 +110,7 @@ namespace Edison.Framework
                 || (expected != default(IEnumerable<T>) && actual == default(IEnumerable<T>))
                 || (expected.Count() != actual.Count()))
             {
-                return;
+                return this;
             }
 
             var _expected = expected.ToList();
@@ -114,54 +120,62 @@ namespace Edison.Framework
             {
                 if (!Equals(_expected[i], _actual[i]))
                 {
-                    return;
+                    return this;
                 }
             }
 
             throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
         }
 
-        public virtual void AreEqualIgnoreCase(string expected, string actual, string message = null)
+        public virtual IAssert AreEqualIgnoreCase(string expected, string actual, string message = null)
         {
             if (!string.Equals(expected, actual, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
             }
+
+            return this;
         }
 
-        public virtual void AreNotEqualIgnoreCase(string expected, string actual, string message = null)
+        public virtual IAssert AreNotEqualIgnoreCase(string expected, string actual, string message = null)
         {
             if (string.Equals(expected, actual, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Same
 
-        public virtual void AreSameReference(object expected, object actual, string message = null)
+        public virtual IAssert AreSameReference(object expected, object actual, string message = null)
         {
             if (!ReferenceEquals(expected, actual))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, expected, null, null, actual, null));
             }
+
+            return this;
         }
 
-        public virtual void AreNotSameReference(object expected, object actual, string message = null)
+        public virtual IAssert AreNotSameReference(object expected, object actual, string message = null)
         {
             if (ReferenceEquals(expected, actual))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", expected, null, null, actual, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Instance
 
-        public virtual void IsInstanceOf<T>(object value, string message = null)
+        public virtual IAssert IsInstanceOf<T>(object value, string message = null)
         {
             if (value == default(object))
             {
@@ -172,221 +186,281 @@ namespace Edison.Framework
             {
                 throw new AssertException(ExpectedActualMessage(message, null, typeof(T).Name, null, null, value.GetType().Name, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotInstanceOf<T>(object value, string message = null)
+        public virtual IAssert IsNotInstanceOf<T>(object value, string message = null)
         {
             if (value != default(object) && (value is T))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", typeof(T).Name, null, null, value.GetType().Name, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Boolean
 
-        public virtual void IsTrue(bool value, string message = null)
+        public virtual IAssert IsTrue(bool value, string message = null)
         {
             if (!value)
             {
                 throw new AssertException(ExpectedActualMessage(message, null, true, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsFalse(bool value, string message = null)
+        public virtual IAssert IsFalse(bool value, string message = null)
         {
             if (value)
             {
                 throw new AssertException(ExpectedActualMessage(message, null, false, null, null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Greater Than
 
-        public virtual void IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
+        public virtual IAssert IsGreaterThan(IComparable value, IComparable greaterThanThis, string message = null)
         {
             if (value == null || value.CompareTo(greaterThanThis) <= 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Greater than ", greaterThanThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null)
+        public virtual IAssert IsGreaterThanOrEqual(IComparable value, IComparable greaterThanOrEqualToThis, string message = null)
         {
             if (value == null || value.CompareTo(greaterThanOrEqualToThis) < 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Greater than or equal to ", greaterThanOrEqualToThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null)
+        public virtual IAssert IsNotGreaterThan(IComparable value, IComparable notGreaterThanThis, string message = null)
         {
             if (value == null || value.CompareTo(notGreaterThanThis) > 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Less than or equal to ", notGreaterThanThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanOrEqualToThis, string message = null)
+        public virtual IAssert IsNotGreaterThanOrEqual(IComparable value, IComparable notGreaterThanOrEqualToThis, string message = null)
         {
             if (value == null || value.CompareTo(notGreaterThanOrEqualToThis) >= 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Less than ", notGreaterThanOrEqualToThis, null, null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Less Than
 
-        public virtual void IsLessThan(IComparable value, IComparable lessThanThis, string message = null)
+        public virtual IAssert IsLessThan(IComparable value, IComparable lessThanThis, string message = null)
         {
             if (value == null || value.CompareTo(lessThanThis) >= 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Less than ", lessThanThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsLessThanOrEqual(IComparable value, IComparable lessThanOrEqualToThis, string message = null)
+        public virtual IAssert IsLessThanOrEqual(IComparable value, IComparable lessThanOrEqualToThis, string message = null)
         {
             if (value == null || value.CompareTo(lessThanOrEqualToThis) > 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Less than or equal to ", lessThanOrEqualToThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null)
+        public virtual IAssert IsNotLessThan(IComparable value, IComparable notLessThanThis, string message = null)
         {
             if (value == null || value.CompareTo(notLessThanThis) < 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Greater than or equal to ", notLessThanThis, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotLessThanOrEqual(IComparable value, IComparable notLessThanOrEqualToThis, string message = null)
+        public virtual IAssert IsNotLessThanOrEqual(IComparable value, IComparable notLessThanOrEqualToThis, string message = null)
         {
             if (value == null || value.CompareTo(notLessThanOrEqualToThis) <= 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Greater than ", notLessThanOrEqualToThis, null, null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
-        #region Files and Directories
+        #region Files
 
-        public virtual void FileExists(string path, string message = null)
+        public virtual IAssert FileExists(string path, string message = null)
         {
             if (!File.Exists(path))
             {
                 throw new AssertException(ExpectedActualMessage(message, "File exists: ", path, null, null, "File does not exist", null));
             }
+
+            return this;
         }
 
-        public virtual void FileDoesNotExist(string path, string message = null)
+        public virtual IAssert FileDoesNotExist(string path, string message = null)
         {
             if (File.Exists(path))
             {
                 throw new AssertException(ExpectedActualMessage(message, "File does not exist: ", path, null, null, "File exists", null));
             }
+
+            return this;
         }
 
-        public virtual void DirectoryExists(string path, string message = null)
+        #endregion
+
+        #region Directories
+
+        public virtual IAssert DirectoryExists(string path, string message = null)
         {
             if (!Directory.Exists(path))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Directory exists: ", path, null, null, "Directory does not exist", null));
             }
+
+            return this;
         }
 
-        public virtual void DirectoryDoesNotExists(string path, string message = null)
+        public virtual IAssert DirectoryDoesNotExists(string path, string message = null)
         {
             if (Directory.Exists(path))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Directory does not exists: ", path, null, null, "Directory exists", null));
             }
+
+            return this;
         }
 
         #endregion
 
-        #region Null, Default and Types
+        #region Null
 
-        public virtual void IsNull(object value, string message = null)
+        public virtual IAssert IsNull(object value, string message = null)
         {
             if (value != null)
             {
                 throw new AssertException(ExpectedActualMessage(message, null, null, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotNull(object value, string message = null)
+        public virtual IAssert IsNotNull(object value, string message = null)
         {
             if (value == null)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", null, null, null, null, null));
             }
+
+            return this;
         }
 
-        public virtual void IsDefault<T>(T value, string message = null)
+        #endregion
+
+        #region Defaults
+
+        public virtual IAssert IsDefault<T>(T value, string message = null)
         {
             if (!Equals(value, default(T)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Default ", typeof(T).Name, null, "Not default ", value.GetType().Name, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotDefault<T>(T value, string message = null)
+        public virtual IAssert IsNotDefault<T>(T value, string message = null)
         {
             if (Equals(value, default(T)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not default ", typeof(T).Name, null, "Default ", typeof(T).Name, null));
             }
+
+            return this;
         }
 
-        public virtual void IsInstanceOfType(object value, Type type, string message = null)
+        #endregion
+
+        #region Types
+
+        public virtual IAssert IsInstanceOfType(object value, Type type, string message = null)
         {
             if (!type.IsInstanceOfType(value))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Instance of type ", type.Name, null, "Not instance of type ", value.GetType().Name, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotInstanceOfType(object value, Type type, string message = null)
+        public virtual IAssert IsNotInstanceOfType(object value, Type type, string message = null)
         {
             if (type.IsInstanceOfType(value))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not instance of type ", type.Name, null, "Instance of type ", value.GetType().Name, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Zero
 
-        public virtual void IsZero(IComparable value, string message = null)
+        public virtual IAssert IsZero(IComparable value, string message = null)
         {
             if (!Equals(0, value))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, 0, null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotZero(IComparable value, string message = null)
+        public virtual IAssert IsNotZero(IComparable value, string message = null)
         {
             if (Equals(0, value))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not ", 0, null, null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
-        #region Date and Time
+        #region Date
 
-        public virtual void AreDatesEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
+        public virtual IAssert AreDatesEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
         {
             if (minuteOffset != 0)
             {
@@ -396,9 +470,11 @@ namespace Edison.Framework
             {
                 AreEqual(expected, actual, message);
             }
+
+            return this;
         }
 
-        public virtual void AreDatesNotEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
+        public virtual IAssert AreDatesNotEqual(DateTime expected, DateTime actual, int minuteOffset = 0, string message = null)
         {
             if (minuteOffset != 0)
             {
@@ -408,9 +484,15 @@ namespace Edison.Framework
             {
                 AreNotEqual(expected, actual, message);
             }
+
+            return this;
         }
 
-        public virtual void AreTimesEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
+        #endregion
+
+        #region Time
+
+        public virtual IAssert AreTimesEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
         {
             if (offset != default(TimeSpan))
             {
@@ -420,9 +502,11 @@ namespace Edison.Framework
             {
                 AreEqual(expected, actual, message);
             }
+
+            return this;
         }
 
-        public virtual void AreTimesNotEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
+        public virtual IAssert AreTimesNotEqual(TimeSpan expected, TimeSpan actual, TimeSpan offset = default(TimeSpan), string message = null)
         {
             if (offset != default(TimeSpan))
             {
@@ -432,154 +516,225 @@ namespace Edison.Framework
             {
                 AreNotEqual(expected, actual, message);
             }
+
+            return this;
         }
 
         #endregion
 
         #region Between
 
-        public virtual void IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
+        public virtual IAssert IsBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
             if (value == null || value.CompareTo(lowerBound) < 0 || value.CompareTo(upperBound) > 0)
             {
                 throw new AssertException(ExpectedActualMessage(message, "Between ", Safeguard(lowerBound, "NULL") + " and " + Safeguard(upperBound, "NULL"), null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
+        public virtual IAssert IsNotBetween(IComparable value, IComparable lowerBound, IComparable upperBound, string message = null)
         {
             if (value != null && (value.CompareTo(lowerBound) >= 0 && value.CompareTo(upperBound) <= 0))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Not between ", Safeguard(lowerBound, "NULL") + " and " + Safeguard(upperBound, "NULL"), null, null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Contains
 
-        public virtual void DoesContain(string value, string containsThis, string message = null)
+        public virtual IAssert DoesContain(string value, string containsThis, string message = null)
         {
             if (value == null || !value.Contains(containsThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Contains '", containsThis, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void DoesNotContain(string value, string doesNotContainThis, string message = null)
+        public virtual IAssert DoesNotContain(string value, string doesNotContainThis, string message = null)
         {
             if (value != null && value.Contains(doesNotContainThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Does not contain '", doesNotContainThis, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void DoesEnumerableContain<T>(IEnumerable<T> items, T containsThisItem, string message = null)
+        public virtual IAssert DoesEnumerableContain<T>(IEnumerable<T> items, T containsThisItem, string message = null)
         {
             if (items == default(IEnumerable<T>) || !items.Contains(containsThisItem))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Contains ", containsThisItem, null, null, items, null));
             }
+
+            return this;
         }
 
-        public virtual void DoesEnumerableNotContain<T>(IEnumerable<T> items, T doesNotContainThisItem, string message = null)
+        public virtual IAssert DoesEnumerableNotContain<T>(IEnumerable<T> items, T doesNotContainThisItem, string message = null)
         {
             if (items != null && items.Contains(doesNotContainThisItem))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Does not contain ", doesNotContainThisItem, null, null, items, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Matches
 
-        public virtual void IsMatch(string pattern, string value, string message = null)
+        public virtual IAssert IsMatch(string pattern, string value, string message = null)
         {
             if (value == null || pattern == null || !Regex.IsMatch(value, pattern))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Matches '", pattern, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotMatch(string pattern, string value, string message = null)
+        public virtual IAssert IsNotMatch(string pattern, string value, string message = null)
         {
             if (value != null && (pattern == null || Regex.IsMatch(value, pattern)))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Does not match '", pattern, "'", null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
-        #region Starts and Ends With
+        #region Starts With
 
-        public virtual void StartsWith(string value, string startsWithThis, string message = null)
+        public virtual IAssert StartsWith(string value, string startsWithThis, string message = null)
         {
             if (value == null || !value.StartsWith(startsWithThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Starts with '", startsWithThis, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void DoesNotStartWith(string value, string doesNotStartsWithThis, string message = null)
+        public virtual IAssert DoesNotStartWith(string value, string doesNotStartsWithThis, string message = null)
         {
             if (value != null && value.StartsWith(doesNotStartsWithThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Does not start with '", doesNotStartsWithThis, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void EndsWith(string value, string endsWithThis, string message = null)
+        #endregion
+
+        #region Ends With
+
+        public virtual IAssert EndsWith(string value, string endsWithThis, string message = null)
         {
             if (value == null || !value.EndsWith(endsWithThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "End with '", endsWithThis, "'", null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void DoesNotEndWith(string value, string doesNotEndsWithThis, string message = null)
+        public virtual IAssert DoesNotEndWith(string value, string doesNotEndsWithThis, string message = null)
         {
             if (value != null && value.EndsWith(doesNotEndsWithThis))
             {
                 throw new AssertException(ExpectedActualMessage(message, "Does not end with '", doesNotEndsWithThis, "'", null, value, null));
             }
+
+            return this;
         }
 
         #endregion
 
         #region Empty
 
-        public virtual void IsEmpty(string value, string message = null)
+        public virtual IAssert IsEmpty(string value, string message = null)
         {
             if (!Equals(value, string.Empty))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, "Empty string", null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsNotEmpty(string value, string message = null)
+        public virtual IAssert IsNotEmpty(string value, string message = null)
         {
             if (Equals(value, string.Empty))
             {
                 throw new AssertException(ExpectedActualMessage(message, null, "Not an empty string", null, null, "Empty string", null));
             }
+
+            return this;
         }
 
-        public virtual void IsEnumerableEmpty<T>(IEnumerable<T> value, string message = null)
+        public virtual IAssert IsEnumerableEmpty<T>(IEnumerable<T> value, string message = null)
         {
             if (value != default(IEnumerable<T>) && value.Any())
             {
                 throw new AssertException(ExpectedActualMessage(message, null, "Empty enumerable", null, null, value, null));
             }
+
+            return this;
         }
 
-        public virtual void IsEnumerableNotEmpty<T>(IEnumerable<T> value, string message = null)
+        public virtual IAssert IsEnumerableNotEmpty<T>(IEnumerable<T> value, string message = null)
         {
             if (value == default(IEnumerable<T>) || !value.Any())
             {
                 throw new AssertException(ExpectedActualMessage(message, null, "Not an empty enumerable", null, null, "Empty enumerable", null));
             }
+
+            return this;
+        }
+
+        #endregion
+
+        #region Or
+
+        public virtual IAssert Or(params Func<IAssert>[] asserts)
+        {
+            if (asserts == default(Func<IAssert>[]) || !asserts.Any())
+            {
+                return this;
+            }
+
+            var fails = new List<AssertException>(asserts.Length);
+
+            foreach (var assert in asserts)
+            {
+                try
+                {
+                    assert();
+                }
+                catch (AssertException ex)
+                {
+                    fails.Add(ex);
+                }
+            }
+
+            if (fails.Count == asserts.Length)
+            {
+                throw new AssertException(string.Join<string>(Environment.NewLine + Environment.NewLine, fails.Select(x => x.Message)));
+            }
+
+            return this;
         }
 
         #endregion
