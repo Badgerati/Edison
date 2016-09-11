@@ -9,6 +9,7 @@ License: MIT (see LICENSE for details)
 using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Exceptions;
+using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System;
 
@@ -16,6 +17,17 @@ namespace Edison.Console
 {
     public class Program
     {
+
+        #region Repositories
+
+        private static IAppDomainRepository AppDomainRepository
+        {
+            get { return DIContainer.Instance.Get<IAppDomainRepository>(); }
+        }
+
+        #endregion
+
+        #region Exit Codes
 
         private class ExitCode
         {
@@ -26,18 +38,30 @@ namespace Edison.Console
             public const int UNKNOWN_ERROR = -1;
         }
 
+        #endregion
+
+        #region Main
 
         public static int Main(string[] args)
         {
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+            // hook up the event to unload repos on app exit
+            AppDomainRepository.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+
+            // create edison instance
             var context = EdisonContext.Create();
 
+            // attempt to parse the passed parameters (from CLI or Edisonfile)
             try
             {
                 if (!ParameterParser.Parse(context, args))
                 {
-                    return ExitCode.ARGUMENT_ERROR;
+                    return ExitCode.SUCCESS;
                 }
+            }
+            catch (ArgumentException aex)
+            {
+                Logger.Instance.WriteInnerException(aex);
+                return ExitCode.ARGUMENT_ERROR;
             }
             catch (Exception ex)
             {
@@ -45,6 +69,7 @@ namespace Edison.Console
                 return ExitCode.UNKNOWN_ERROR;
             }
 
+            // run all of the tests
             try
             {
                 var results = context.Run();
@@ -64,13 +89,20 @@ namespace Edison.Console
                 return ExitCode.UNKNOWN_ERROR;
             }
 
+            // return successful
             return ExitCode.SUCCESS;
         }
+
+        #endregion
+
+        #region Events
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
             DIContainer.Instance.Dispose();
         }
+
+        #endregion
 
     }
 }

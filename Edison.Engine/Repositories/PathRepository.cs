@@ -5,7 +5,7 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
- 
+
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.IO;
@@ -16,6 +16,15 @@ namespace Edison.Engine.Repositories
     [InjectionInterface(typeof(IPathRepository))]
     public class PathRepository : IPathRepository
     {
+
+        #region Repositories
+
+        private IDirectoryRepository DirectoryRepository
+        {
+            get { return DIContainer.Instance.Get<IDirectoryRepository>(); }
+        }
+
+        #endregion
 
         public string GetDirectoryName(string path)
         {
@@ -35,6 +44,24 @@ namespace Edison.Engine.Repositories
         public string GetFullPath(string path)
         {
             return Path.GetFullPath(path);
+        }
+
+        public string GetTempPath()
+        {
+            return Path.GetTempPath();
+        }
+
+        public string GetRandomFileName()
+        {
+            return Path.GetRandomFileName();
+        }
+
+        public string GetRandomTempPath()
+        {
+            var temp = GetTempPath();
+            var path = string.Empty;
+            while (DirectoryRepository.Exists((path = Combine(temp, GetRandomFileName())))) { }
+            return path;
         }
 
         public string Combine(params string[] paths)

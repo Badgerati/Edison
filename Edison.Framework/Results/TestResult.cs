@@ -14,6 +14,7 @@ using System.Text;
 
 namespace Edison.Framework
 {
+    [Serializable]
     public class TestResult
     {
 

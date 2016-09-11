@@ -612,6 +612,7 @@ namespace Edison.Console.Test
         #region Edisonfile
 
         [Test]
+        [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Edisonfile", MatchType = MessageMatch.Contains)]
         public void EdisonfileDoesntExist()
         {
             var ef = "dummy/Edisonfile";

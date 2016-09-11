@@ -54,10 +54,12 @@
     <Compile Include="Core\Exceptions\ValidationException.cs" />
     <Compile Include="Core\Exceptions\ParseException.cs" />
     <Compile Include="Repositories\AssemblyRepository.cs" />
+    <Compile Include="Repositories\AppDomainRepository.cs" />
     <Compile Include="Repositories\DateTimeRepository.cs" />
     <Compile Include="Repositories\DirectoryRepository.cs" />
     <Compile Include="Repositories\FileRepository.cs" />
     <Compile Include="Repositories\Interfaces\IAssemblyRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IAppDomainRepository.cs" />
     <Compile Include="Repositories\Interfaces\IDateTimeRepository.cs" />
     <Compile Include="Repositories\Interfaces\IDirectoryRepository.cs" />
     <Compile Include="Repositories\Interfaces\IFileRepository.cs" />

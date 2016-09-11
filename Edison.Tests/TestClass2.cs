@@ -17,6 +17,15 @@ namespace Edison.Tests
     {
 
         [Test]
+        [ExpectedException(typeof(AssertException), AllowAssertException = true)]
+        public void TestListFailure()
+        {
+            var values1 = new[] { 1, 2, 3 };
+            var values2 = new[] { 1, 2, 4 };
+            AssertFactory.Instance.AreEnumerablesEqual(values1, values2);
+        }
+
+        [Test]
         [Repeat(2)]
         public void TestMethod()
         {
@@ -24,14 +33,6 @@ namespace Edison.Tests
             Console.WriteLine(TestStatisClass.StringValue);
             AssertFactory.Instance.AreEqual(1, 1, "Values are not equal");
             Console.WriteLine("WOO9!!!");
-        }
-
-        [Test]
-        public void TestListFailure()
-        {
-            var values1 = new[] { 1, 2, 3 };
-            var values2 = new[] { 1, 2, 4 };
-            AssertFactory.Instance.AreEnumerablesEqual(values1, values2);
         }
 
     }

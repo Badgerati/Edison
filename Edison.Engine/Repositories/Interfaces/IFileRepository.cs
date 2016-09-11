@@ -20,6 +20,8 @@ namespace Edison.Engine.Repositories.Interfaces
         FileStream Create(string path);
         void AppendAllText(string path, string contents, Encoding encoding);
         void WriteAllLines(string path, string[] lines, Encoding encoding);
+        void WriteAllText(string path, string text, Encoding encoding);
+        void Copy(string source, string target, bool overwrite);
 
     }
 }

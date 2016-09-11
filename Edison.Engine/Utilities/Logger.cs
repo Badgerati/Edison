@@ -170,6 +170,18 @@ namespace Edison.Engine
             }
         }
 
+        public void WriteObject(object obj, bool singleLine = false)
+        {
+            if (singleLine)
+            {
+                OutStream.Write(obj.ToString());
+            }
+            else
+            {
+                OutStream.WriteLine(obj.ToString());
+            }
+        }
+
         public void WriteInnerException(Exception ex, bool asMessage = false)
         {
             WriteException(ex.InnerException == default(Exception) ? ex : ex.InnerException, true);

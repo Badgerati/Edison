@@ -48,7 +48,7 @@ namespace Edison.Engine.Repositories
         {
             return Assembly.GetEntryAssembly();
         }
-        
+
         public IEnumerable<Type> GetTestFixtures(
             Assembly assembly,
             IList<string> includedCategories,
@@ -173,7 +173,7 @@ namespace Edison.Engine.Repositories
             string suite)
         {
             var _fixtures = GetTestFixtures(assembly, includedCategories, excludedCategories, fixtures, tests, suite);
-            
+
             if (!_fixtures.Any())
             {
                 return 0;

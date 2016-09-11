@@ -21,21 +21,18 @@ namespace Edison.Tests
         [Test]
         public void TestMethod1()
         {
-            Thread.Sleep(1000);
             AssertFactory.Instance.AreEqual(2, 2, "Values are not equal");
         }
 
         [Test]
         public void TestMethod2()
         {
-            Thread.Sleep(1000);
             AssertFactory.Instance.AreEqual(2, 2, "Values are not equal");
         }
 
         [Test]
         public void TestMethod3()
         {
-            Thread.Sleep(1000);
             AssertFactory.Instance.AreEqual(2, 2, "Values are not equal");
         }
 
@@ -43,7 +40,6 @@ namespace Edison.Tests
         [Concurrency(ConcurrencyType.Serial)]
         public void TestMethod4()
         {
-            Thread.Sleep(1000);
             AssertFactory.Instance.AreEqual(2, 2, "Values are not equal");
         }
 

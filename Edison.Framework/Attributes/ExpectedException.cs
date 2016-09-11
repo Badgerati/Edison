@@ -14,6 +14,9 @@ namespace Edison.Framework
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ExpectedExceptionAttribute : Attribute
     {
+
+        #region Properties
+
         public readonly Type ExpectedException;
 
         private string _expectedMessage = string.Empty;
@@ -37,9 +40,22 @@ namespace Edison.Framework
             set { _inverseMatch = value; }
         }
 
+        private bool _allowAssertException = false;
+        public bool AllowAssertException
+        {
+            get { return _allowAssertException; }
+            set { _allowAssertException = value; }
+        }
+
+        #endregion
+
+        #region Constructor
+
         public ExpectedExceptionAttribute(Type exception)
         {
             ExpectedException = exception;
         }
+
+        #endregion
     }
 }

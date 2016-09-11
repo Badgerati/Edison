@@ -588,12 +588,12 @@ namespace Edison.Framework
 
         protected virtual string ExpectedActualMessage(string premessage, string preExpected, object expected, string postExpected, string preActual, object actual, string postActual)
         {
-            if (expected != default(object) && expected is IEnumerable)
+            if (expected != default(object) && !(expected is string) && (expected is IEnumerable))
             {
                 expected = BuildEnumerableString((IEnumerable)expected);
             }
 
-            if (actual != default(object) && actual is IEnumerable)
+            if (actual != default(object) && !(actual is string) && (actual is IEnumerable))
             {
                 actual = BuildEnumerableString((IEnumerable)actual);
             }

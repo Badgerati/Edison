@@ -24,6 +24,7 @@ using Edison.Engine.Repositories.Outputs;
 
 namespace Edison.Engine.Utilities.Structures
 {
+    [Serializable]
     public class TestResultDictionary
     {
 

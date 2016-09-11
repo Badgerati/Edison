@@ -42,9 +42,19 @@ namespace Edison.Engine.Repositories
             File.AppendAllText(path, contents, encoding == default(Encoding) ? Encoding.UTF8 : encoding);
         }
 
+        public void WriteAllText(string path, string text, Encoding encoding)
+        {
+            File.WriteAllText(path, text, encoding);
+        }
+
         public void WriteAllLines(string path, string[] lines, Encoding encoding)
         {
             File.WriteAllLines(path, lines, encoding);
+        }
+
+        public void Copy(string source, string target, bool overwrite)
+        {
+            File.Copy(source, target, overwrite);
         }
 
     }
