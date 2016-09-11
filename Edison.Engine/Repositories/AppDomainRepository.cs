@@ -16,6 +16,16 @@ namespace Edison.Engine.Repositories
     public class AppDomainRepository : IAppDomainRepository
     {
 
+        #region Repositories
+
+        private IFileRepository FileRepository
+        {
+            get { return DIContainer.Instance.Get<IFileRepository>(); }
+        }
+
+        #endregion
+
+
         public AppDomain CurrentDomain
         {
             get { return AppDomain.CurrentDomain; }
@@ -24,6 +34,11 @@ namespace Edison.Engine.Repositories
 
         public void SetAppConfig(string path)
         {
+            if (!FileRepository.Exists(path))
+            {
+                return;
+            }
+
             CurrentDomain.SetData("APP_CONFIG_FILE", path);
         }
 
