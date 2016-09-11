@@ -89,6 +89,68 @@ namespace Edison.Framework.Tests
         }
 
         [NUnit.Framework.Test]
+        public void Or_AllPass_Success_Test()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.Or(() => assert.AreEqual(5, 5),
+                          () => assert.AreEqual(1, 1));
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void Or_OnePass_Success_Test()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.Or(() => assert.AreEqual(5, 6),
+                          () => assert.AreEqual(1, 1));
+            }
+            catch (AssertException aex)
+            {
+                NAssert.Fail("Assert exception should not be thrown: " + aex.Message);
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
+        public void Or_NonePass_Fail_Test()
+        {
+            var assert = GetAssert();
+
+            try
+            {
+                assert.Or(() => assert.AreEqual(5, 6),
+                          () => assert.AreEqual(1, 2));
+            }
+            catch (AssertException aex)
+            {
+                NAssert.IsNotNull(aex);
+                NAssert.AreEqual(TestResultState.Failure, aex.TestResultState);
+                NAssert.IsFalse(string.IsNullOrEmpty(aex.Message));
+            }
+            catch (Exception)
+            {
+                NAssert.Fail("Incorrect exception type");
+            }
+        }
+
+        [NUnit.Framework.Test]
         public void AreEqualTest()
         {
             var assert = GetAssert();
@@ -127,7 +189,7 @@ namespace Edison.Framework.Tests
                 NAssert.Fail("Incorrect exception type");
             }
         }
-        
+
         [NUnit.Framework.Test]
         public void AreEnumerablesEqualTest()
         {
@@ -293,7 +355,7 @@ namespace Edison.Framework.Tests
                 NAssert.Fail("Incorrect exception type");
             }
         }
-        
+
         [NUnit.Framework.Test]
         public void IsMatchTest()
         {
@@ -333,7 +395,7 @@ namespace Edison.Framework.Tests
                 NAssert.Fail("Incorrect exception type");
             }
         }
-                
+
         [NUnit.Framework.Test]
         public void StartsWithTest()
         {
@@ -832,7 +894,7 @@ namespace Edison.Framework.Tests
         {
             var assertMock = new Mock<IAssert>();
             assertMock.Setup(x => x.DirectoryExists("C:/Users", string.Empty));
-            
+
             try
             {
                 assertMock.Object.DirectoryExists("C:/Users");
