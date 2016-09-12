@@ -8,6 +8,7 @@ License: MIT (see LICENSE for details)
 
 using Edison.Framework.Enums;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -34,6 +35,10 @@ namespace Edison.Framework
         public IEnumerable<string> Authors { get; set; }
         public string Assembly { get; set; }
 
+        #endregion
+
+        #region Extension Properties
+
         public string CreateDateTimeString
         {
             get { return CreateDateTime.ToString("yyyy-MM-dd HH:mm:ss"); }
@@ -44,11 +49,14 @@ namespace Edison.Framework
             get { return (NameSpace + "." + TestName); }
         }
 
-        [Obsolete("This property will soon be deprecated, please use FullName instead.")]
-        public string Name
+        public bool IsError
         {
-            get { return FullName; }
-            set { FullName = value; }
+            get { return TestResultGroup.Errors.Contains(State); }
+        }
+
+        public bool IsFailure
+        {
+            get { return TestResultGroup.Failures.Contains(State); }
         }
 
         #endregion
