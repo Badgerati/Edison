@@ -61,6 +61,8 @@ namespace Edison.GUI
         private Assembly Assembly = default(Assembly);
         private int TotalNumberOfTestsRunning = 0;
         private int CurrentNumberOfTestsRun = 0;
+        private int CurrentNumberOfFailedTests = 0;
+        private int CurrentNumberOfErroredTests = 0;
         private string FileName = string.Empty;
         private string FilePath = string.Empty;
 
@@ -372,6 +374,9 @@ namespace Edison.GUI
             Logger.Instance.SetConsoleOutput(logger);
 
             CurrentNumberOfTestsRun = 0;
+            CurrentNumberOfErroredTests = 0;
+            CurrentNumberOfFailedTests = 0;
+
             TotalNumberOfTestsRunning = AssemblyRepository.GetTestCount(
                 Assembly,
                 EdisonContext.IncludedCategories,
@@ -428,11 +433,27 @@ namespace Edison.GUI
             {
                 if (TestProgressBar.InvokeRequired)
                 {
-                    TestProgressBar.Invoke((MethodInvoker)delegate { TestProgressBar.Value = progress; });
+                    TestProgressBar.Invoke((MethodInvoker)delegate {
+                        TestProgressBar.Value = progress;
+                        TestProgressBar.ForeColor = CurrentNumberOfErroredTests > 0
+                                    ? Color.Red
+                                    : CurrentNumberOfFailedTests > 0
+                                        ? Color.Orange
+                                        : Color.LimeGreen;
+
+                        TestProgressBar.BackColor = TestProgressBar.ForeColor;
+                    });
                 }
                 else
                 {
                     TestProgressBar.Value = progress;
+                    TestProgressBar.ForeColor = CurrentNumberOfErroredTests > 0
+                                ? Color.Red
+                                : CurrentNumberOfFailedTests > 0
+                                    ? Color.Orange
+                                    : Color.LimeGreen;
+
+                    TestProgressBar.BackColor = TestProgressBar.ForeColor;
                 }
             }
             catch (ObjectDisposedException) { }
@@ -448,6 +469,15 @@ namespace Edison.GUI
             if (FailedTestListBox.IsDisposed)
             {
                 return;
+            }
+
+            if (result.IsFailure)
+            {
+                CurrentNumberOfFailedTests++;
+            }
+            else if (result.IsError)
+            {
+                CurrentNumberOfErroredTests++;
             }
 
             try

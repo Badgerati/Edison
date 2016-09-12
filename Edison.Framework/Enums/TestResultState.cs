@@ -41,4 +41,49 @@ namespace Edison.Framework.Enums
         TestFixtureTeardownError,
         TestFixtureTeardownFailure
     }
+
+    public static class TestResultGroup
+    {
+
+        private static TestResultState[] _errors;
+        public static TestResultState[] Errors
+        {
+            get
+            {
+                if (_errors == default(TestResultState[]))
+                {
+                    _errors = new[] { TestResultState.Error,
+                        TestResultState.GlobalSetupError,
+                        TestResultState.GlobalTeardownError,
+                        TestResultState.SetupError,
+                        TestResultState.TeardownError,
+                        TestResultState.TestFixtureSetupError,
+                        TestResultState.TestFixtureTeardownError };
+                }
+
+                return _errors;
+            }
+        }
+
+        private static TestResultState[] _failures;
+        public static TestResultState[] Failures
+        {
+            get
+            {
+                if (_failures == default(TestResultState[]))
+                {
+                    _failures = new[] { TestResultState.Failure,
+                        TestResultState.GlobalSetupFailure,
+                        TestResultState.GlobalTeardownFailure,
+                        TestResultState.SetupFailure,
+                        TestResultState.TeardownFailure,
+                        TestResultState.TestFixtureSetupFailure,
+                        TestResultState.TestFixtureTeardownFailure };
+                }
+
+                return _failures;
+            }
+        }
+
+    }
 }
