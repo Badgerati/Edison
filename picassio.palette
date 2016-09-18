@@ -1,0 +1,23 @@
+{
+    "paint": [
+        {
+            "type": "variables",
+            "variables": {
+                "mode": "Release"
+            }
+        },
+        {
+            "type": "chocolatey",
+            "ensure": "install",
+            "software": {
+                "cake.portable": "",
+                "7-zip.install": "",
+                "checksum": "",
+                "NuGet.CommandLine": ""
+            }
+        },
+        {
+            "type": "cake"
+        }
+    ]
+}

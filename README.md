@@ -12,7 +12,7 @@ Many features, such as Attributes, are similar to other test frameworks for a mo
 
 * Framework with Attributes and Assert class for writing unit/integration tests.
 * Can run tests in parallel.
-* Output can be in XML, JSON, CSV or just plain text.
+* Output can be in XML, JSON, CSV, HTML, Markdown or just plain text.
 * Ability to send test results, in real-time, to a URL for later analysis.
 * Console application from which to run your tests.
 * GUI for a more visual look on running tests.

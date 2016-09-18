@@ -1,5 +1,5 @@
 var target = Argument("target", "Default");
-var configuration = Argument("configuration", "Debug");
+var configuration = Argument("configuration", "Release");
 var edisonSln = "./Edison.sln";
 
 Task("Restore Packages")
@@ -21,7 +21,7 @@ Task("Unit Tests")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    NUnit("**/bin/Debug/*.Test.dll", new NUnitSettings {
+    NUnit("**/bin/Release/*.Test.dll", new NUnitSettings {
         ShadowCopy = false,
         NoLogo = true,
         ToolPath = "./packages/NUnit.Runners.2.6.4/tools/nunit-console.exe"

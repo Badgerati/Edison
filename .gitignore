@@ -23,9 +23,6 @@ bld/
 # Roslyn cache directories
 *.ide/
 
-# Picassio
-*.palette
-
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
