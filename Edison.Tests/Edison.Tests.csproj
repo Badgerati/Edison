@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BaseTestClass.cs" />
     <Compile Include="GlobalTestClass.cs" />
+    <Compile Include="TestBrowser.cs" />
     <Compile Include="TestAppSettings.cs" />
     <Compile Include="TestParallelism.cs" />
     <Compile Include="TestClass.cs" />
