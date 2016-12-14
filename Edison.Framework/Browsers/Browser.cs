@@ -10,7 +10,6 @@ using System;
 using SHDocVw;
 using System.Threading;
 using System.Collections;
-using System.Text.RegularExpressions;
 
 namespace Edison.Framework
 {
@@ -74,19 +73,14 @@ namespace Edison.Framework
             SleepWhileBusy();
         }
 
-        public void MoodifyUrl(string find, string replace)
+        public void ModifyUrl(string find, string replace)
         {
             Navigate(URL.Replace(find, replace));
         }
 
-        public void Sleep(int milliseconds)
+        public void Type(HtmlIdentifierType identifierType, string identifier, string value)
         {
-            Thread.Sleep(milliseconds);
-        }
-
-        public void SetElementValue(HtmlElementIdentifierType identifierType, string identifier, string value)
-        {
-            var control = GetElement(identifierType, identifier);
+            var control = Get(identifierType, identifier);
             
             if (control.Length > 1 && ((string)control[0].tagName).Equals("option", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -105,9 +99,9 @@ namespace Edison.Framework
             }
         }
 
-        public string GetElementValue(HtmlElementIdentifierType identifierType, string identifier, bool getInnerHtml = false)
+        public string Value(HtmlIdentifierType identifierType, string identifier, bool getInnerHtml = false)
         {
-            var control = GetElement(identifierType, identifier);
+            var control = Get(identifierType, identifier);
 
             if (control.Length > 1 && ((string)control[0].tagName).Equals("option", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -129,37 +123,21 @@ namespace Edison.Framework
             }
         }
 
-        public void ClickElement(HtmlElementIdentifierType identifierType, string identifier)
+        public void Click(HtmlIdentifierType identifierType, string identifier)
         {
-            var control = GetElement(identifierType, identifier);
+            var control = Get(identifierType, identifier);
             control.click();
             SleepWhileBusy();
         }
 
-        public void CheckElement(HtmlElementIdentifierType identifierType, string identifier, bool uncheck = false)
+        public void Check(HtmlIdentifierType identifierType, string identifier, bool uncheck = false)
         {
-            var control = GetElement(identifierType, identifier);
+            var control = Get(identifierType, identifier);
             control.Checked = !uncheck;
             SleepWhileBusy();
         }
 
-        public void SleepWhileBusy(int timeout = 30, int sleepTimeInMillis = 1000)
-        {
-            var count = 0;
-
-            while (Explorer.Busy)
-            {
-                if (count >= timeout)
-                {
-                    throw new TimeoutException(string.Format("Loading URL has timed-out after {0} seconds", timeout));
-                }
-
-                Thread.Sleep(sleepTimeInMillis);
-                count++;
-            }
-        }
-
-        public dynamic GetElement(HtmlElementIdentifierType identifierType, string identifier)
+        public dynamic Get(HtmlIdentifierType identifierType, string identifier)
         {
             if (Explorer.Document == null)
             {
@@ -171,19 +149,19 @@ namespace Edison.Framework
 
             switch (identifierType)
             {
-                case HtmlElementIdentifierType.ID:
+                case HtmlIdentifierType.ID:
                     control = Explorer.Document.getElementById(identifier);
                     break;
 
-                case HtmlElementIdentifierType.Name:
+                case HtmlIdentifierType.Name:
                     controls = (IEnumerable)Explorer.Document.getElementsByName(identifier);
                     break;
 
-                case HtmlElementIdentifierType.Tag:
+                case HtmlIdentifierType.Tag:
                     controls = (IEnumerable)Explorer.Document.getElementsByTagName(identifier);
                     break;
 
-                case HtmlElementIdentifierType.Class:
+                case HtmlIdentifierType.Class:
                     controls = (IEnumerable)Explorer.Document.getElementsByClassName(identifier);
                     break;
 
@@ -202,6 +180,27 @@ namespace Edison.Framework
             }
 
             return control;
+        }
+
+        public void Sleep(int milliseconds)
+        {
+            Thread.Sleep(milliseconds);
+        }
+
+        public void SleepWhileBusy(int timeout = 30, int sleepTimeInMillis = 1000)
+        {
+            var count = 0;
+
+            while (Explorer.Busy)
+            {
+                if (count >= timeout)
+                {
+                    throw new TimeoutException(string.Format("Loading URL has timed-out after {0} seconds", timeout));
+                }
+
+                Thread.Sleep(sleepTimeInMillis);
+                count++;
+            }
         }
 
         #endregion

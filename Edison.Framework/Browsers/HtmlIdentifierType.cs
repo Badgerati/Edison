@@ -8,7 +8,7 @@ License: MIT (see LICENSE for details)
 
 namespace Edison.Framework
 {
-    public enum HtmlElementIdentifierType
+    public enum HtmlIdentifierType
     {
         ID,
         Name,

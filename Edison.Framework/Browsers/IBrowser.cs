@@ -22,21 +22,21 @@ namespace Edison.Framework
 
         void Navigate(string url);
 
-        void MoodifyUrl(string find, string replace);
+        void ModifyUrl(string find, string replace);
+
+        void Type(HtmlIdentifierType identifierType, string identifier, string value);
+
+        string Value(HtmlIdentifierType identifierType, string identifier, bool useInnerHtml = false);
+
+        void Click(HtmlIdentifierType identifierType, string identifier);
+
+        void Check(HtmlIdentifierType identifierType, string identifier, bool uncheck = false);
+
+        dynamic Get(HtmlIdentifierType identifierType, string identifier);
 
         void Sleep(int milliseconds);
 
-        void SetElementValue(HtmlElementIdentifierType identifierType, string identifier, string value);
-
-        string GetElementValue(HtmlElementIdentifierType identifierType, string identifier, bool getInnerHtml = false);
-
-        void ClickElement(HtmlElementIdentifierType identifierType, string identifier);
-
-        void CheckElement(HtmlElementIdentifierType identifierType, string identifier, bool uncheck = false);
-
         void SleepWhileBusy(int timeout = 30, int sleepTimeInMillis = 1000);
-
-        dynamic GetElement(HtmlElementIdentifierType identifierType, string identifier);
 
     }
 }

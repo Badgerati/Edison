@@ -21,7 +21,7 @@ namespace Edison.Tests
             {
                 browser.Navigate("http://www.tizag.com/htmlT/htmlselect.php");
                 
-                browser.ClickElement(HtmlElementIdentifierType.Name, "sa");
+                browser.Click(HtmlIdentifierType.Name, "sa");
                 AssertFactory.Instance.ExpectUrl(browser, "https://cse.google.com/cse", startsWith: true);
             }
         }

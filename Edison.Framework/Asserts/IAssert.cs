@@ -97,7 +97,7 @@ namespace Edison.Framework
         IAssert Or(params Func<IAssert>[] asserts);
 
         IAssert ExpectUrl(IBrowser browser, string expectedUrl, int attempts = 10, bool startsWith = false, string message = null);
-        IAssert ExpectElement(IBrowser browser, HtmlElementIdentifierType identifierType, string expectedIdentifier, int attempts = 10, string message = null);
+        IAssert ExpectElement(IBrowser browser, HtmlIdentifierType identifierType, string expectedIdentifier, int attempts = 10, string message = null);
         IAssert ExpectValue(IBrowser browser, string expectedValue, int attempts = 10, string message = null);
 
     }

@@ -760,7 +760,7 @@ namespace Edison.Framework
             return this;
         }
 
-        public virtual IAssert ExpectElement(IBrowser browser, HtmlElementIdentifierType identifierType, string expectedIdentifier, int attempts = 10, string message = null)
+        public virtual IAssert ExpectElement(IBrowser browser, HtmlIdentifierType identifierType, string expectedIdentifier, int attempts = 10, string message = null)
         {
             var count = 0;
             var control = default(dynamic);
@@ -772,7 +772,7 @@ namespace Edison.Framework
                     throw new AssertException(ExpectedActualMessage(message, null, expectedIdentifier, null, "Element not found at: ", browser.URL, null));
                 }
 
-                control = browser.GetElement(identifierType, expectedIdentifier);
+                control = browser.Get(identifierType, expectedIdentifier);
 
                 count++;
                 browser.Sleep(1000);

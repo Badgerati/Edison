@@ -69,7 +69,7 @@
     <Compile Include="Asserts\IAssert.cs" />
     <Compile Include="Browsers\Browser.cs" />
     <Compile Include="Browsers\BrowserHelper.cs" />
-    <Compile Include="Browsers\HtmlElementIdentifierType.cs" />
+    <Compile Include="Browsers\HtmlIdentifierType.cs" />
     <Compile Include="Browsers\IBrowser.cs" />
     <Compile Include="Enums\MatchType.cs" />
     <Compile Include="Exceptions\AssertException.cs" />
