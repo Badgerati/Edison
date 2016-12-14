@@ -44,7 +44,7 @@ namespace Edison.Framework
 
         #region Constructor
 
-        public Browser(bool visible = false)
+        public Browser(string url, bool visible = false)
         {
             Explorer = new InternetExplorer()
             {
@@ -52,6 +52,8 @@ namespace Edison.Framework
                 Silent = true,
                 TheaterMode = false
             };
+
+            Navigate(url);
         }
 
         #endregion
@@ -141,7 +143,7 @@ namespace Edison.Framework
         {
             if (Explorer.Document == null)
             {
-                throw new NullReferenceException("Browser object has not Document available for querying");
+                throw new NullReferenceException("Browser object has no Document available for querying");
             }
 
             var controls = default(dynamic);
@@ -166,7 +168,7 @@ namespace Edison.Framework
                     break;
 
                 default:
-                    throw new ArgumentException(string.Format("Unrecognised HtmlElementIdentifierType: '{0}'", identifierType));
+                    throw new ArgumentException(string.Format("Unrecognised HtmlIdentifierType: '{0}'", identifierType));
             }
 
             if (controls != null && controls.Length > 0)
