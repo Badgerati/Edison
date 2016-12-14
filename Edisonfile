@@ -4,9 +4,9 @@ assemblies:
 #fixtures:
 #  - "Edison.Tests.TestClass2"
 
-disable_test_output: true
+disable_test_output: false
 disable_file_output: false
-console_output_type: dot
+console_output_type: txt
 output_type: json
 fixture_threads: 1
-rerun: true
+rerun: false
