@@ -39,6 +39,8 @@ Install-Package Edison.TestDriven # < this is the core framework, but has suppor
 Install-Package Edison.Console
 ```
 
+To use the Edison framework and TestDriven.NET, you'll need to install the second package above. Then you'll need to manually add a reference to the `Edison.Framework.dll` within the `Edison.TestDriven\tools` directory of the project's packages.
+
 # Usage
 ## Framework
 
