@@ -7,7 +7,6 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
-using Edison.Framework.Enums;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -39,6 +38,8 @@ namespace Edison.Engine.Repositories.Interfaces
 
 
 
+        bool IsType(MemberInfo member);
+        bool IsMethod(MemberInfo member);
         IEnumerable<TestCaseAttribute> GetTestCases(MemberInfo member);
 
         IEnumerable<string> GetAuthors(MemberInfo member);
