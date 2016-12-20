@@ -48,17 +48,17 @@ namespace Edison.Engine.Utilities.Structures
 
         public IEnumerable<TestResult> FailedTestResults
         {
-            get { return Results.Values.Where(x => x.State != TestResultState.Success); }
+            get { return Results.Values.Where(x => x.AbsoluteState != TestResultAbsoluteState.Success); }
         }
 
         public IEnumerable<TestResult> SuccessTestResults
         {
-            get { return Results.Values.Where(x => x.State == TestResultState.Success); }
+            get { return Results.Values.Where(x => x.AbsoluteState == TestResultAbsoluteState.Success); }
         }
 
         public double SuccessRate
         {
-            get { return Math.Round(((double)PassedCount / (double)TotalCount) * 100.0, 1); }
+            get { return Math.Round(((double)SuccessCount / (double)TotalCount) * 100.0, 1); }
         }
 
         public double FailureRate
@@ -73,49 +73,36 @@ namespace Edison.Engine.Utilities.Structures
 
         public int TotalFailedCount
         {
-            get { return Results.Count(x => x.Value.State != TestResultState.Success
-                                    && x.Value.State != TestResultState.Ignored
-                                    && x.Value.State != TestResultState.Inconclusive); }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Failure
+                                         || x.Value.AbsoluteState == TestResultAbsoluteState.Error); }
         }
 
-        public int PassedCount
+        public int SuccessCount
         {
-            get { return Count(TestResultState.Success); }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Success); }
         }
 
-        public int FailedCount
+        public int FailureCount
         {
             get
             {
-                return Count(TestResultState.Failure,
-                    TestResultState.GlobalSetupFailure,
-                    TestResultState.GlobalTeardownFailure,
-                    TestResultState.SetupFailure,
-                    TestResultState.TeardownFailure,
-                    TestResultState.TestFixtureSetupFailure,
-                    TestResultState.TestFixtureTeardownFailure);
+                return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Failure);
             }
         }
 
-        public int ErroredCount
+        public int ErrorCount
         {
             get
             {
-                return Count(TestResultState.Error,
-                    TestResultState.GlobalSetupError,
-                    TestResultState.GlobalTeardownError,
-                    TestResultState.SetupError,
-                    TestResultState.TeardownError,
-                    TestResultState.TestFixtureSetupError,
-                    TestResultState.TestFixtureTeardownError);
+                return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Error);
             }
         }
 
-        public int SkippedCount
+        public int IgnoredCount
         {
             get
             {
-                return Count(TestResultState.Ignored);
+                return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Ignored);
             }
         }
 
@@ -123,7 +110,7 @@ namespace Edison.Engine.Utilities.Structures
         {
             get
             {
-                return Count(TestResultState.Inconclusive);
+                return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Inconclusive);
             }
         }
 
@@ -192,26 +179,16 @@ namespace Edison.Engine.Utilities.Structures
             return _result;
         }
 
-        public int Count(params TestResultState[] states)
-        {
-            if (states == default(TestResultState[]) || !states.Any())
-            {
-                return 0;
-            }
-
-            return states.Select(s => Results.Count(r => r.Value.State == s)).Sum();
-        }
-
         public string ToTotalString()
         {
             return string.Format("Total: {1}, Passed: {2}, Failed: {3}, Errored: {4}, Inconclusive: {5}, Skipped: {6}{0}Success Rate: {7}%{0}Failure Rate: {8}%",
                 Environment.NewLine,
                 TotalCount,
-                PassedCount,
-                FailedCount,
-                ErroredCount,
+                SuccessCount,
+                FailureCount,
+                ErrorCount,
                 InconclusiveCount,
-                SkippedCount,
+                IgnoredCount,
                 SuccessRate,
                 FailureRate);
         }
