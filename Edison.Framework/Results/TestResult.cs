@@ -6,7 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using Edison.Framework.Enums;
+using Edison.Framework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -21,7 +21,19 @@ namespace Edison.Framework
 
         #region Properties
 
-        public TestResultState State { get; set; }
+        public TestResultAbsoluteState AbsoluteState { get; private set; }
+
+        private TestResultState _state = default(TestResultState);
+        public TestResultState State
+        {
+            get { return _state; }
+            set
+            {
+                _state = value;
+                AbsoluteState = TestResultGroup.GetAbsoluteState(_state);
+            }
+        }
+
         public string NameSpace { get; set; }
         public string TestName { get; set; }
         public string FullName { get; set; }
@@ -95,7 +107,7 @@ namespace Edison.Framework
         #endregion
 
         #region Private Helpers
-
+        
         private string GetParameters(object[] parameters)
         {
             var _parameters = new StringBuilder();

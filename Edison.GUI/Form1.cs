@@ -19,7 +19,6 @@ using Edison.Engine.Core.Enums;
 using Edison.Engine;
 using System.Threading;
 using Edison.Framework;
-using Edison.Framework.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using Edison.Engine.Core.Exceptions;
@@ -164,13 +163,15 @@ namespace Edison.GUI
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var dialog = new OpenFileDialog();
-            dialog.CheckFileExists = true;
-            dialog.CheckPathExists = true;
-            dialog.DefaultExt = "*.dll";
-            dialog.Multiselect = false;
-            dialog.Title = "Edison - Select a DLL";
-            dialog.Filter = "dll (*.dll)|*.dll";
+            var dialog = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = "*.dll",
+                Multiselect = false,
+                Title = "Edison - Select a DLL",
+                Filter = "dll (*.dll)|*.dll"
+            };
 
             var result = dialog.ShowDialog();
             if (result == DialogResult.OK)
@@ -191,11 +192,13 @@ namespace Edison.GUI
                 return;
             }
 
-            var dialog = new SaveFileDialog();
-            dialog.CheckPathExists = true;
-            dialog.DefaultExt = "*.txt";
-            dialog.Title = "Edison - Save Test Result Output";
-            dialog.Filter = "txt (*.txt)|*.txt";
+            var dialog = new SaveFileDialog()
+            {
+                CheckPathExists = true,
+                DefaultExt = "*.txt",
+                Title = "Edison - Save Test Result Output",
+                Filter = "txt (*.txt)|*.txt"
+            };
 
             var result = dialog.ShowDialog();
             if (result == DialogResult.OK)

@@ -20,6 +20,8 @@ Many features, such as Attributes, are similar to other test frameworks for a mo
 * Run test cases and repeats in parallel.
 * Supply a solution file for extracting test assemblies.
 * Ability to store versioned console parameters in an Edisonfile.
+* Basic support for browser testing
+* Support for TestDriven.NET
 
 # Installing Edison
 
@@ -33,6 +35,7 @@ Also, you can now get the [framework](https://www.nuget.org/packages/Edison.Fram
 
 ```bash
 Install-Package Edison.Framework
+Install-Package Edison.TestDriven # < this is the core framework, but has support for TestDriven.NET
 Install-Package Edison.Console
 ```
 
