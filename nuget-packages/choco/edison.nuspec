@@ -32,7 +32,7 @@ Edison is an open source unit/integration test framework for .NET.
     <packageSourceUrl>https://github.com/Badgerati/Edison/tree/master/nuget-packages</packageSourceUrl>
     <docsUrl>https://github.com/Badgerati/Edison/wiki</docsUrl>
     <bugTrackerUrl>https://github.com/Badgerati/Edison/issues</bugTrackerUrl>
-    <tags>edison unit integration regression system test framework dotnet testing multi threaded parallel version scm</tags>
+    <tags>edison unit integration regression system test framework dotnet testing multi threaded parallel version scm browser slack< testdriven tdnet/tags>
     <copyright>Copyright 2015</copyright>
     <licenseUrl>https://github.com/Badgerati/Edison/blob/master/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
