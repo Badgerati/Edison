@@ -239,6 +239,14 @@ namespace Edison.Engine.Contexts
         /// </value>
         public string SolutionConfiguration { get; set; }
 
+        /// <summary>
+        /// Gets or sets the slack token.
+        /// </summary>
+        /// <value>
+        /// The slack token.
+        /// </value>
+        public string SlackToken { get; set; }
+
         #endregion
 
         #region Public Readonly Properties
@@ -340,7 +348,7 @@ namespace Edison.Engine.Contexts
             //set output logging type
             Logger.Instance.ConsoleOutputType = ConsoleOutputType;
 
-            //create queue
+            //create results queue/list
             ResultQueue = new TestResultDictionary(this);
 
             //bind test result events

@@ -2,7 +2,7 @@ assemblies:
   - "./Edison.Tests/bin/Debug/Edison.Tests.dll"
 
 #fixtures:
-#  - "Edison.Tests.TestClass2"
+#  - "Edison.Tests.TestClass4"
 
 disable_test_output: false
 disable_file_output: false
@@ -10,3 +10,4 @@ console_output_type: txt
 output_type: json
 fixture_threads: 1
 rerun: false
+#slack_token: "<SLACK_TOKEN>"

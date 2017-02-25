@@ -184,7 +184,7 @@ namespace Edison.Engine.Repositories
             {
                 return true;
             }
-            
+
             var categories = member.GetCustomAttributes<CategoryAttribute>();
             var isTestFixture = member.GetCustomAttribute<TestFixtureAttribute>() != default(TestFixtureAttribute);
 
@@ -259,9 +259,23 @@ namespace Edison.Engine.Repositories
         {
             var exceptionAttribute = method.GetCustomAttributes().OfType<ExpectedExceptionAttribute>();
 
-            return exceptionAttribute == default(IEnumerable<ExpectedExceptionAttribute>) || !exceptionAttribute.Any()
+            return EnumerableHelper.IsNullOrEmpty(exceptionAttribute)
                 ? default(ExpectedExceptionAttribute)
                 : exceptionAttribute.First();
+        }
+
+        /// <summary>
+        /// Gets the slack channel details.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns></returns>
+        public SlackAttribute GetSlackChannel(MethodInfo method)
+        {
+            var slackAttribute = method.GetCustomAttributes().OfType<SlackAttribute>();
+
+            return EnumerableHelper.IsNullOrEmpty(slackAttribute)
+                ? default(SlackAttribute)
+                : slackAttribute.First();
         }
 
         /// <summary>

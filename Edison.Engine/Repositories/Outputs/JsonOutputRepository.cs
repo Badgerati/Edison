@@ -30,7 +30,7 @@ namespace Edison.Engine.Repositories.Outputs
 
         public string ContentType
         {
-            get { return "text/json; encoding='utf-8'"; }
+            get { return "application/json; charset=utf-8"; }
         }
 
         public string OpenTag

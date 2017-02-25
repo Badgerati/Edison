@@ -103,6 +103,7 @@ namespace Edison.Console
                 return false;
             }
 
+            // assign all values from the console/edisonfile to the main context runner
             context.Assemblies = new List<string>(EnumerableHelper.SafeGuard(options.Assemblies));
             context.IncludedCategories = new List<string>(EnumerableHelper.SafeGuard(options.IncludedCategories));
             context.ExcludedCategories = new List<string>(EnumerableHelper.SafeGuard(options.ExcludedCategories));
@@ -124,6 +125,7 @@ namespace Edison.Console
             context.NumberOfFixtureThreads = options.FixtureThreads;
             context.NumberOfTestThreads = options.TestThreads;
             context.TestResultURL = options.TestResultUrl;
+            context.SlackToken = options.SlackToken;
 
             return true;
         }

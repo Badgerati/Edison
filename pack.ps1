@@ -10,6 +10,7 @@ $bundleExtensions = @("*.dll", "*.exe", "*.config")
 
 foreach ($extension in $bundleExtensions)
 {
+    Copy-Item -Path "./Edison.TestDriven/bin/Release/$extension" -Destination "./Package/" -Force
     Copy-Item -Path "./Edison.Console/bin/Release/$extension" -Destination "./Package/" -Force
     Copy-Item -Path "./Edison.Engine/bin/Release/$extension" -Destination "./Package/" -Force
     Copy-Item -Path "./Edison.Framework/bin/Release/$extension" -Destination "./Package/" -Force
@@ -56,6 +57,26 @@ finally
     Pop-Location
 }
 
+# == NUGET - TESTDRIVEN ====================================================
+
+Write-Host "Building NuGet TestDriven Package"
+Push-Location "./nuget-packages/nuget/tdnet"
+
+$drivenPath = "$env:WORKSPACE/Edison.TestDriven/bin/Release"
+
+try
+{
+  mkdir tools
+  Copy-Item -Path "$drivenPath/*.dll" -Destination "./tools" -Force
+  Copy-Item -Path "$drivenPath/*.tdnet" -Destination "./tools" -Force
+  (Get-Content Edison.TestDriven.nuspec) | ForEach-Object { $_ -replace '\$version\$', $env:BUILD_VERSION } | Set-Content Edison.TestDriven.nuspec
+  nuget pack Edison.TestDriven.nuspec
+}
+finally
+{
+  Pop-Location
+}
+
 # == NUGET - CONSOLE =======================================================
 
 Write-Host "Building NuGet Console Package"
@@ -85,6 +106,7 @@ Push-Location "$env:WORKSPACE"
 try
 {
     $checksum = (checksum -t sha256 -f $zipName)
+    Write-Host "Checksum: $checksum"
 }
 finally
 {

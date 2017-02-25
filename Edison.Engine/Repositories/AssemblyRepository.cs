@@ -49,6 +49,11 @@ namespace Edison.Engine.Repositories
             return Assembly.GetEntryAssembly();
         }
 
+        public string GetAssemblyVersion()
+        {
+            return GetEntryAssembly().GetName().Version.ToString();
+        }
+
         public IEnumerable<Type> GetTestFixtures(
             Assembly assembly,
             IList<string> includedCategories,

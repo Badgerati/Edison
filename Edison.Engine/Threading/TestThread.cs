@@ -151,6 +151,14 @@ namespace Edison.Engine.Threading
             }
         }
 
+        /// <summary>
+        /// Runs the test cases for a test.
+        /// </summary>
+        /// <param name="test">The test.</param>
+        /// <param name="testCase">The test case.</param>
+        /// <param name="testRepeat">The test repeat value.</param>
+        /// <param name="setup">The setup method for the test.</param>
+        /// <param name="teardown">The teardown method for the test.</param>
         private void RunTestCase(MethodInfo test, TestCaseAttribute testCase, int testRepeat, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
             var timeTaken = new Stopwatch();
@@ -162,6 +170,7 @@ namespace Edison.Engine.Threading
 
             try
             {
+                // create an initial test result
                 testResult = new TestResult(
                     TestResultState.Success,
                     Context.CurrentAssembly,
@@ -176,44 +185,55 @@ namespace Edison.Engine.Threading
                     string.Empty,
                     default(IEnumerable<string>));
 
+                // start the stop watch for test duration
                 timeTaken.Restart();
 
+                // if the global setup failed, this case auto-fails
                 if (GlobalSetupException != default(Exception))
                 {
                     testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                 }
+
+                // if the activation of the method failed, this case auto-fails
                 else if (ActivatorException != default(Exception))
                 {
                     testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, timeTaken.Elapsed);
                 }
+
+                // if the test fixture setup failed, this case auto-fails
                 else if (FixtureSetupException != default(Exception))
                 {
                     testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
                 }
+
+                // otherwise, run the test case
                 else
                 {
-                    //setup
+                    // run the test's setup
                     ReflectionRepository.Invoke(setup, Activator);
                     setupDone = true;
 
-                    //test
+                    // run the test case
                     ReflectionRepository.Invoke(test, Activator, testCase.Parameters);
                     testDone = true;
 
+                    // populate the initial test result as success
                     testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
 
-                    //teardown
+                    // run the test's teardown
                     ReflectionRepository.Invoke(teardown, Activator, testResult);
                     teardownDone = true;
                 }
 
+                // stop timer for duration
                 timeTaken.Stop();
             }
             catch (Exception ex)
             {
+                // the test case failed, populate the result as failed
                 testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
 
-                //teardown
+                // attempt to the the test's teardown if it wasn't the teardown that failed first time
                 if (testResult.State != TestResultState.TeardownError && testResult.State != TestResultState.TeardownFailure)
                 {
                     try
@@ -222,16 +242,19 @@ namespace Edison.Engine.Threading
                     }
                     catch (Exception ex2)
                     {
+                        // if the teardown failed, populate the result appropriately
                         testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
                     }
                 }
 
+                // if the timer is still running, stop it
                 if (timeTaken.IsRunning)
                 {
                     timeTaken.Stop();
                 }
             }
 
+            // add the test's result to the result queue for later processing
             ResultQueue.AddOrUpdate(testResult);
         }
 
@@ -296,17 +319,37 @@ namespace Edison.Engine.Threading
             return PopulateTestResult(testMethod, result, state, time, error, stack);
         }
 
+        /// <summary>
+        /// Populates the test result.
+        /// </summary>
+        /// <param name="testMethod">The test method.</param>
+        /// <param name="result">The result to populate.</param>
+        /// <param name="state">The actual test result.</param>
+        /// <param name="time">The duration of the test.</param>
+        /// <param name="errorMessage">The error message.</param>
+        /// <param name="stackTrace">The stack trace.</param>
+        /// <returns>A populated test result.</returns>
         private TestResult PopulateTestResult(MethodInfo testMethod, TestResult result, TestResultState state, TimeSpan time, string errorMessage = "", string stackTrace = "")
         {
+            // populate general values
             result.State = state;
             result.ErrorMessage = errorMessage;
             result.StackTrace = stackTrace;
             result.TimeTaken = time;
 
+            // if we have a test object, get test attribute values
             if (testMethod != default(MethodInfo))
             {
                 result.Authors = ReflectionRepository.GetAuthors(testMethod);
                 result.Version = ReflectionRepository.GetVersion(testMethod);
+
+                // attempt to get slack channel details
+                var slack = ReflectionRepository.GetSlackChannel(testMethod);
+                if (slack != default(SlackAttribute))
+                {
+                    result.SlackChannel = slack.Channel;
+                    result.SlackTestResult = slack.SlackTestResult;
+                }
             }
 
             return result;

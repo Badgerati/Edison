@@ -45,6 +45,7 @@
     <Compile Include="GlobalTestClass.cs" />
     <Compile Include="TestBrowser.cs" />
     <Compile Include="TestAppSettings.cs" />
+    <Compile Include="TestSlack.cs" />
     <Compile Include="TestParallelism.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
