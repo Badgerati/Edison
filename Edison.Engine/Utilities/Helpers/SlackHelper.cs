@@ -121,11 +121,14 @@ namespace Edison.Engine.Utilities.Helpers
             // Log that the result was sent
             using (var response = request.GetResponse())
             {
-                using (var reader = new StreamReader(response.GetResponseStream()))
+                #if DEBUG
                 {
-                    //var msg = reader.ReadToEnd();
-                    //Logger.Instance.WriteMessage(msg);
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        Logger.Instance.WriteMessage(reader.ReadToEnd());
+                    }
                 }
+                #endif
             }
         }
 
