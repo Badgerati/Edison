@@ -609,6 +609,43 @@ namespace Edison.Console.Test
 
         #endregion
 
+        #region Slack Token Tests
+
+        [Test]
+        public void ValidSlackTokenTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = EdisonContext.Create();
+            var token = "some token";
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--slack", token });
+            Assert.IsTrue(result);
+            Assert.AreEqual(token, context.SlackToken);
+        }
+
+        [Test]
+        public void DefaultSlackTokenTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = EdisonContext.Create();
+
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll });
+            Assert.IsTrue(result);
+            Assert.IsNull(context.SlackToken);
+        }
+
+        #endregion
+
         #region Edisonfile
 
         [Test]

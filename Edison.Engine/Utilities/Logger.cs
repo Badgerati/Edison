@@ -150,7 +150,7 @@ namespace Edison.Engine
 
         public string GetVersion()
         {
-            return AssemblyRepository.GetEntryAssembly().GetName().Version.ToString();
+            return AssemblyRepository.GetAssemblyVersion();
         }
 
         public void WriteError(string error)

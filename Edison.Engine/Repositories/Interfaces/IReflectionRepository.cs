@@ -36,6 +36,8 @@ namespace Edison.Engine.Repositories.Interfaces
 
         ExpectedExceptionAttribute GetExpectedException(MethodInfo method);
 
+        SlackAttribute GetSlackChannel(MethodInfo method);
+
 
 
         bool IsType(MemberInfo member);

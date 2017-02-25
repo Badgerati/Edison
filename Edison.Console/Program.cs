@@ -10,6 +10,7 @@ using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Engine.Utilities.Structures;
 using Edison.Injector;
 using System;
 
@@ -76,7 +77,7 @@ namespace Edison.Console
                 try
                 {
                     var results = context.Run();
-                    if (results != null && results.TotalFailedCount > 0)
+                    if (results != default(TestResultDictionary) && results.TotalFailedCount > 0)
                     {
                         exitCode = ExitCode.TESTS_FAILED;
                     }

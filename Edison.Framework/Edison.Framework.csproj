@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Attributes\Author.cs" />
     <Compile Include="Attributes\ParallelTestCase.cs" />
+    <Compile Include="Attributes\Slack.cs" />
     <Compile Include="Attributes\TestCase.cs" />
     <Compile Include="Attributes\ParallelRepeat.cs" />
     <Compile Include="Attributes\Suite.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Browsers\HtmlIdentifierType.cs" />
     <Compile Include="Browsers\IBrowser.cs" />
     <Compile Include="Enums\MatchType.cs" />
+    <Compile Include="Enums\SlackTestResultType.cs" />
     <Compile Include="Exceptions\AssertException.cs" />
     <Compile Include="Exceptions\TestResultStateException.cs" />
     <Compile Include="Results\TestResult.cs" />
