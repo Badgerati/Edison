@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.25928.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Framework", "Edison.Framework\Edison.Framework.csproj", "{D7081147-8C02-4400-9B30-59D0AEC9591B}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Engine.Test", "Edison.Engine.Test\Edison.Engine.Test.csproj", "{9E8ACC02-7D06-4096-B1EE-2B58B5E42784}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.Resources", "Edison.Resources\Edison.Resources.csproj", "{E5E3A739-1710-4EE8-8BC8-C7C963A21D8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edison.TestDriven", "Edison.TestDriven\Edison.TestDriven.csproj", "{8F551B1B-BF50-46F1-A8B2-AA1EE1ADF2B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{E5E3A739-1710-4EE8-8BC8-C7C963A21D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E3A739-1710-4EE8-8BC8-C7C963A21D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E3A739-1710-4EE8-8BC8-C7C963A21D8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F551B1B-BF50-46F1-A8B2-AA1EE1ADF2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F551B1B-BF50-46F1-A8B2-AA1EE1ADF2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F551B1B-BF50-46F1-A8B2-AA1EE1ADF2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F551B1B-BF50-46F1-A8B2-AA1EE1ADF2B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

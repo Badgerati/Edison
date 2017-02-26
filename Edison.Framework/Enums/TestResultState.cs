@@ -6,7 +6,9 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-namespace Edison.Framework.Enums
+using System.Linq;
+
+namespace Edison.Framework
 {
     public enum TestResultState
     {
@@ -39,7 +41,20 @@ namespace Edison.Framework.Enums
 
         //test fixture teardown
         TestFixtureTeardownError,
-        TestFixtureTeardownFailure
+        TestFixtureTeardownFailure,
+
+        //unknown
+        Unknown
+    }
+
+    public enum TestResultAbsoluteState
+    {
+        Success,
+        Failure,
+        Error,
+        Inconclusive,
+        Ignored,
+        Unknown
     }
 
     public static class TestResultGroup
@@ -82,6 +97,26 @@ namespace Edison.Framework.Enums
                 }
 
                 return _failures;
+            }
+        }
+
+        public static TestResultAbsoluteState GetAbsoluteState(TestResultState state)
+        {
+            switch (state)
+            {
+                case TestResultState.Success:
+                    return TestResultAbsoluteState.Success;
+
+                case TestResultState.Ignored:
+                    return TestResultAbsoluteState.Ignored;
+
+                case TestResultState.Inconclusive:
+                    return TestResultAbsoluteState.Inconclusive;
+
+                default:
+                    if (Failures.Contains(state)) { return TestResultAbsoluteState.Failure; }
+                    else if (Errors.Contains(state)) { return TestResultAbsoluteState.Error; }
+                    else { return TestResultAbsoluteState.Unknown; }
             }
         }
 

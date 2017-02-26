@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Attributes\Author.cs" />
     <Compile Include="Attributes\ParallelTestCase.cs" />
+    <Compile Include="Attributes\Slack.cs" />
     <Compile Include="Attributes\TestCase.cs" />
     <Compile Include="Attributes\ParallelRepeat.cs" />
     <Compile Include="Attributes\Suite.cs" />
@@ -67,13 +68,29 @@
     <Compile Include="Asserts\Assert.cs" />
     <Compile Include="Asserts\AssertFactory.cs" />
     <Compile Include="Asserts\IAssert.cs" />
+    <Compile Include="Browsers\Browser.cs" />
+    <Compile Include="Browsers\BrowserHelper.cs" />
+    <Compile Include="Browsers\HtmlIdentifierType.cs" />
+    <Compile Include="Browsers\IBrowser.cs" />
     <Compile Include="Enums\MatchType.cs" />
+    <Compile Include="Enums\SlackTestResultType.cs" />
     <Compile Include="Exceptions\AssertException.cs" />
     <Compile Include="Exceptions\TestResultStateException.cs" />
     <Compile Include="Results\TestResult.cs" />
     <Compile Include="Enums\ConcurrencyType.cs" />
     <Compile Include="Enums\TestResultState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="SHDocVw">
+      <Guid>{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

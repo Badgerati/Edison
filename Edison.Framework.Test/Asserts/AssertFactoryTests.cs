@@ -9,7 +9,7 @@ License: MIT (see LICENSE for details)
 using System;
 using EAssert = Edison.Framework.Assert;
 using NAssert = NUnit.Framework.Assert;
-using Edison.Framework.Enums;
+using Edison.Framework;
 
 namespace Edison.Framework.Test.Asserts
 {

@@ -19,6 +19,7 @@ namespace Edison.Engine.Repositories.Interfaces
         Assembly LoadFrom(string assemblyFile);
         Assembly LoadFile(string path);
         Assembly GetEntryAssembly();
+        string GetAssemblyVersion();
 
         IEnumerable<Type> GetTypes<T>(
             Assembly assembly,
@@ -33,7 +34,7 @@ namespace Edison.Engine.Repositories.Interfaces
             IList<string> fixtures,
             IList<string> tests,
             string suite);
-        
+
         Tuple<IEnumerable<MethodInfo>, IEnumerable<Type>> GetTests(
             Assembly assembly,
             IList<string> includedCategories,

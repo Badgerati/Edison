@@ -6,7 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-namespace Edison.Framework.Enums
+namespace Edison.Framework
 {
     public enum ConcurrencyType
     {

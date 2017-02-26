@@ -1,0 +1,7 @@
+﻿<TestRunner>
+	<FriendlyName>Edison {0}.{1}.{2}</FriendlyName>
+	<AssemblyPath>Edison.TestDriven.dll</AssemblyPath>
+	<TypeName>Edison.TestDriven.TestRunner</TypeName>
+  <TargetResolution>Reference</TargetResolution>
+	<ApartmentState>MTA</ApartmentState>
+</TestRunner>

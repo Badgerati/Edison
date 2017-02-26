@@ -13,7 +13,6 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Injector;
 using System;
-using Edison.Framework.Enums;
 using Edison.Engine.Utilities.Helpers;
 
 namespace Edison.Engine.Repositories
@@ -30,6 +29,26 @@ namespace Edison.Engine.Repositories
         #endregion
 
         #region MemberInfo Calls
+
+        /// <summary>
+        /// Determines whether or not this member is a type object
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public bool IsType(MemberInfo member)
+        {
+            return ((member as Type) != default(Type));
+        }
+
+        /// <summary>
+        /// Determines whether or not this member is a method object
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public bool IsMethod(MemberInfo member)
+        {
+            return ((member as MethodInfo) != default(MethodInfo));
+        }
 
         /// <summary>
         /// Gets the repeat value.
@@ -56,13 +75,13 @@ namespace Edison.Engine.Repositories
         }
 
         /// <summary>
-        /// Gets the full namespace.
+        /// Gets the full namespace, which includes the normal namespace plus the method name.
         /// </summary>
         /// <param name="member">The member.</param>
         /// <returns></returns>
         public string GetFullNamespace(MemberInfo member)
         {
-            return member.DeclaringType.FullName + "." + member.Name;
+            return GetNamespace(member) + "." + member.Name;
         }
 
         /// <summary>
@@ -72,7 +91,9 @@ namespace Edison.Engine.Repositories
         /// <returns></returns>
         public string GetNamespace(MemberInfo member)
         {
-            return member.DeclaringType.FullName;
+            return member.DeclaringType == default(Type)
+                ? ((Type)member).FullName
+                : member.DeclaringType.FullName;
         }
 
         /// <summary>
@@ -163,7 +184,7 @@ namespace Edison.Engine.Repositories
             {
                 return true;
             }
-            
+
             var categories = member.GetCustomAttributes<CategoryAttribute>();
             var isTestFixture = member.GetCustomAttribute<TestFixtureAttribute>() != default(TestFixtureAttribute);
 
@@ -238,9 +259,23 @@ namespace Edison.Engine.Repositories
         {
             var exceptionAttribute = method.GetCustomAttributes().OfType<ExpectedExceptionAttribute>();
 
-            return exceptionAttribute == default(IEnumerable<ExpectedExceptionAttribute>) || !exceptionAttribute.Any()
+            return EnumerableHelper.IsNullOrEmpty(exceptionAttribute)
                 ? default(ExpectedExceptionAttribute)
                 : exceptionAttribute.First();
+        }
+
+        /// <summary>
+        /// Gets the slack channel details.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns></returns>
+        public SlackAttribute GetSlackChannel(MethodInfo method)
+        {
+            var slackAttribute = method.GetCustomAttributes().OfType<SlackAttribute>();
+
+            return EnumerableHelper.IsNullOrEmpty(slackAttribute)
+                ? default(SlackAttribute)
+                : slackAttribute.First();
         }
 
         /// <summary>

@@ -6,7 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using Edison.Framework.Enums;
+using Edison.Framework;
 using System;
 
 namespace Edison.Framework

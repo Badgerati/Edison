@@ -15,12 +15,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Edison.Engine.Repositories;
-using Edison.Framework.Enums;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using Edison.Engine.Repositories.Outputs;
+using Edison.Engine.Utilities.Helpers;
 
 namespace Edison.Engine.Utilities.Structures
 {
@@ -43,112 +42,179 @@ namespace Edison.Engine.Utilities.Structures
         private EdisonContext Context = default(EdisonContext);
         public event TestResultEventHandler OnTestResult;
 
+        /// <summary>
+        /// Gets the test results.
+        /// </summary>
+        /// <value>
+        /// The test results.
+        /// </value>
         public ICollection<TestResult> TestResults
         {
             get { return Results.Values; }
         }
 
+        /// <summary>
+        /// Gets the failed test results.
+        /// </summary>
+        /// <value>
+        /// The failed test results.
+        /// </value>
         public IEnumerable<TestResult> FailedTestResults
         {
-            get { return Results.Values.Where(x => x.State != TestResultState.Success); }
+            get { return Results.Values.Where(x => x.AbsoluteState != TestResultAbsoluteState.Success); }
         }
 
+        /// <summary>
+        /// Gets the success test results.
+        /// </summary>
+        /// <value>
+        /// The success test results.
+        /// </value>
         public IEnumerable<TestResult> SuccessTestResults
         {
-            get { return Results.Values.Where(x => x.State == TestResultState.Success); }
+            get { return Results.Values.Where(x => x.AbsoluteState == TestResultAbsoluteState.Success); }
         }
 
+        /// <summary>
+        /// Gets the success rate.
+        /// </summary>
+        /// <value>
+        /// The success rate.
+        /// </value>
         public double SuccessRate
         {
-            get { return Math.Round(((double)PassedCount / (double)TotalCount) * 100.0, 1); }
+            get { return Math.Round(((double)SuccessCount / (double)TotalCount) * 100.0, 1); }
         }
 
+        /// <summary>
+        /// Gets the failure rate.
+        /// </summary>
+        /// <value>
+        /// The failure rate.
+        /// </value>
         public double FailureRate
         {
             get { return Math.Round(((double)TotalFailedCount / (double)TotalCount) * 100.0, 1); }
         }
 
+        /// <summary>
+        /// Gets the total test result count.
+        /// </summary>
+        /// <value>
+        /// The total test result count.
+        /// </value>
         public int TotalCount
         {
             get { return Results.Count; }
         }
 
+        /// <summary>
+        /// Gets the total failed result count.
+        /// </summary>
+        /// <value>
+        /// The total failed count.
+        /// </value>
         public int TotalFailedCount
         {
-            get { return Results.Count(x => x.Value.State != TestResultState.Success
-                                    && x.Value.State != TestResultState.Ignored
-                                    && x.Value.State != TestResultState.Inconclusive); }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Failure
+                                         || x.Value.AbsoluteState == TestResultAbsoluteState.Error); }
         }
 
-        public int PassedCount
+        /// <summary>
+        /// Gets the success result count.
+        /// </summary>
+        /// <value>
+        /// The success count.
+        /// </value>
+        public int SuccessCount
         {
-            get { return Count(TestResultState.Success); }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Success); }
         }
 
-        public int FailedCount
+        /// <summary>
+        /// Gets the failure count.
+        /// </summary>
+        /// <value>
+        /// The failure count.
+        /// </value>
+        public int FailureCount
         {
-            get
-            {
-                return Count(TestResultState.Failure,
-                    TestResultState.GlobalSetupFailure,
-                    TestResultState.GlobalTeardownFailure,
-                    TestResultState.SetupFailure,
-                    TestResultState.TeardownFailure,
-                    TestResultState.TestFixtureSetupFailure,
-                    TestResultState.TestFixtureTeardownFailure);
-            }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Failure); }
         }
 
-        public int ErroredCount
+        /// <summary>
+        /// Gets the error count.
+        /// </summary>
+        /// <value>
+        /// The error count.
+        /// </value>
+        public int ErrorCount
         {
-            get
-            {
-                return Count(TestResultState.Error,
-                    TestResultState.GlobalSetupError,
-                    TestResultState.GlobalTeardownError,
-                    TestResultState.SetupError,
-                    TestResultState.TeardownError,
-                    TestResultState.TestFixtureSetupError,
-                    TestResultState.TestFixtureTeardownError);
-            }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Error); }
         }
 
-        public int SkippedCount
+        /// <summary>
+        /// Gets the ignored count.
+        /// </summary>
+        /// <value>
+        /// The ignored count.
+        /// </value>
+        public int IgnoredCount
         {
-            get
-            {
-                return Count(TestResultState.Ignored);
-            }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Ignored); }
         }
 
+        /// <summary>
+        /// Gets the inconclusive count.
+        /// </summary>
+        /// <value>
+        /// The inconclusive count.
+        /// </value>
         public int InconclusiveCount
         {
-            get
-            {
-                return Count(TestResultState.Inconclusive);
-            }
+            get { return Results.Count(x => x.Value.AbsoluteState == TestResultAbsoluteState.Inconclusive); }
         }
+
+        #endregion
+
+        #region Fields
+
+        private bool _canPostToSlack = false;
+        private bool _canPostToUrl = false;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestResultDictionary"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public TestResultDictionary(EdisonContext context)
         {
             Results = new ConcurrentDictionary<string,TestResult>();
             Context = context;
+
+            _canPostToSlack = !string.IsNullOrWhiteSpace(context.SlackToken);
+            _canPostToUrl = !string.IsNullOrWhiteSpace(context.TestResultURL);
         }
 
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Adds or update a test result within the dictionary.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>True if added/updated successfully, false otherwise.</returns>
         public bool AddOrUpdate(TestResult result)
         {
             var response = false;
             var _result = default(TestResult);
             var key = result.Assembly + "." + result.FullName;
 
+            // If a result exists for the test, update it. Else add the new result
             if (Results.TryGetValue(key, out _result))
             {
                 if (_result != default(TestResult) && _result.State != TestResultState.Success)
@@ -161,24 +227,22 @@ namespace Edison.Engine.Utilities.Structures
                 response = Results.TryAdd(key, result);
             }
 
+            // Log the test result to the console
             if (Logger.Instance.ConsoleOutputType != OutputType.None)
             {
                 lock (this)
                 {
                     Logger.Instance.WriteTestResult(result);
-                    Logger.Instance.WriteSingleLine(Environment.NewLine, Environment.NewLine);
                 }
             }
 
-            try
-            {
-                PostResultToUrl(result);
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
-            }
+            // Attempt to send the result to a URL
+            PostResultToUrl(result);
 
+            // Attempt to send the result to Slack
+            PostResultToSlack(result);
+
+            // Invoke the callback handler event
             if (OnTestResult != default(TestResultEventHandler))
             {
                 OnTestResult.Invoke(result);
@@ -187,6 +251,11 @@ namespace Edison.Engine.Utilities.Structures
             return response;
         }
 
+        /// <summary>
+        /// Gets the specified test result by test name.
+        /// </summary>
+        /// <param name="testName">Name of the test.</param>
+        /// <returns>The test result if one exists.</returns>
         public TestResult Get(string testName)
         {
             var _result = default(TestResult);
@@ -194,26 +263,20 @@ namespace Edison.Engine.Utilities.Structures
             return _result;
         }
 
-        public int Count(params TestResultState[] states)
-        {
-            if (states == default(TestResultState[]) || !states.Any())
-            {
-                return 0;
-            }
-
-            return states.Select(s => Results.Count(r => r.Value.State == s)).Sum();
-        }
-
+        /// <summary>
+        /// Returns this instance's test results as a string.
+        /// </summary>
+        /// <returns>The test results as a string.</returns>
         public string ToTotalString()
         {
             return string.Format("Total: {1}, Passed: {2}, Failed: {3}, Errored: {4}, Inconclusive: {5}, Skipped: {6}{0}Success Rate: {7}%{0}Failure Rate: {8}%",
                 Environment.NewLine,
                 TotalCount,
-                PassedCount,
-                FailedCount,
-                ErroredCount,
+                SuccessCount,
+                FailureCount,
+                ErrorCount,
                 InconclusiveCount,
-                SkippedCount,
+                IgnoredCount,
                 SuccessRate,
                 FailureRate);
         }
@@ -222,13 +285,38 @@ namespace Edison.Engine.Utilities.Structures
 
         #region Private Methods
 
-        private void PostResultToUrl(TestResult result)
+        private void PostResultToSlack(TestResult result)
         {
-            if (string.IsNullOrWhiteSpace(Context.TestResultURL))
+            // if there's not slack token, or result is not slackable, return
+            if (!_canPostToSlack || !result.IsSlackable)
             {
                 return;
             }
 
+            try
+            {
+                SlackHelper.SendMessage(result, Context.SlackToken);
+            }
+            catch (Exception ex)
+            {
+                // If we fail to send, fail silently
+                Logger.Instance.WriteError(string.Format("Failed posting result to Slack:\n{0}", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Posts the result to a URL.
+        /// </summary>
+        /// <param name="result">The test result.</param>
+        private void PostResultToUrl(TestResult result)
+        {
+            // if there is not URL, return
+            if (!_canPostToUrl)
+            {
+                return;
+            }
+
+            // build the value to send to the URL
             var output = OutputRepositoryFactory.Get(Context.OutputType);
             var value = string.Empty;
 
@@ -243,26 +331,34 @@ namespace Edison.Engine.Utilities.Structures
                     break;
             }
 
+            // if the value is empty, return
             if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
 
-            var request = WebRequestRepository.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
-            request.Method = "POST";
-            request.ContentType = output.ContentType;
-
-            var bytes = Encoding.ASCII.GetBytes(value);
-            request.ContentLength = bytes.Length;
-
-            using (var stream = request.GetRequestStream())
+            try
             {
-                stream.Write(bytes, 0, bytes.Length);
+                // attempt to send the result to the URL
+                var request = WebRequestRepository.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
+                request.Method = "POST";
+                request.ContentType = output.ContentType;
+
+                var bytes = Encoding.ASCII.GetBytes(value);
+                request.ContentLength = bytes.Length;
+
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+
+                // Log that the result was sent
+                using (var response = request.GetResponse()) { }
             }
-
-            using (var response = request.GetResponse())
+            catch (Exception ex)
             {
-                Logger.Instance.WriteMessage("Result posted to TestResultURL");
+                // If we fail to send, fail silently
+                Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
             }
         }
 

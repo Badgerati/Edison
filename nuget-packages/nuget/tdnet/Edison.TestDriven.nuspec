@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Edison.Framework</id>
+    <id>Edison.TestDriven</id>
     <version>$version$</version>
     <authors>Badgerati</authors>
     <owners>Badgerati</owners>
@@ -9,9 +9,9 @@
     <projectUrl>http://badgerati.github.io/Edison/</projectUrl>
     <iconUrl>https://cdn.rawgit.com/Badgerati/Edison/master/Images/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>This is the core framework for Edison, to be used when writing tests. Edison is an open source unit/integration test framework for .NET.</description>
+    <description>This is the core framework with compatability for TestDriven.NET for Edison, to be used when writing tests. Edison is an open source unit/integration test framework for .NET.</description>
     <releaseNotes>https://github.com/Badgerati/Edison/releases</releaseNotes>
     <copyright>Copyright 2015</copyright>
-    <tags>edison unit integration regression system test framework .net testing multi threaded parallel version scm browser slack</tags>
+    <tags>edison unit integration regression system test framework .net testing multi threaded parallel version scm browser slack testdriven tdnet</tags>
   </metadata>
 </package>
