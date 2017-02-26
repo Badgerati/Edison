@@ -34,23 +34,26 @@
     <a href="https://raw.githubusercontent.com/Badgerati/Edison/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT" /></a>
 </p>
 
-<p>Edison is designed to be a more performant unit/integration testing framework for .NET projects.
+<p>Edison is designed to be a more performant and feature rich unit/integration testing framework for .NET projects.
 Many features, such as Attributes, are similar to other test frameworks for a more fluid transition.</p>
 
 <h1>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
 
 <ul>
-<li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
-<li>Can run tests in parallel.</li>
-<li>Output can be in XML, JSON, CSV, HTML, Markdown or just plain text.</li>
-<li>Ability to send test results, in real-time, to a URL for later analysis.</li>
-<li>Console application from which to run your tests.</li>
-<li>GUI for a more visual look on running tests.</li>
-<li>Ability to re-run tests that have failed, for ones that may pass if run seconds later.</li>
-<li>Run test cases and repeats in parallel.</li>
-<li>Supply a solution file for extracting test assemblies.</li>
-<li>Ability to store versioned console parameters in an Edisonfile.</li>
+  <li>Framework with Attributes and Assert class for writing unit/integration tests.</li>
+  <li>Can run tests in parallel.</li>
+  <li>Output can be in XML, JSON, CSV, HTML, Markdown or just plain text.</li>
+  <li>Ability to send test results, in real-time, to a URL for later analysis.</li>
+  <li>Console application from which to run your tests.</li>
+  <li>GUI for a more visual look on running tests.</li>
+  <li>Ability to re-run tests that have failed, for ones that may pass if run seconds later.</li>
+  <li>Run test cases and repeats in parallel.</li>
+  <li>Supply a .NET solution file for extracting test assemblies.</li>
+  <li>Ability to store versioned console parameters in an Edisonfile.</li>
+  <li>Basic support for browser testing.</li>
+  <li>Support for TestDriven.NET.</li>
+  <li>Send test results to specific Slack channels, or to users directly.</li>
 </ul>
 
 <h1>
@@ -66,8 +69,14 @@ choco install edison
 
 <div class="highlight highlight-source-bash"><pre>
 Install-Package Edison.Framework
+Install-Package Edison.TestDriven # < this is the core framework, but has support for TestDriven.NET
 Install-Package Edison.Console
 </pre></div>
+
+<p>
+To use the Edison framework with TestDriven.NET, you'll need to install the second package above.
+Then you'll need to manually add a reference to the <code>Edison.Framework.dll</code> within the <code>Edison.TestDriven\tools</code> directory of the project's nuget packages directory.
+</p>
 
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h1>
