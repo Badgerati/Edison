@@ -5,17 +5,14 @@ Copyright (c) 2015, Matthew Kelly (Badgerati)
 Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
- 
+
 namespace Edison.Framework
 {
-    public enum MatchType
+    public enum HtmlIdentifierType
     {
-
-        Exact,
-        Contains,
-        RegEx,
-        StartsWith,
-        EndsWith
-
+        ID,
+        Name,
+        Tag,
+        Class
     }
 }

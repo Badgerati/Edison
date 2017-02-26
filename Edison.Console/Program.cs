@@ -10,6 +10,7 @@ using Edison.Engine;
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Repositories.Interfaces;
+using Edison.Engine.Utilities.Structures;
 using Edison.Injector;
 using System;
 
@@ -49,6 +50,7 @@ namespace Edison.Console
 
             // create edison instance
             var context = EdisonContext.Create();
+            var exitCode = ExitCode.SUCCESS;
 
             // attempt to parse the passed parameters (from CLI or Edisonfile)
             try
@@ -61,36 +63,45 @@ namespace Edison.Console
             catch (ArgumentException aex)
             {
                 Logger.Instance.WriteInnerException(aex);
-                return ExitCode.ARGUMENT_ERROR;
+                exitCode = ExitCode.ARGUMENT_ERROR;
             }
             catch (Exception ex)
             {
                 Logger.Instance.WriteInnerException(ex);
-                return ExitCode.UNKNOWN_ERROR;
+                exitCode = ExitCode.UNKNOWN_ERROR;
             }
 
             // run all of the tests
-            try
+            if (exitCode == ExitCode.SUCCESS)
             {
-                var results = context.Run();
-                if (results != null && results.TotalFailedCount > 0)
+                try
                 {
-                    return ExitCode.TESTS_FAILED;
+                    var results = context.Run();
+                    if (results != default(TestResultDictionary) && results.TotalFailedCount > 0)
+                    {
+                        exitCode = ExitCode.TESTS_FAILED;
+                    }
+                }
+                catch (ValidationException vex)
+                {
+                    Logger.Instance.WriteError(vex.Message);
+                    exitCode = ExitCode.VALIDATED_FAILED;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.WriteException(ex);
+                    exitCode = ExitCode.UNKNOWN_ERROR;
                 }
             }
-            catch (ValidationException vex)
+
+            #if DEBUG
             {
-                Logger.Instance.WriteError(vex.Message);
-                return ExitCode.VALIDATED_FAILED;
+                System.Console.ReadKey();
             }
-            catch (Exception ex)
-            {
-                Logger.Instance.WriteException(ex);
-                return ExitCode.UNKNOWN_ERROR;
-            }
+            #endif
 
             // return successful
-            return ExitCode.SUCCESS;
+            return exitCode;
         }
 
         #endregion

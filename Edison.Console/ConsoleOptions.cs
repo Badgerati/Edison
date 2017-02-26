@@ -46,6 +46,7 @@ namespace Edison.Console
         public const string YamlSuite = "suite";
         public const string YamlSolution = "solution";
         public const string YamlSolutionConfig = "solution_config";
+        public const string YamlSlackToken = "slack_token";
 
         #endregion
 
@@ -163,6 +164,10 @@ namespace Edison.Console
         [Option("sconfig", Required = false, DefaultValue = "Debug", HelpText = "Solution's build configuration for locating assemblies.")]
         [DefaultValue("Debug")]
         public string SolutionConfiguration { get; set; }
+
+        [YamlMember(Alias = YamlSlackToken)]
+        [Option("slack", Required = false, HelpText = "Authorisation token to allow Edison to send messages to Slack channels")]
+        public string SlackToken { get; set; }
 
         [YamlIgnore]
         [Option("ef", Required = false, HelpText = "Path to an Edisonfile")]

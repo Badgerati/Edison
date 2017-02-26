@@ -6,7 +6,7 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using Edison.Framework.Enums;
+using Edison.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -733,6 +733,68 @@ namespace Edison.Framework
             if (fails.Count == asserts.Length)
             {
                 throw new AssertException(string.Join<string>(Environment.NewLine + Environment.NewLine, fails.Select(x => x.Message)));
+            }
+
+            return this;
+        }
+
+        #endregion
+
+        #region Browser
+        
+        public virtual IAssert ExpectUrl(IBrowser browser, string expectedUrl, int attempts = 10, bool startsWith = false, string message = null)
+        {
+            var count = 0;
+
+            while (!(startsWith && browser.URL.StartsWith(expectedUrl)) && !browser.URL.Equals(expectedUrl))
+            {
+                if (count >= attempts)
+                {
+                    throw new AssertException(ExpectedActualMessage(message, null, expectedUrl, null, null, browser.URL, null));
+                }
+
+                count++;
+                browser.Sleep(1000);
+            }
+
+            return this;
+        }
+
+        public virtual IAssert ExpectElement(IBrowser browser, HtmlIdentifierType identifierType, string expectedIdentifier, int attempts = 10, string message = null)
+        {
+            var count = 0;
+            var control = default(dynamic);
+
+            while (control == null)
+            {
+                if (count >= attempts)
+                {
+                    throw new AssertException(ExpectedActualMessage(message, null, expectedIdentifier, null, "Element not found at: ", browser.URL, null));
+                }
+
+                control = browser.Get(identifierType, expectedIdentifier);
+
+                count++;
+                browser.Sleep(1000);
+            }
+
+            return this;
+        }
+
+        public virtual IAssert ExpectValue(IBrowser browser, string expectedValue, int attempts = 10, string message = null)
+        {
+            var count = 0;
+            var regex = new Regex(expectedValue);
+
+            while (!regex.IsMatch(browser.Body))
+            {
+                if (count >= attempts)
+                {
+                    throw new AssertException(ExpectedActualMessage(message, null, expectedValue, null, "Value not found at: ", browser.URL, null));
+                }
+
+                count++;
+                browser.Sleep(1000);
             }
 
             return this;

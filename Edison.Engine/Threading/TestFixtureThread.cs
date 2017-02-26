@@ -13,7 +13,6 @@ using System.Linq;
 using System.Reflection;
 using Edison.Engine.Contexts;
 using Edison.Engine.Utilities.Structures;
-using Edison.Framework.Enums;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System.Threading.Tasks;
