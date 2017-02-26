@@ -233,7 +233,6 @@ namespace Edison.Engine.Utilities.Structures
                 lock (this)
                 {
                     Logger.Instance.WriteTestResult(result);
-                    Logger.Instance.WriteSingleLine(Environment.NewLine, Environment.NewLine);
                 }
             }
 

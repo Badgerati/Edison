@@ -7,7 +7,6 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Core.Enums;
-using Edison.Engine.Repositories;
 using Edison.Framework;
 using System;
 using System.IO;
@@ -270,6 +269,7 @@ namespace Edison.Engine
             }
 
             WriteMessage(OutputRepository.ToString(result, false), IsSingleOrNoLined);
+            WriteSingleLine(Environment.NewLine, Environment.NewLine);
         }
 
         public void WriteSingleLine(string precede = "", string postcede = "")

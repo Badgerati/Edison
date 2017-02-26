@@ -553,14 +553,16 @@ namespace Edison.Engine.Contexts
 
         private void WriteFailedResultsToConsole()
         {
+            // get all of the failed tests
             var failedResults = ResultQueue.FailedTestResults;
-            var output = OutputRepositoryFactory.Get(OutputType);
 
             try
             {
+                // set the logger to be output type of TXT
                 Logger.Instance.ConsoleOutputType = OutputType.Txt;
                 Logger.Instance.WriteDoubleLine(Environment.NewLine, Environment.NewLine);
 
+                // write each of the failed results the console
                 foreach (var result in failedResults)
                 {
                     Logger.Instance.WriteTestResult(result);
@@ -568,7 +570,8 @@ namespace Edison.Engine.Contexts
             }
             finally
             {
-                Logger.Instance.WriteDoubleLine(Environment.NewLine, Environment.NewLine);
+                // reset the console output type of the logger
+                Logger.Instance.WriteDoubleLine(string.Empty, Environment.NewLine);
                 Logger.Instance.ConsoleOutputType = ConsoleOutputType;
             }
         }
