@@ -29,7 +29,6 @@ namespace Edison.Console
 
         public const string YamlOutputType = "output_type";
         public const string YamlConsoleOutputType = "console_output_type";
-        public const string YamlUrlOutputType = "url_output_type";
 
         public const string YamlDisableConsoleOutput = "disable_console_output";
         public const string YamlDisableFileOutput = "disable_file_output";
@@ -90,11 +89,6 @@ namespace Edison.Console
         [Option("cot", Required = false, DefaultValue = OutputType.Txt, HelpText = "Console output type format.")]
         [DefaultValue(OutputType.Txt)]
         public OutputType ConsoleOutputType { get; set; }
-
-        [YamlMember(Alias = YamlUrlOutputType)]
-        [Option("uot", Required = false, DefaultValue = OutputType.Json, HelpText = "Test result URL output type format.")]
-        [DefaultValue(OutputType.Json)]
-        public OutputType UrlOutputType { get; set; }
 
         [YamlMember(Alias = YamlDisableConsoleOutput)]
         [Option("dco", Required = false, DefaultValue = false, HelpText = "Boolean flag specifying whether all output to the console is disabled.")]

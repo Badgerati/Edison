@@ -39,6 +39,7 @@ namespace Edison.Engine.Utilities.Helpers
 
         #endregion
 
+        #region Public Methods
 
         /// <summary>
         /// Sends the test result to slack.
@@ -132,6 +133,10 @@ namespace Edison.Engine.Utilities.Helpers
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
         /// <summary>
         /// Gets the colour for the slack attachment based on the test's result.
         /// </summary>
@@ -154,6 +159,8 @@ namespace Edison.Engine.Utilities.Helpers
                     return "#439FE0";
             }
         }
+
+        #endregion
 
     }
 

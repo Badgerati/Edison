@@ -518,54 +518,6 @@ namespace Edison.Console.Test
 
         #endregion
 
-        #region Url Output Type
-
-        [Test]
-        public void ValidUrlOutputTypeTest()
-        {
-            var dll = "dummy/path/to.dll";
-
-            var fileMock = new Mock<IFileRepository>();
-            fileMock.Setup(x => x.Exists(dll)).Returns(true);
-            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
-
-            var context = EdisonContext.Create();
-
-            var type = "csv";
-            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--uot", type });
-            Assert.IsTrue(result);
-            Assert.AreEqual(OutputType.Csv, context.UrlOutputType);
-        }
-
-        [Test]
-        public void InvalidUrlOutputTypeTest()
-        {
-            var dll = "dummy/path/to.dll";
-
-            var fileMock = new Mock<IFileRepository>();
-            fileMock.Setup(x => x.Exists(dll)).Returns(true);
-            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
-
-            var context = EdisonContext.Create();
-
-            try
-            {
-                Logger.Instance.Disable();
-                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--uot", "dummy" });
-                Assert.IsFalse(result);
-            }
-            catch (ParseException ex)
-            {
-                StringAssert.Contains("Url output type supplied is incorrect", ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-        }
-
-        #endregion
-
         #region Rerun Failed Tests
 
         [Test]
