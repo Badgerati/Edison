@@ -118,6 +118,7 @@ namespace Edison.Console
             context.DisableTestOutput = options.DisableTestOutput;
             context.ConsoleOutputType = options.ConsoleOutputType;
             context.OutputType = options.OutputType;
+            context.UrlOutputType = options.UrlOutputType;
             context.TestRunId = options.TestRunId;
             context.RerunThreshold = options.RerunThreshold;
             context.OutputFile = options.OutputFile;

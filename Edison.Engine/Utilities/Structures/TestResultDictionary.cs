@@ -317,10 +317,10 @@ namespace Edison.Engine.Utilities.Structures
             }
 
             // build the value to send to the URL
-            var output = OutputRepositoryFactory.Get(Context.OutputType);
+            var output = OutputRepositoryFactory.Get(Context.UrlOutputType);
             var value = string.Empty;
 
-            switch (Context.OutputType)
+            switch (Context.UrlOutputType)
             {
                 case OutputType.Csv:
                     value = output.OpenTag + Environment.NewLine + output.ToString(result, false);
