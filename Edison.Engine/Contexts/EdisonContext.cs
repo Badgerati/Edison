@@ -160,6 +160,14 @@ namespace Edison.Engine.Contexts
         public OutputType ConsoleOutputType { get; set; }
 
         /// <summary>
+        /// Gets or sets the type of the URL output.
+        /// </summary>
+        /// <value>
+        /// The type of the URL output.
+        /// </value>
+        public OutputType UrlOutputType { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether file output should be disabled.
         /// </summary>
         /// <value>
@@ -301,6 +309,7 @@ namespace Edison.Engine.Contexts
             NumberOfTestThreads = 1;
             ConsoleOutputType = OutputType.Txt;
             OutputType = OutputType.Json;
+            UrlOutputType = OutputType.Json;
             OutputDirectory = Environment.CurrentDirectory;
             OutputFile = "ResultFile";
             TestResultURL = string.Empty;

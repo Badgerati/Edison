@@ -26,26 +26,38 @@ namespace Edison.Console
         public const string EDISONFILE = "Edisonfile";
 
         public const string YamlAssemblies = "assemblies";
+
+        public const string YamlOutputType = "output_type";
         public const string YamlConsoleOutputType = "console_output_type";
+        public const string YamlUrlOutputType = "url_output_type";
+
         public const string YamlDisableConsoleOutput = "disable_console_output";
         public const string YamlDisableFileOutput = "disable_file_output";
         public const string YamlDisableTestOutput = "disable_test_output";
+
         public const string YamlExclude = "exclude";
-        public const string YamlFixtures = "fixtures";
-        public const string YamlFixtureThreads = "fixture_threads";
         public const string YamlInclude = "include";
+
+        public const string YamlFixtures = "fixtures";
+        public const string YamlTests = "tests";
+
+        public const string YamlFixtureThreads = "fixture_threads";
+        public const string YamlTestThreads = "test_threads";
+
         public const string YamlTestRunId = "test_run_id";
+        public const string YamlUrl = "url";
+
         public const string YamlOutputDirectory = "output_directory";
         public const string YamlOutputFile = "output_file";
-        public const string YamlOutputType = "output_type";
-        public const string YamlTests = "tests";
-        public const string YamlTestThreads = "test_threads";
-        public const string YamlUrl = "url";
+
         public const string YamlRerun = "rerun";
         public const string YamlRerunThreshold = "rerun_threshold";
+
         public const string YamlSuite = "suite";
+
         public const string YamlSolution = "solution";
         public const string YamlSolutionConfig = "solution_config";
+
         public const string YamlSlackToken = "slack_token";
 
         #endregion
@@ -78,6 +90,11 @@ namespace Edison.Console
         [Option("cot", Required = false, DefaultValue = OutputType.Txt, HelpText = "Console output type format.")]
         [DefaultValue(OutputType.Txt)]
         public OutputType ConsoleOutputType { get; set; }
+
+        [YamlMember(Alias = YamlUrlOutputType)]
+        [Option("uot", Required = false, DefaultValue = OutputType.Json, HelpText = "Test result URL output type format.")]
+        [DefaultValue(OutputType.Json)]
+        public OutputType UrlOutputType { get; set; }
 
         [YamlMember(Alias = YamlDisableConsoleOutput)]
         [Option("dco", Required = false, DefaultValue = false, HelpText = "Boolean flag specifying whether all output to the console is disabled.")]
@@ -125,7 +142,7 @@ namespace Edison.Console
         public string OutputFile { get; set; }
 
         [YamlMember(Alias = YamlOutputType)]
-        [Option("ot", Required = false, DefaultValue = OutputType.Json, HelpText = "Output file output type format.")]
+        [Option("ot", Required = false, DefaultValue = OutputType.Json, HelpText = "File output type format.")]
         [DefaultValue(OutputType.Json)]
         public OutputType OutputType { get; set; }
 
