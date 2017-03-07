@@ -20,6 +20,8 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using Edison.Engine.Repositories.Outputs;
 using Edison.Engine.Utilities.Helpers;
+using Edison.Engine.Models;
+using Newtonsoft.Json;
 
 namespace Edison.Engine.Utilities.Structures
 {
@@ -295,12 +297,16 @@ namespace Edison.Engine.Utilities.Structures
 
             try
             {
+                // attempt to send the test result
                 SlackHelper.SendMessage(result, Context.SlackToken);
             }
             catch (Exception ex)
             {
-                // If we fail to send, fail silently
-                Logger.Instance.WriteError(string.Format("Failed posting result to Slack:\n{0}", ex.Message));
+                #if DEBUG
+                {
+                    Logger.Instance.WriteError(string.Format("Failed posting result to Slack:\n{0}", ex.Message));
+                }
+                #endif
             }
         }
 
@@ -316,49 +322,18 @@ namespace Edison.Engine.Utilities.Structures
                 return;
             }
 
-            // build the value to send to the URL
-            var output = OutputRepositoryFactory.Get(Context.UrlOutputType);
-            var value = string.Empty;
-
-            switch (Context.UrlOutputType)
-            {
-                case OutputType.Csv:
-                    value = output.OpenTag + Environment.NewLine + output.ToString(result, false);
-                    break;
-
-                default:
-                    value = output.ToString(result, false);
-                    break;
-            }
-
-            // if the value is empty, return
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
             try
             {
-                // attempt to send the result to the URL
-                var request = WebRequestRepository.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
-                request.Method = "POST";
-                request.ContentType = output.ContentType;
-
-                var bytes = Encoding.ASCII.GetBytes(value);
-                request.ContentLength = bytes.Length;
-
-                using (var stream = request.GetRequestStream())
-                {
-                    stream.Write(bytes, 0, bytes.Length);
-                }
-
-                // Log that the result was sent
-                using (var response = request.GetResponse()) { }
+                // attempt to send the test result
+                TestResultUrlHelper.SendTestResult(result, Context);
             }
             catch (Exception ex)
             {
-                // If we fail to send, fail silently
-                Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
+                #if DEBUG
+                {
+                    Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
+                }
+                #endif
             }
         }
 

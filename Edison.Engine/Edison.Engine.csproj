@@ -55,8 +55,11 @@
     <Compile Include="Contexts\ContextValidator.cs" />
     <Compile Include="Contexts\EdisonContext.cs" />
     <Compile Include="Core\Enums\OutputType.cs" />
+    <Compile Include="Core\Enums\TestResultUrlActionType.cs" />
     <Compile Include="Core\Exceptions\ValidationException.cs" />
     <Compile Include="Core\Exceptions\ParseException.cs" />
+    <Compile Include="Models\TestResultModel.cs" />
+    <Compile Include="Models\TestResultUrlModel.cs" />
     <Compile Include="Repositories\AssemblyRepository.cs" />
     <Compile Include="Repositories\AppDomainRepository.cs" />
     <Compile Include="Repositories\DateTimeRepository.cs" />
@@ -93,6 +96,7 @@
     <Compile Include="Utilities\Extensions\StringExtension.cs" />
     <Compile Include="Utilities\Helpers\EnumerableHelper.cs" />
     <Compile Include="Utilities\Helpers\SlackHelper.cs" />
+    <Compile Include="Utilities\Helpers\TestResultUrlHelper.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\Structures\TestResultDictionary.cs" />
     <Compile Include="Validators\NamespaceValidator.cs" />

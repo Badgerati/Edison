@@ -1,8 +1,8 @@
 assemblies:
   - "./Edison.Tests/bin/Debug/Edison.Tests.dll"
 
-#fixtures:
-#  - "Edison.Tests.TestClass4"
+fixtures:
+  - "Edison.Tests.TestClass4"
 
 disable_test_output: false
 disable_file_output: false
@@ -11,3 +11,5 @@ output_type: json
 fixture_threads: 1
 rerun: false
 #slack_token: "<SLACK_TOKEN>"
+#test_result_url: 'http://localhost:8085/api/post-test'
+#test_run_id: 'v1.2'
