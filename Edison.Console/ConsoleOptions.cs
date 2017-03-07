@@ -44,7 +44,7 @@ namespace Edison.Console
         public const string YamlTestThreads = "test_threads";
 
         public const string YamlTestRunId = "test_run_id";
-        public const string YamlUrl = "url";
+        public const string YamlTestResultUrl = "test_result_url";
 
         public const string YamlOutputDirectory = "output_directory";
         public const string YamlOutputFile = "output_file";
@@ -149,7 +149,7 @@ namespace Edison.Console
         [DefaultValue(1)]
         public int TestThreads { get; set; }
 
-        [YamlMember(Alias = YamlUrl)]
+        [YamlMember(Alias = YamlTestResultUrl)]
         [Option("url", Required = false, HelpText = "Test result URL where test results and the Test run ID will be POSTed to after each test.")]
         public string TestResultUrl { get; set; }
 

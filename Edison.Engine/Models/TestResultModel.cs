@@ -7,6 +7,8 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Framework;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 
 namespace Edison.Engine.Models
@@ -38,6 +40,7 @@ namespace Edison.Engine.Models
         /// <value>
         /// The state of the test.
         /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
         public TestResultState TestState { get; set; }
 
         /// <summary>

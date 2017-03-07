@@ -7,6 +7,8 @@ License: MIT (see LICENSE for details)
  */
 
 using Edison.Engine.Core.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Edison.Engine.Models
 {
@@ -34,6 +36,7 @@ namespace Edison.Engine.Models
         /// <value>
         /// The action type.
         /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
         public TestResultUrlActionType Action { get; set; }
 
         /// <summary>
