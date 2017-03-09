@@ -23,6 +23,14 @@ namespace Edison.Engine.Models
         public string TestRunId { get; set; }
 
         /// <summary>
+        /// Gets or sets the test run's informative name.
+        /// </summary>
+        /// <value>
+        /// The test run's informative name.
+        /// </value>
+        public string TestRunName { get; set; }
+
+        /// <summary>
         /// Gets or sets the session identifier.
         /// </summary>
         /// <value>

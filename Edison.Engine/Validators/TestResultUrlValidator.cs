@@ -42,6 +42,12 @@ namespace Edison.Engine.Validators
                 throw new ValidationException("A TestRunId is required when sending results to a URL");
             }
 
+            // check the TestRunName, if none then set it to the TestRunId
+            if (string.IsNullOrWhiteSpace(context.TestRunName))
+            {
+                context.TestRunName = context.TestRunId;
+            }
+
             // now ensure the URL is contactable
             try
             {
