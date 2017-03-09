@@ -125,6 +125,7 @@ namespace Edison.Console
             context.NumberOfFixtureThreads = options.FixtureThreads;
             context.NumberOfTestThreads = options.TestThreads;
             context.TestResultURL = options.TestResultUrl;
+            context.TestRunName = options.TestRunName;
             context.SlackToken = options.SlackToken;
 
             return true;

@@ -58,6 +58,7 @@ namespace Edison.Engine.Utilities.Helpers
             var urlModel = new TestResultUrlModel()
             {
                 TestRunId = context.TestRunId,
+                TestRunName = context.TestRunName,
                 SessionId = _sessionId,
                 Action = TestResultUrlActionType.Result,
                 TestResults = new TestResultModel[] { new TestResultModel(result) }
@@ -85,6 +86,7 @@ namespace Edison.Engine.Utilities.Helpers
             var urlModel = new TestResultUrlModel()
             {
                 TestRunId = context.TestRunId,
+                TestRunName = context.TestRunName,
                 SessionId = null,
                 Action = TestResultUrlActionType.Start,
                 TestResults = null

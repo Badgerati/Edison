@@ -11,5 +11,6 @@ output_type: json
 fixture_threads: 1
 rerun: false
 #slack_token: "<SLACK_TOKEN>"
-#test_result_url: 'http://localhost:8085/api/post-test'
-#test_run_id: 'v1.2'
+test_result_url: 'http://localhost:8085/api/post-test'
+test_run_id: 'v1.2'
+test_run_name: '1.2.0-a1b2c3d+rc1'
