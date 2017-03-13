@@ -46,6 +46,7 @@ namespace Edison.Console
         public const string YamlTestRunId = "test_run_id";
         public const string YamlTestRunName = "test_run_name";
         public const string YamlTestRunProject = "test_run_project";
+        public const string YamlTestRunEnv = "test_run_env";
 
         public const string YamlOutputDirectory = "output_directory";
         public const string YamlOutputFile = "output_file";
@@ -168,6 +169,10 @@ namespace Edison.Console
         [YamlMember(Alias = YamlTestRunProject)]
         [Option("tproj", Required = false, HelpText = "Test run's project name, such as website, service, api, etc.")]
         public string TestRunProject { get; set; }
+
+        [YamlMember(Alias = YamlTestRunEnv)]
+        [Option("tenv", Required = false, HelpText = "Name of the environment this test run is occurring. Defaults the machine name")]
+        public string TestRunEnvironment { get; set; }
 
 
         [YamlMember(Alias = YamlRerun)]
