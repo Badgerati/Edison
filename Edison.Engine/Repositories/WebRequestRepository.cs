@@ -19,7 +19,7 @@ namespace Edison.Engine.Repositories
 
         #region Instance Variables
 
-        private WebRequest Request;
+        private WebRequest _request;
 
         #endregion
 
@@ -33,8 +33,8 @@ namespace Edison.Engine.Repositories
         /// </value>
         public int Timeout
         {
-            get { return Request.Timeout; }
-            set { Request.Timeout = value; }
+            get { return _request.Timeout; }
+            set { _request.Timeout = value; }
         }
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace Edison.Engine.Repositories
         /// </value>
         public string Method
         {
-            get { return Request.Method; }
-            set { Request.Method = value; }
+            get { return _request.Method; }
+            set { _request.Method = value; }
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ namespace Edison.Engine.Repositories
         /// </value>
         public string ContentType
         {
-            get { return Request.ContentType; }
-            set { Request.ContentType = value; }
+            get { return _request.ContentType; }
+            set { _request.ContentType = value; }
         }
 
         /// <summary>
@@ -69,8 +69,26 @@ namespace Edison.Engine.Repositories
         /// </value>
         public long ContentLength
         {
-            get { return Request.ContentLength; }
-            set { Request.ContentLength = value; }
+            get { return _request.ContentLength; }
+            set { _request.ContentLength = value; }
+        }
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Basic public constructor.
+        /// </summary>
+        public WebRequestRepository() { }
+
+        /// <summary>
+        /// Private constructor to create an instance of a repositorised HTTP request.
+        /// </summary>
+        /// <param name="url">The URL to create the request against.</param>
+        private WebRequestRepository(string url)
+        {
+            _request = WebRequest.Create(url);
         }
 
         #endregion
@@ -84,8 +102,7 @@ namespace Edison.Engine.Repositories
         /// <returns>A web request.</returns>
         public IWebRequestRepository Create(string url)
         {
-            Request = WebRequest.Create(url);
-            return this;
+            return new WebRequestRepository(url);
         }
 
         /// <summary>
@@ -94,7 +111,7 @@ namespace Edison.Engine.Repositories
         /// <returns></returns>
         public IWebResponseRepository GetResponse()
         {
-            return new WebResponseRepository(Request.GetResponse());
+            return new WebResponseRepository(_request.GetResponse());
         }
 
         /// <summary>
@@ -103,7 +120,7 @@ namespace Edison.Engine.Repositories
         /// <returns></returns>
         public Stream GetRequestStream()
         {
-            return Request.GetRequestStream();
+            return _request.GetRequestStream();
         }
 
         #endregion

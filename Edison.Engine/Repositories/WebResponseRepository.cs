@@ -16,7 +16,7 @@ namespace Edison.Engine.Repositories
     [InjectionInterface(typeof(IWebResponseRepository))]
     public class WebResponseRepository : IWebResponseRepository
     {
-        
+
         private WebResponse Response;
 
         public WebResponseRepository(WebResponse response)
