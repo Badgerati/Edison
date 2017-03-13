@@ -137,6 +137,7 @@ namespace Edison.Console
             context.TestRunId = options.TestRunId;
             context.TestRunName = options.TestRunName;
             context.TestRunProject = options.TestRunProject;
+            context.TestRunEnvironment = options.TestRunEnvironment;
 
             context.SlackToken = options.SlackToken;
 

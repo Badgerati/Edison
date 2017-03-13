@@ -48,6 +48,12 @@ namespace Edison.Engine.Validators
                 context.TestRunName = context.TestRunId;
             }
 
+            // if the environment name is not supplied, default it to the machine name
+            if (string.IsNullOrWhiteSpace(context.TestRunEnvironment))
+            {
+                context.TestRunEnvironment = Environment.MachineName;
+            }
+
             // now ensure the URL is contactable
             try
             {

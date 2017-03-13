@@ -216,6 +216,14 @@ namespace Edison.Engine.Contexts
         public string TestRunProject { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the environment that the test run occurred.
+        /// </summary>
+        /// <value>
+        /// The name of the environment the rest run occurred.
+        /// </value>
+        public string TestRunEnvironment { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the context should re-run failed tests.
         /// </summary>
         /// <value>
