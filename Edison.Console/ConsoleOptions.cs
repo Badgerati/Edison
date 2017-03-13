@@ -155,7 +155,7 @@ namespace Edison.Console
 
 
         [YamlMember(Alias = YamlTestResultUrl)]
-        [Option("url", Required = false, HelpText = "Test result URL where test results and the Test run ID will be POSTed to after each test.")]
+        [Option("turl", Required = false, HelpText = "Test result URL where test results and the other test run related data will be POSTed to after each test.")]
         public string TestResultUrl { get; set; }
 
         [YamlMember(Alias = YamlTestRunId)]
@@ -171,7 +171,7 @@ namespace Edison.Console
         public string TestRunProject { get; set; }
 
         [YamlMember(Alias = YamlTestRunEnv)]
-        [Option("tenv", Required = false, HelpText = "Name of the environment this test run is occurring. Defaults the machine name")]
+        [Option("tenv", Required = false, HelpText = "Name of the environment this test run is occurring. Defaults the machine name.")]
         public string TestRunEnvironment { get; set; }
 
 
