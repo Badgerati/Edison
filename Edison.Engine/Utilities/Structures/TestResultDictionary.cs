@@ -208,10 +208,11 @@ namespace Edison.Engine.Utilities.Structures
         public bool AddOrUpdate(TestResult result)
         {
             var response = false;
+            var _result = default(TestResult);
             var key = result.Assembly + "." + result.FullName;
 
             // If a result exists for the test, update it. Else add the new result
-            if (Results.TryGetValue(key, out var _result))
+            if (Results.TryGetValue(key, out _result))
             {
                 if (_result != default(TestResult) && _result.State != TestResultState.Success)
                 {
@@ -254,7 +255,8 @@ namespace Edison.Engine.Utilities.Structures
         /// <returns>The test result if one exists.</returns>
         public TestResult Get(string testName)
         {
-            Results.TryGetValue(testName, out var _result);
+            var _result = default(TestResult);
+            Results.TryGetValue(testName, out _result);
             return _result;
         }
 
