@@ -9,19 +9,14 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Framework;
-using Edison.Engine.Utilities.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using Edison.Engine.Repositories.Outputs;
 using Edison.Engine.Utilities.Helpers;
-using Edison.Engine.Models;
-using Newtonsoft.Json;
 
 namespace Edison.Engine.Utilities.Structures
 {
@@ -213,11 +208,10 @@ namespace Edison.Engine.Utilities.Structures
         public bool AddOrUpdate(TestResult result)
         {
             var response = false;
-            var _result = default(TestResult);
             var key = result.Assembly + "." + result.FullName;
 
             // If a result exists for the test, update it. Else add the new result
-            if (Results.TryGetValue(key, out _result))
+            if (Results.TryGetValue(key, out var _result))
             {
                 if (_result != default(TestResult) && _result.State != TestResultState.Success)
                 {
@@ -260,8 +254,7 @@ namespace Edison.Engine.Utilities.Structures
         /// <returns>The test result if one exists.</returns>
         public TestResult Get(string testName)
         {
-            var _result = default(TestResult);
-            Results.TryGetValue(testName, out _result);
+            Results.TryGetValue(testName, out var _result);
             return _result;
         }
 

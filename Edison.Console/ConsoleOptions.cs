@@ -13,7 +13,6 @@ using Edison.Engine.Utilities.Extensions;
 using Edison.Engine.Core.Enums;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using YamlDotNet.Serialization;
 
 namespace Edison.Console
@@ -46,6 +45,7 @@ namespace Edison.Console
         public const string YamlTestResultUrl = "test_result_url";
         public const string YamlTestRunId = "test_run_id";
         public const string YamlTestRunName = "test_run_name";
+        public const string YamlTestRunProject = "test_run_project";
 
         public const string YamlOutputDirectory = "output_directory";
         public const string YamlOutputFile = "output_file";
@@ -164,6 +164,10 @@ namespace Edison.Console
         [YamlMember(Alias = YamlTestRunName)]
         [Option("tname", Required = false, HelpText = "Test run's informative name, used in conjunction with TestRunId.")]
         public string TestRunName { get; set; }
+
+        [YamlMember(Alias = YamlTestRunProject)]
+        [Option("tproj", Required = false, HelpText = "Test run's project name, such as website, service, api, etc.")]
+        public string TestRunProject { get; set; }
 
 
         [YamlMember(Alias = YamlRerun)]
