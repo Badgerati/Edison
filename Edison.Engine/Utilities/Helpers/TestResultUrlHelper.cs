@@ -13,6 +13,7 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Injector;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Text;
 
@@ -51,16 +52,7 @@ namespace Edison.Engine.Utilities.Helpers
             }
 
             // build the value to send to the URL
-            var urlModel = new TestResultUrlModel()
-            {
-                TestRunId = context.TestRunId,
-                TestRunName = context.TestRunName,
-                TestRunProject = context.TestRunProject,
-                TestRunEnvironment = context.TestRunEnvironment,
-                SessionId = _sessionId,
-                Action = TestResultUrlActionType.Result,
-                TestResults = new TestResultModel[] { new TestResultModel(result) }
-            };
+            var urlModel = MakeUrlModel(context, TestResultUrlActionType.Result, new TestResultModel[] { new TestResultModel(result) });
 
             // serialize for the JSON value
             var value = JsonConvert.SerializeObject(urlModel);
@@ -81,16 +73,7 @@ namespace Edison.Engine.Utilities.Helpers
             }
 
             // build the value to send to the URL
-            var urlModel = new TestResultUrlModel()
-            {
-                TestRunId = context.TestRunId,
-                TestRunName = context.TestRunName,
-                TestRunProject = context.TestRunProject,
-                TestRunEnvironment = context.TestRunEnvironment,
-                SessionId = null,
-                Action = TestResultUrlActionType.Start,
-                TestResults = null
-            };
+            var urlModel = MakeUrlModel(context, TestResultUrlActionType.Start);
 
             // serialize for the JSON value
             var value = JsonConvert.SerializeObject(urlModel);
@@ -99,9 +82,60 @@ namespace Edison.Engine.Utilities.Helpers
             _sessionId = SendCallout(value, context);
         }
 
+        /// <summary>
+        /// Sends the end event callout.
+        /// </summary>
+        /// <param name="context">The main context.</param>
+        public static void SendEnd(EdisonContext context)
+        {
+            if (context == default(EdisonContext))
+            {
+                return;
+            }
+
+            // if the ending callout errors, fail silently but log to console
+            try
+            {
+                // build the value to send to the URL
+                var urlModel = MakeUrlModel(context, TestResultUrlActionType.End);
+
+                // serialize for the JSON value
+                var value = JsonConvert.SerializeObject(urlModel);
+
+                // attempt to send the start event to the URL, and store the sessionId returned
+                SendCallout(value, context);
+            }
+            catch (Exception ex)
+            {
+                // log error, but silently continue
+                Logger.Instance.WriteException(ex);
+            }
+        }
+
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Creates the model to send to a TestResultUrl.
+        /// </summary>
+        /// <param name="context">The main context.</param>
+        /// <param name="action">The action type of this callout.</param>
+        /// <param name="results">The results to send.</param>
+        /// <returns>The model for the TestResultUrl.</returns>
+        private static TestResultUrlModel MakeUrlModel(EdisonContext context, TestResultUrlActionType action, TestResultModel[] results = null)
+        {
+            return new TestResultUrlModel()
+            {
+                TestRunId = context.TestRunId,
+                TestRunName = context.TestRunName,
+                TestRunProject = context.TestRunProject,
+                TestRunEnvironment = context.TestRunEnvironment,
+                SessionId = _sessionId,
+                Action = action,
+                TestResults = results
+            };
+        }
 
         /// <summary>
         /// Attempts to send the callout data.

@@ -11,6 +11,7 @@ namespace Edison.Engine.Core.Enums
     public enum TestResultUrlActionType
     {
         Start,
-        Result
+        Result,
+        End
     }
 }

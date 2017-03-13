@@ -368,35 +368,49 @@ namespace Edison.Engine.Contexts
                 TestResultUrlHelper.SendStart(this);
             }
 
-            //start timer
+            // create initial timer
             var timer = new Stopwatch();
-            timer.Start();
 
-            //set logging output
-            SetupLogging();
-
-            //set output logging type
-            Logger.Instance.ConsoleOutputType = ConsoleOutputType;
-
-            //create results queue/list
-            ResultQueue = new TestResultDictionary(this);
-
-            //bind test result events
-            if (OnTestResult != default(TestResultEventHandler))
+            // setup a try-finally, so that if at any we stop we notify a possible endpoint
+            try
             {
-                ResultQueue.OnTestResult += OnTestResult;
+                //start timer
+                timer.Start();
+
+                //set logging output
+                SetupLogging();
+
+                //set output logging type
+                Logger.Instance.ConsoleOutputType = ConsoleOutputType;
+
+                //create results queue/list
+                ResultQueue = new TestResultDictionary(this);
+
+                //bind test result events
+                if (OnTestResult != default(TestResultEventHandler))
+                {
+                    ResultQueue.OnTestResult += OnTestResult;
+                }
+
+                //loop through all assemblies, running their tests
+                RunAssemblies();
+
+                //stop the timer
+                timer.Stop();
+
+                //if we have single/none line logging, post the failed test messages
+                if (Logger.Instance.IsSingleOrNoLined && ResultQueue.FailedTestResults.Any())
+                {
+                    WriteFailedResultsToConsole();
+                }
             }
-
-            //loop through all assemblies, running their tests
-            RunAssemblies();
-
-            //stop the timer
-            timer.Stop();
-
-            //if we have single/none line logging, post the failed test messages
-            if (Logger.Instance.IsSingleOrNoLined && ResultQueue.FailedTestResults.Any())
+            finally
             {
-                WriteFailedResultsToConsole();
+                // if we have a test result URL, send end event
+                if (!string.IsNullOrWhiteSpace(TestResultURL))
+                {
+                    TestResultUrlHelper.SendEnd(this);
+                }
             }
 
             //create result file and write
@@ -408,6 +422,7 @@ namespace Edison.Engine.Contexts
             Logger.Instance.WriteMessage(string.Format("Total time: {0}", timer.Elapsed));
             Logger.Instance.WriteDoubleLine(postcede: Environment.NewLine);
 
+            // end the run, and return results
             IsRunning = false;
             return ResultQueue;
         }
