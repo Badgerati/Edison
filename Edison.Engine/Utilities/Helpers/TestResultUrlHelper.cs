@@ -13,12 +13,8 @@ using Edison.Engine.Repositories.Interfaces;
 using Edison.Framework;
 using Edison.Injector;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Edison.Engine.Utilities.Helpers
 {
@@ -59,6 +55,7 @@ namespace Edison.Engine.Utilities.Helpers
             {
                 TestRunId = context.TestRunId,
                 TestRunName = context.TestRunName,
+                TestRunProject = context.TestRunProject,
                 SessionId = _sessionId,
                 Action = TestResultUrlActionType.Result,
                 TestResults = new TestResultModel[] { new TestResultModel(result) }
@@ -87,6 +84,7 @@ namespace Edison.Engine.Utilities.Helpers
             {
                 TestRunId = context.TestRunId,
                 TestRunName = context.TestRunName,
+                TestRunProject = context.TestRunProject,
                 SessionId = null,
                 Action = TestResultUrlActionType.Start,
                 TestResults = null

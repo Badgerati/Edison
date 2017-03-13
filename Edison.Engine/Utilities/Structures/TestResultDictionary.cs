@@ -9,19 +9,14 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Framework;
-using Edison.Engine.Utilities.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using Edison.Engine.Repositories.Outputs;
 using Edison.Engine.Utilities.Helpers;
-using Edison.Engine.Models;
-using Newtonsoft.Json;
 
 namespace Edison.Engine.Utilities.Structures
 {

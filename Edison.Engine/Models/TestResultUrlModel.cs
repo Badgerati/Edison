@@ -31,6 +31,14 @@ namespace Edison.Engine.Models
         public string TestRunName { get; set; }
 
         /// <summary>
+        /// Gets or sets the test run's project name.
+        /// </summary>
+        /// <value>
+        /// The test run's project name.
+        /// </value>
+        public string TestRunProject { get; set; }
+
+        /// <summary>
         /// Gets or sets the session identifier.
         /// </summary>
         /// <value>

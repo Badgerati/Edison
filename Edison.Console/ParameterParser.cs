@@ -105,27 +105,39 @@ namespace Edison.Console
 
             // assign all values from the console/edisonfile to the main context runner
             context.Assemblies = new List<string>(EnumerableHelper.SafeGuard(options.Assemblies));
+
             context.IncludedCategories = new List<string>(EnumerableHelper.SafeGuard(options.IncludedCategories));
             context.ExcludedCategories = new List<string>(EnumerableHelper.SafeGuard(options.ExcludedCategories));
+
             context.Tests = new List<string>(EnumerableHelper.SafeGuard(options.Tests));
             context.Fixtures = new List<string>(EnumerableHelper.SafeGuard(options.Fixtures));
+
             context.Solution = options.Solution;
             context.SolutionConfiguration = options.SolutionConfiguration;
+
             context.Suite = options.Suite;
-            context.RerunFailedTests = options.RerunFailedTests;
+
             context.DisableFileOutput = options.DisableFileOutput;
             context.DisableConsoleOutput = options.DisableConsoleOutput;
             context.DisableTestOutput = options.DisableTestOutput;
-            context.ConsoleOutputType = options.ConsoleOutputType;
-            context.OutputType = options.OutputType;
-            context.TestRunId = options.TestRunId;
+
             context.RerunThreshold = options.RerunThreshold;
+            context.RerunFailedTests = options.RerunFailedTests;
+
+            context.OutputType = options.OutputType;
+            context.ConsoleOutputType = options.ConsoleOutputType;
+
             context.OutputFile = options.OutputFile;
             context.OutputDirectory = options.OutputDirectory;
+
             context.NumberOfFixtureThreads = options.FixtureThreads;
             context.NumberOfTestThreads = options.TestThreads;
+
             context.TestResultURL = options.TestResultUrl;
+            context.TestRunId = options.TestRunId;
             context.TestRunName = options.TestRunName;
+            context.TestRunProject = options.TestRunProject;
+
             context.SlackToken = options.SlackToken;
 
             return true;
