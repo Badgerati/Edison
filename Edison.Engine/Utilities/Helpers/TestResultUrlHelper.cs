@@ -55,6 +55,7 @@ namespace Edison.Engine.Utilities.Helpers
             {
                 TestRunId = context.TestRunId,
                 TestRunName = context.TestRunName,
+                TestRunProject = context.TestRunProject,
                 SessionId = _sessionId,
                 Action = TestResultUrlActionType.Result,
                 TestResults = new TestResultModel[] { new TestResultModel(result) }
@@ -83,6 +84,7 @@ namespace Edison.Engine.Utilities.Helpers
             {
                 TestRunId = context.TestRunId,
                 TestRunName = context.TestRunName,
+                TestRunProject = context.TestRunProject,
                 SessionId = null,
                 Action = TestResultUrlActionType.Start,
                 TestResults = null
