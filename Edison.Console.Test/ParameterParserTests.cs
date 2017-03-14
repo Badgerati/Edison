@@ -470,6 +470,54 @@ namespace Edison.Console.Test
 
         #endregion
 
+        #region Output Type
+
+        [Test]
+        public void ValidOutputTypeTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = EdisonContext.Create();
+
+            var type = "csv";
+            var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--ot", type });
+            Assert.IsTrue(result);
+            Assert.AreEqual(OutputType.Csv, context.OutputType);
+        }
+
+        [Test]
+        public void InvalidOutputTypeTest()
+        {
+            var dll = "dummy/path/to.dll";
+
+            var fileMock = new Mock<IFileRepository>();
+            fileMock.Setup(x => x.Exists(dll)).Returns(true);
+            DIContainer.Instance.BindAndCacheInstance<IFileRepository>(fileMock.Object);
+
+            var context = EdisonContext.Create();
+
+            try
+            {
+                Logger.Instance.Disable();
+                var result = ParameterParser.Parse(context, new string[] { "--a", dll, "--ot", "dummy" });
+                Assert.IsFalse(result);
+            }
+            catch (ParseException ex)
+            {
+                StringAssert.Contains("Output type supplied is incorrect", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+        }
+
+        #endregion
+
         #region Rerun Failed Tests
 
         [Test]

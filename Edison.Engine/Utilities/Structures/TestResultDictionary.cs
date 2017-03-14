@@ -9,16 +9,13 @@ License: MIT (see LICENSE for details)
 using Edison.Engine.Contexts;
 using Edison.Engine.Core.Enums;
 using Edison.Framework;
-using Edison.Engine.Utilities.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Edison.Engine.Events;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
-using Edison.Engine.Repositories.Outputs;
 using Edison.Engine.Utilities.Helpers;
 
 namespace Edison.Engine.Utilities.Structures
@@ -180,7 +177,7 @@ namespace Edison.Engine.Utilities.Structures
         #region Fields
 
         private bool _canPostToSlack = false;
-        private bool _canPostToUrl = false;
+        private bool _canPostToResultUrl = false;
 
         #endregion
 
@@ -196,7 +193,7 @@ namespace Edison.Engine.Utilities.Structures
             Context = context;
 
             _canPostToSlack = !string.IsNullOrWhiteSpace(context.SlackToken);
-            _canPostToUrl = !string.IsNullOrWhiteSpace(context.TestResultURL);
+            _canPostToResultUrl = !string.IsNullOrWhiteSpace(context.TestResultURL);
         }
 
         #endregion
@@ -237,10 +234,16 @@ namespace Edison.Engine.Utilities.Structures
             }
 
             // Attempt to send the result to a URL
-            PostResultToUrl(result);
+            if (_canPostToResultUrl)
+            {
+                Context.SendTestResultCallout(result, ResultCalloutType.TestResultUrl);
+            }
 
             // Attempt to send the result to Slack
-            PostResultToSlack(result);
+            if (_canPostToSlack && result.IsSlackable)
+            {
+                Context.SendTestResultCallout(result, ResultCalloutType.Slack);
+            }
 
             // Invoke the callback handler event
             if (OnTestResult != default(TestResultEventHandler))
@@ -279,87 +282,6 @@ namespace Edison.Engine.Utilities.Structures
                 IgnoredCount,
                 SuccessRate,
                 FailureRate);
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void PostResultToSlack(TestResult result)
-        {
-            // if there's not slack token, or result is not slackable, return
-            if (!_canPostToSlack || !result.IsSlackable)
-            {
-                return;
-            }
-
-            try
-            {
-                SlackHelper.SendMessage(result, Context.SlackToken);
-            }
-            catch (Exception ex)
-            {
-                // If we fail to send, fail silently
-                Logger.Instance.WriteError(string.Format("Failed posting result to Slack:\n{0}", ex.Message));
-            }
-        }
-
-        /// <summary>
-        /// Posts the result to a URL.
-        /// </summary>
-        /// <param name="result">The test result.</param>
-        private void PostResultToUrl(TestResult result)
-        {
-            // if there is not URL, return
-            if (!_canPostToUrl)
-            {
-                return;
-            }
-
-            // build the value to send to the URL
-            var output = OutputRepositoryFactory.Get(Context.OutputType);
-            var value = string.Empty;
-
-            switch (Context.OutputType)
-            {
-                case OutputType.Csv:
-                    value = output.OpenTag + Environment.NewLine + output.ToString(result, false);
-                    break;
-
-                default:
-                    value = output.ToString(result, false);
-                    break;
-            }
-
-            // if the value is empty, return
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
-            try
-            {
-                // attempt to send the result to the URL
-                var request = WebRequestRepository.Create(Context.TestResultURL + "?TestRunId=" + StringExtension.Safeguard(Context.TestRunId).ToUrlString());
-                request.Method = "POST";
-                request.ContentType = output.ContentType;
-
-                var bytes = Encoding.ASCII.GetBytes(value);
-                request.ContentLength = bytes.Length;
-
-                using (var stream = request.GetRequestStream())
-                {
-                    stream.Write(bytes, 0, bytes.Length);
-                }
-
-                // Log that the result was sent
-                using (var response = request.GetResponse()) { }
-            }
-            catch (Exception ex)
-            {
-                // If we fail to send, fail silently
-                Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
-            }
         }
 
         #endregion
