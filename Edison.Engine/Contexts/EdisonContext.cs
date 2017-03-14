@@ -462,6 +462,11 @@ namespace Edison.Engine.Contexts
             Logger.Instance.WriteMessage(string.Format("{1}{1}{0}", "EDISON STOPPED", Environment.NewLine));
         }
 
+        /// <summary>
+        /// Sends a test result to a callout endpoint asynchronously.
+        /// </summary>
+        /// <param name="result">The test result to send.</param>
+        /// <param name="type">The type of callout to send to.</param>
         public void SendTestResultCallout(TestResult result, ResultCalloutType type)
         {
             // if no result, return

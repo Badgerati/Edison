@@ -34,6 +34,9 @@ namespace Edison.Engine.Threading
 
         #region Properties
 
+        /// <summary>
+        /// Gets the number of items on this queue.
+        /// </summary>
         public int Count
         {
             get { return _queue.Count; }
@@ -55,6 +58,10 @@ namespace Edison.Engine.Threading
 
         #region Constructor
 
+        /// <summary>
+        /// Creates an instance of this callout thread.
+        /// </summary>
+        /// <param name="context">The main EdisonContext to help setup the thread.</param>
         public ResultCalloutThread(EdisonContext context)
         {
             _context = context;
@@ -69,16 +76,27 @@ namespace Edison.Engine.Threading
 
         #region Public Methods
 
+        /// <summary>
+        /// Adds a result to the thread's queue.
+        /// </summary>
+        /// <param name="result">The test result to add.</param>
+        /// <param name="type">The callout type to send the result to.</param>
         public void Add(TestResult result, ResultCalloutType type)
         {
             _queue.Enqueue(Tuple.Create(result, type));
         }
 
+        /// <summary>
+        /// Interrupt the thread to stop it.
+        /// </summary>
         public void Interrupt()
         {
             _interrupted = true;
         }
 
+        /// <summary>
+        /// Run the main loop logic to send out callouts.
+        /// </summary>
         public void Run()
         {
             while (!(_interrupted && Count == 0))
@@ -86,7 +104,7 @@ namespace Edison.Engine.Threading
                 // if there's nothing to send, sleep for a little
                 if (!_queue.Any())
                 {
-                    Thread.Sleep(400);
+                    Thread.Sleep(500);
                     continue;
                 }
 
@@ -129,6 +147,10 @@ namespace Edison.Engine.Threading
 
         #region Private Methods
 
+        /// <summary>
+        /// Sends a test's result to slack.
+        /// </summary>
+        /// <param name="result">The test result.</param>
         private void PostResultToSlack(TestResult result)
         {
             // if there's no slack token, or result is not slackable, return
@@ -154,6 +176,10 @@ namespace Edison.Engine.Threading
             }
         }
 
+        /// <summary>
+        /// Sends a test's result to the test result URL.
+        /// </summary>
+        /// <param name="result">The test result.</param>
         private void PostResultToResultUrl(TestResult result)
         {
             // if there is no Result URL, return
@@ -179,6 +205,10 @@ namespace Edison.Engine.Threading
             }
         }
 
+        /// <summary>
+        /// Increment the callout type on the blacklist if a callout fails.
+        /// </summary>
+        /// <param name="type">Callout type to increment.</param>
         private void IncrementBlackList(ResultCalloutType type)
         {
             if (_blackList.ContainsKey(type))
@@ -191,6 +221,11 @@ namespace Edison.Engine.Threading
             }
         }
 
+        /// <summary>
+        /// Returns whether or not a callout type is blacklisted (aka, failed 5 times or more).
+        /// </summary>
+        /// <param name="type">Callout type to check.</param>
+        /// <returns>True if blacklisted, false otherwise.</returns>
         private bool IsBlackListed(ResultCalloutType type)
         {
             return _blackList.ContainsKey(type) && _blackList[type] >= 5;
