@@ -4,8 +4,8 @@ param(
 )
 
 if (!$NoBuild) {
-    cake
+    cake .\build-debug.cake
 }
 
 Clear-Host
-.\Edison.Console\bin\Release\Edison.Console.exe --ef .\Edisonfile --tproj engine
+.\Edison.Console\bin\Debug\Edison.Console.exe --ef .\Edisonfile --tproj engine

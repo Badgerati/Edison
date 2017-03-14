@@ -177,7 +177,7 @@ namespace Edison.Engine.Utilities.Structures
         #region Fields
 
         private bool _canPostToSlack = false;
-        private bool _canPostToUrl = false;
+        private bool _canPostToResultUrl = false;
 
         #endregion
 
@@ -193,7 +193,7 @@ namespace Edison.Engine.Utilities.Structures
             Context = context;
 
             _canPostToSlack = !string.IsNullOrWhiteSpace(context.SlackToken);
-            _canPostToUrl = !string.IsNullOrWhiteSpace(context.TestResultURL);
+            _canPostToResultUrl = !string.IsNullOrWhiteSpace(context.TestResultURL);
         }
 
         #endregion
@@ -234,10 +234,16 @@ namespace Edison.Engine.Utilities.Structures
             }
 
             // Attempt to send the result to a URL
-            PostResultToUrl(result);
+            if (_canPostToResultUrl)
+            {
+                Context.SendTestResultCallout(result, ResultCalloutType.TestResultUrl);
+            }
 
             // Attempt to send the result to Slack
-            PostResultToSlack(result);
+            if (_canPostToSlack && result.IsSlackable)
+            {
+                Context.SendTestResultCallout(result, ResultCalloutType.Slack);
+            }
 
             // Invoke the callback handler event
             if (OnTestResult != default(TestResultEventHandler))
@@ -276,60 +282,6 @@ namespace Edison.Engine.Utilities.Structures
                 IgnoredCount,
                 SuccessRate,
                 FailureRate);
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void PostResultToSlack(TestResult result)
-        {
-            // if there's not slack token, or result is not slackable, return
-            if (!_canPostToSlack || !result.IsSlackable)
-            {
-                return;
-            }
-
-            try
-            {
-                // attempt to send the test result
-                SlackHelper.SendMessage(result, Context.SlackToken);
-            }
-            catch (Exception ex)
-            {
-                #if DEBUG
-                {
-                    Logger.Instance.WriteError(string.Format("Failed posting result to Slack:\n{0}", ex.Message));
-                }
-                #endif
-            }
-        }
-
-        /// <summary>
-        /// Posts the result to a URL.
-        /// </summary>
-        /// <param name="result">The test result.</param>
-        private void PostResultToUrl(TestResult result)
-        {
-            // if there is not URL, return
-            if (!_canPostToUrl)
-            {
-                return;
-            }
-
-            try
-            {
-                // attempt to send the test result
-                TestResultUrlHelper.SendTestResult(result, Context);
-            }
-            catch (Exception ex)
-            {
-                #if DEBUG
-                {
-                    Logger.Instance.WriteError(string.Format("Failed posting result to TestResultURL:\n{0}", ex.Message));
-                }
-                #endif
-            }
         }
 
         #endregion

@@ -300,6 +300,8 @@ namespace Edison.Engine.Contexts
         private Task ParallelTask = default(Task);
         private TestFixtureThread SingularThread = default(TestFixtureThread);
         private Task SingularTask = default(Task);
+        private IList<ResultCalloutThread> ResultCalloutThreads = default(IList<ResultCalloutThread>);
+        private Task ResultCalloutTask = default(Task);
 
         #endregion
 
@@ -406,6 +408,9 @@ namespace Edison.Engine.Contexts
             }
             finally
             {
+                // wait for the callout task to finish (in case a fatal error was thrown)
+                StopResultCalloutTask();
+
                 // if we have a test result URL, send end event
                 if (!string.IsNullOrWhiteSpace(TestResultURL))
                 {
@@ -432,6 +437,7 @@ namespace Edison.Engine.Contexts
         /// </summary>
         public void Interrupt()
         {
+            // first attempt to stop the parallel threads
             if (ParallelThreads != default(IList<TestFixtureThread>))
             {
                 foreach (var thread in ParallelThreads)
@@ -442,13 +448,40 @@ namespace Edison.Engine.Contexts
                 Task.WaitAll(ParallelTask);
             }
 
+            // then attempt to stop the singular threads
             if (SingularThread != default(TestFixtureThread))
             {
                 SingularThread.Interrupt();
                 Task.WaitAll(SingularTask);
             }
 
+            // finally, stop the callouts
+            StopResultCalloutTask();
+
+            // log
             Logger.Instance.WriteMessage(string.Format("{1}{1}{0}", "EDISON STOPPED", Environment.NewLine));
+        }
+
+        /// <summary>
+        /// Sends a test result to a callout endpoint asynchronously.
+        /// </summary>
+        /// <param name="result">The test result to send.</param>
+        /// <param name="type">The type of callout to send to.</param>
+        public void SendTestResultCallout(TestResult result, ResultCalloutType type)
+        {
+            // if no result, return
+            if (result == default(TestResult))
+            {
+                return;
+            }
+
+            // apply naive load balancing, grab one with lowest results
+            var thread = ResultCalloutThreads[0].Count <= ResultCalloutThreads[1].Count
+                ? ResultCalloutThreads[0]
+                : ResultCalloutThreads[1];
+
+            // add to thread
+            thread.Add(result, type);
         }
 
         #endregion
@@ -627,6 +660,9 @@ namespace Edison.Engine.Contexts
 
         private void RunThreads(Assembly assembly, Exception globalSetupEx)
         {
+
+            #region Fetch tests to run
+
             // get all possible test fixtures
             var testFixtures = AssemblyRepository.GetTestFixtures(assembly, IncludedCategories, ExcludedCategories, Fixtures, Tests, Suite).ToList();
             var singularTestFixtures = default(List<Type>);
@@ -636,7 +672,22 @@ namespace Edison.Engine.Contexts
                 return;
             }
 
-            #region Parallel
+            #endregion
+
+            #region Callout Threads
+
+            ResultCalloutThreads = new List<ResultCalloutThread>()
+            {
+                new ResultCalloutThread(this),
+                new ResultCalloutThread(this)
+            };
+
+            ResultCalloutTask = Task.Run(() => Parallel.ForEach(ResultCalloutThreads, thread => thread.Run()));
+
+            #endregion
+
+            #region Parallel Threads
+
             // if we're running in parallel, remove any singular test fixtures
             if (NumberOfFixtureThreads > 1 && testFixtures.Count() != 1)
             {
@@ -672,7 +723,7 @@ namespace Edison.Engine.Contexts
 
             #endregion
 
-            #region Singular
+            #region Singular Thread
 
             // setup - if needed - the singular thread
             if (NumberOfFixtureThreads > 1 && !EnumerableHelper.IsNullOrEmpty(singularTestFixtures))
@@ -708,6 +759,25 @@ namespace Edison.Engine.Contexts
             }
 
             #endregion
+
+            #region Wait for callouts to send
+
+            StopResultCalloutTask();
+
+            #endregion
+        }
+
+        private void StopResultCalloutTask()
+        {
+            if (ResultCalloutThreads != default(IList<ResultCalloutThread>))
+            {
+                foreach (var thread in ResultCalloutThreads)
+                {
+                    thread.Interrupt();
+                }
+
+                Task.WaitAll(ResultCalloutTask);
+            }
         }
 
         #endregion
