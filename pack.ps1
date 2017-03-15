@@ -6,7 +6,7 @@ Write-Host 'Packing Edison'
 Write-Host "Copying binaries into package"
 New-Item -ItemType Directory -Path ./Package
 
-$bundleExtensions = @("*.dll", "*.exe", "*.config")
+$bundleExtensions = @("*.dll", "*.exe", "*.config", "*.tdnet")
 
 foreach ($extension in $bundleExtensions)
 {

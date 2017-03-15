@@ -11,7 +11,6 @@ using Edison.Engine.Core.Exceptions;
 using Edison.Engine.Repositories.Interfaces;
 using Edison.Injector;
 using System;
-using System.IO;
 
 namespace Edison.Engine.Validators
 {
@@ -31,22 +30,38 @@ namespace Edison.Engine.Validators
 
         public void Validate(EdisonContext context)
         {
+            // only validate if we have a URL supplied
             if (string.IsNullOrWhiteSpace(context.TestResultURL))
             {
                 return;
             }
 
+            // first, was a TestRunId supplied?
+            if (string.IsNullOrWhiteSpace(context.TestRunId))
+            {
+                throw new ValidationException("A TestRunId is required when sending results to a URL");
+            }
+
+            // check the TestRunName, if none then set it to the TestRunId
+            if (string.IsNullOrWhiteSpace(context.TestRunName))
+            {
+                context.TestRunName = context.TestRunId;
+            }
+
+            // if the environment name is not supplied, default it to the machine name
+            if (string.IsNullOrWhiteSpace(context.TestRunEnvironment))
+            {
+                context.TestRunEnvironment = Environment.MachineName;
+            }
+
+            // now ensure the URL is contactable
             try
             {
                 var request = WebRequestRepository.Create(context.TestResultURL);
-                request.Timeout = 30;
+                request.Method = "POST";
+                request.Timeout = 30000;
 
-                using (var response = request.GetResponse())
-                {
-                    using (var reader = new StreamReader(response.GetResponseStream()))
-                    {
-                    }
-                }
+                using (var response = request.GetResponse()) { }
             }
             catch (Exception ex)
             {

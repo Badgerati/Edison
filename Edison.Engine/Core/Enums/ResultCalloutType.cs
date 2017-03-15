@@ -6,11 +6,11 @@ Company: Cadaeic Studios
 License: MIT (see LICENSE for details)
  */
 
-using Edison.Framework;
-
-namespace Edison.Engine.Events
+namespace Edison.Engine.Core.Enums
 {
-
-    public delegate void TestResultEventHandler(TestResult result);
-
+    public enum ResultCalloutType
+    {
+        TestResultUrl,
+        Slack
+    }
 }
