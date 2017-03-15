@@ -91,10 +91,6 @@ namespace Edison.Engine.Threading
             }
         }
 
-        #endregion
-
-        #region Private Methods
-
         public void RunTestFixtures()
         {
             foreach (var testFixture in TestFixtures)
@@ -111,6 +107,10 @@ namespace Edison.Engine.Threading
                 RunTestFixtureRepeats(testFixture, setup, teardown);
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         private void RunTestFixtureRepeats(Type testFixture, IEnumerable<MethodInfo> fixtureSetup, IEnumerable<MethodInfo> fixtureTeardown)
         {
