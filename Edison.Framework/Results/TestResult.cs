@@ -38,7 +38,7 @@ namespace Edison.Framework
         public string FullName { get; set; }
         public string ErrorMessage { get; set; }
         public string StackTrace { get; set; }
-        public TimeSpan TimeTaken { get; set; }
+        public TimeSpan Duration { get; set; }
         public DateTime CreateDateTime { get; set; }
         public int TestRepeatIndex { get; set; }
         public int TestFixtureRepeatIndex { get; set; }
@@ -107,7 +107,7 @@ namespace Edison.Framework
         /// <param name="testRepeatIndex">Index of the test repeat.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <param name="stackTrace">The stack trace.</param>
-        /// <param name="timeTaken">The time taken.</param>
+        /// <param name="duration">The time taken.</param>
         /// <param name="version">The version.</param>
         /// <param name="authors">The authors.</param>
         /// <param name="slackChannel">The slack channel.</param>
@@ -121,7 +121,7 @@ namespace Edison.Framework
             int testRepeatIndex,
             string errorMessage,
             string stackTrace,
-            TimeSpan timeTaken,
+            TimeSpan duration,
             string version,
             IEnumerable<string> authors)
         {
@@ -134,7 +134,7 @@ namespace Edison.Framework
             FullName = GetName(GetParameters(fixtureParameters), GetParameters(testParameters));
             ErrorMessage = errorMessage;
             StackTrace = stackTrace;
-            TimeTaken = timeTaken;
+            Duration = duration;
             Version = version;
             Authors = authors;
             CreateDateTime = DateTime.Now;

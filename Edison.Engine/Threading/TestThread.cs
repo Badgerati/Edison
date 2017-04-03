@@ -161,7 +161,7 @@ namespace Edison.Engine.Threading
         /// <param name="teardown">The teardown method for the test.</param>
         private void RunTestCase(MethodInfo test, TestCaseAttribute testCase, int testRepeat, IEnumerable<MethodInfo> setup, IEnumerable<MethodInfo> teardown)
         {
-            var timeTaken = new Stopwatch();
+            var duration = new Stopwatch();
             var testResult = default(TestResult);
 
             var setupDone = false;
@@ -186,24 +186,24 @@ namespace Edison.Engine.Threading
                     default(IEnumerable<string>));
 
                 // start the stop watch for test duration
-                timeTaken.Restart();
+                duration.Restart();
 
                 // if the global setup failed, this case auto-fails
                 if (GlobalSetupException != default(Exception))
                 {
-                    testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                    testResult = PopulateTestResultOnException(test, testResult, GlobalSetupException, false, false, setupDone, teardownDone, testDone, duration.Elapsed);
                 }
 
                 // if the activation of the method failed, this case auto-fails
                 else if (ActivatorException != default(Exception))
                 {
-                    testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, timeTaken.Elapsed);
+                    testResult = PopulateTestResultOnException(test, testResult, ActivatorException, true, true, true, true, true, duration.Elapsed);
                 }
 
                 // if the test fixture setup failed, this case auto-fails
                 else if (FixtureSetupException != default(Exception))
                 {
-                    testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                    testResult = PopulateTestResultOnException(test, testResult, FixtureSetupException, true, false, setupDone, teardownDone, testDone, duration.Elapsed);
                 }
 
                 // otherwise, run the test case
@@ -218,7 +218,7 @@ namespace Edison.Engine.Threading
                     testDone = true;
 
                     // populate the initial test result as success
-                    testResult = PopulateTestResult(test, testResult, TestResultState.Success, timeTaken.Elapsed);
+                    testResult = PopulateTestResult(test, testResult, TestResultState.Success, duration.Elapsed);
 
                     // run the test's teardown
                     ReflectionRepository.Invoke(teardown, Activator, testResult);
@@ -226,12 +226,12 @@ namespace Edison.Engine.Threading
                 }
 
                 // stop timer for duration
-                timeTaken.Stop();
+                duration.Stop();
             }
             catch (Exception ex)
             {
                 // the test case failed, populate the result as failed
-                testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, timeTaken.Elapsed);
+                testResult = PopulateTestResultOnException(test, testResult, ex, true, true, setupDone, teardownDone, testDone, duration.Elapsed);
 
                 // attempt to the the test's teardown if it wasn't the teardown that failed first time
                 if (testResult.State != TestResultState.TeardownError && testResult.State != TestResultState.TeardownFailure)
@@ -243,14 +243,14 @@ namespace Edison.Engine.Threading
                     catch (Exception ex2)
                     {
                         // if the teardown failed, populate the result appropriately
-                        testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, timeTaken.Elapsed);
+                        testResult = PopulateTestResultOnException(test, testResult, ex2, true, true, true, false, true, duration.Elapsed);
                     }
                 }
 
                 // if the timer is still running, stop it
-                if (timeTaken.IsRunning)
+                if (duration.IsRunning)
                 {
-                    timeTaken.Stop();
+                    duration.Stop();
                 }
             }
 
@@ -258,7 +258,7 @@ namespace Edison.Engine.Threading
             ResultQueue.AddOrUpdate(testResult);
         }
 
-        private TestResult PopulateTestResultOnException(MethodInfo testMethod, TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan time)
+        private TestResult PopulateTestResultOnException(MethodInfo testMethod, TestResult result, Exception ex, bool globalSetup, bool fixSetup, bool setup, bool teardown, bool test, TimeSpan duration)
         {
             var hasInner = ex.InnerException != default(Exception);
             var innerExceptionType = hasInner ? ex.InnerException.GetType() : default(Type);
@@ -296,7 +296,7 @@ namespace Edison.Engine.Threading
             {
                 if (hasInner && CheckExpectedException(testMethod, isAssertFail, ex.InnerException))
                 {
-                    return PopulateTestResult(testMethod, result, TestResultState.Success, time);
+                    return PopulateTestResult(testMethod, result, TestResultState.Success, duration);
                 }
 
                 state = isAssertFail
@@ -316,7 +316,7 @@ namespace Edison.Engine.Threading
                 state = TestResultState.Error;
             }
 
-            return PopulateTestResult(testMethod, result, state, time, error, stack);
+            return PopulateTestResult(testMethod, result, state, duration, error, stack);
         }
 
         /// <summary>
@@ -325,17 +325,17 @@ namespace Edison.Engine.Threading
         /// <param name="testMethod">The test method.</param>
         /// <param name="result">The result to populate.</param>
         /// <param name="state">The actual test result.</param>
-        /// <param name="time">The duration of the test.</param>
+        /// <param name="duration">The duration of the test.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <param name="stackTrace">The stack trace.</param>
         /// <returns>A populated test result.</returns>
-        private TestResult PopulateTestResult(MethodInfo testMethod, TestResult result, TestResultState state, TimeSpan time, string errorMessage = "", string stackTrace = "")
+        private TestResult PopulateTestResult(MethodInfo testMethod, TestResult result, TestResultState state, TimeSpan duration, string errorMessage = "", string stackTrace = "")
         {
             // populate general values
             result.State = state;
             result.ErrorMessage = errorMessage;
             result.StackTrace = stackTrace;
-            result.TimeTaken = time;
+            result.Duration = duration;
 
             // if we have a test object, get test attribute values
             if (testMethod != default(MethodInfo))

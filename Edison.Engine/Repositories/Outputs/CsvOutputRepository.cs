@@ -55,7 +55,7 @@ namespace Edison.Engine.Repositories.Outputs
                 withTrail ? Environment.NewLine : string.Empty,
                 RemoveNewLines(result.FullName),
                 result.State,
-                result.TimeTaken,
+                result.Duration,
                 RemoveNewLines(result.ErrorMessage),
                 RemoveNewLines(result.StackTrace),
                 result.CreateDateTimeString,

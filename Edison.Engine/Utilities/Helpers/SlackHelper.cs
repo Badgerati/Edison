@@ -69,7 +69,7 @@ namespace Edison.Engine.Utilities.Helpers
             {
                 title = "Duration",
                 @short = true,
-                value = result.TimeTaken.ToString("h'h 'm'm 's's 'fff'ms'")
+                value = result.Duration.ToString("h'h 'm'm 's's 'fff'ms'")
             });
 
             if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
