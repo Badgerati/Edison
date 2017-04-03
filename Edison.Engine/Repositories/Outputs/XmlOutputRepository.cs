@@ -57,7 +57,7 @@ namespace Edison.Engine.Repositories.Outputs
                 withTrail ? Environment.NewLine : string.Empty,
                 result.FullName.ToHtmlString(),
                 result.State,
-                result.TimeTaken,
+                result.Duration,
                 result.ErrorMessage.ToHtmlString(),
                 result.StackTrace.ToHtmlString(),
                 result.CreateDateTimeString.ToHtmlString(),

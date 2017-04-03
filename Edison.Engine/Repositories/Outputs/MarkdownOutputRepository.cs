@@ -56,7 +56,7 @@ namespace Edison.Engine.Repositories.Outputs
                 result.FullName,
                 result.Assembly,
                 result.State,
-                result.TimeTaken,
+                result.Duration,
                 result.CreateDateTimeString,
                 result.State == TestResultState.Success
                     ? string.Empty

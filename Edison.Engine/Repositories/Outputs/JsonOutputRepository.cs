@@ -55,7 +55,7 @@ namespace Edison.Engine.Repositories.Outputs
                 withTrail ? ("," + Environment.NewLine) : string.Empty,
                 JsonFormat(result.FullName),
                 result.State,
-                result.TimeTaken,
+                result.Duration,
                 JsonFormat(result.ErrorMessage),
                 JsonFormat(result.StackTrace),
                 JsonFormat(result.CreateDateTimeString),

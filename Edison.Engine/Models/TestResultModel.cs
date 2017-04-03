@@ -44,12 +44,12 @@ namespace Edison.Engine.Models
         public TestResultState TestState { get; set; }
 
         /// <summary>
-        /// Gets or sets the time taken.
+        /// Gets or sets the duration of the test in milliseconds.
         /// </summary>
         /// <value>
-        /// The time taken.
+        /// The duration of the test in milliseconds.
         /// </value>
-        public TimeSpan TimeTaken { get; set; }
+        public int Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the error message.
@@ -101,7 +101,7 @@ namespace Edison.Engine.Models
             TestName = result.FullName;
             NameSpace = result.NameSpace;
             TestState = result.State;
-            TimeTaken = result.TimeTaken;
+            Duration = (int)result.Duration.TotalMilliseconds;
             ErrorMessage = result.ErrorMessage;
             StackTrace = result.StackTrace;
             CreateDate = result.CreateDateTime;
